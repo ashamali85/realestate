@@ -35,7 +35,7 @@ export function GeographyEditor({
   };
 
   return (
-    <div className="card">
+    <div>
       <div className="section-title">
         <div className="row" style={{ gap: 6 }}>
           <button
@@ -80,7 +80,7 @@ export function GeographyEditor({
               </div>
             </form>
           )}
-          <div className="table-card" style={{ marginTop: 12 }}>
+          <div className="table-card scroll-area" style={{ marginTop: 12 }}>
             <table>
               <thead>
                 <tr>
@@ -159,7 +159,7 @@ export function GeographyEditor({
               </div>
             </form>
           )}
-          <div className="table-card" style={{ marginTop: 12 }}>
+          <div className="table-card scroll-area" style={{ marginTop: 12 }}>
             <table>
               <thead>
                 <tr>

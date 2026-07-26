@@ -11,6 +11,7 @@ import { t, localName, type Locale } from '@/lib/i18n';
 import type { FormLookups } from '@/lib/lookups';
 import { MapPicker } from './MapPicker';
 import { CollapsibleSection } from './CollapsibleSection';
+import { ImageDropzone } from './ImageDropzone';
 
 const initial: RequestFormState = {};
 
@@ -192,10 +193,7 @@ export function RequestForm({
               ))}
             </div>
           )}
-          <input type="file" name="images" multiple accept="image/jpeg,image/png,image/webp" />
-          <span className="small muted" style={{ display: 'block', marginTop: 6 }}>
-            {t('f_images_hint', locale)}
-          </span>
+          <ImageDropzone locale={locale} />
         </CollapsibleSection>
 
         <CollapsibleSection title={t('sec_notes', locale)}>

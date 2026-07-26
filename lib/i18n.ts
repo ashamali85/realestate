@@ -78,6 +78,8 @@ const DICT: Dict = {
   f_lng: { en: 'Longitude', ar: 'خط الطول' },
   f_choose: { en: 'Choose…', ar: 'اختر…' },
   f_images_hint: { en: 'JPEG, PNG or WebP, up to 4 MB each.', ar: 'JPEG أو PNG أو WebP، حتى 4 ميغابايت لكل صورة.' },
+  dz_prompt: { en: 'Drag photos here', ar: 'اسحب الصور إلى هنا' },
+  dz_browse: { en: 'Browse files', ar: 'تصفّح الملفات' },
   f_notes_ph: { en: 'Anything else worth recording…', ar: 'أي شيء آخر يستحق التسجيل…' },
 
   btn_save: { en: 'Save request', ar: 'حفظ الطلب' },

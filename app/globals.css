@@ -166,3 +166,18 @@ tr.row-inactive td { opacity: 0.55; }
 .thumb-del button:hover { background: var(--danger); }
 
 /* RTL: flip the map/detail nothing needed (logical props used throughout) */
+
+/* Dropzone ---------------------------------------------------------------- */
+.dropzone { border: 2px dashed var(--line); border-radius: var(--radius-sm); background: var(--surface-2); padding: 28px 20px; text-align: center; cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease; }
+.dropzone:hover { border-color: var(--brand-2); background: var(--brand-tint); }
+.dropzone:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.dropzone-over { border-color: var(--brand); background: var(--brand-tint); }
+.dropzone-icon { color: var(--brand); display: flex; justify-content: center; margin-bottom: 8px; }
+.dropzone-text { font-weight: 800; color: var(--ink); }
+.dropzone-sub { font-size: 0.82rem; color: var(--ink-soft); margin-top: 4px; }
+.dropzone-btn { margin-top: 12px; pointer-events: none; }
+.dropzone-input { display: none; }
+
+/* Scroll areas (lookup tables) ------------------------------------------- */
+.scroll-area { max-height: 360px; overflow-y: auto; }
+.scroll-area table thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }

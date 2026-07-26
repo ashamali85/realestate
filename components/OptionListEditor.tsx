@@ -27,9 +27,9 @@ export function OptionListEditor({
   const [editingId, setEditingId] = useState<string | null>(null);
 
   return (
-    <div className="card">
-      <div className="section-title">
-        <h3>{title}</h3>
+    <div>
+      <div className="row-between" style={{ marginBottom: 12 }}>
+        <span className="muted small">{title}</span>
         <button
           type="button"
           className="btn btn-ghost btn-sm"
@@ -58,7 +58,7 @@ export function OptionListEditor({
         </form>
       )}
 
-      <div className="table-card" style={{ marginTop: 12 }}>
+      <div className="table-card scroll-area" style={{ marginTop: 12 }}>
         <table>
           <thead>
             <tr>
