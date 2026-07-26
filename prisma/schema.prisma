@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// PostgreSQL on Neon. DATABASE_URL = pooled; DIRECT_URL = non-pooled (used by
+// prisma db push / migrations).
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Staff who log in.
+//   SUPER_ADMIN -> controls everything, manages users and lookups
+//   INSPECTOR   -> creates and edits inspection requests
+// Role is stored as a string (validated by zod at the app layer).
+// ---------------------------------------------------------------------------
+model User {
+  id           String  @id @default(cuid())
+  name         String
+  username     String  @unique
+  email        String? @unique
+  passwordHash String
+  role         String  @default("INSPECTOR")
+  isActive     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requestsCreated InspectionRequest[] @relation("RequestCreatedBy")
+  auditLogs       AuditLog[]
+}
+
+// ---------------------------------------------------------------------------
+// Geography: Governorate -> Area (one-to-many). Selecting an Area determines
+// the Governorate automatically, so the request stores areaId and derives the
+// governorate through the relation.
+// ---------------------------------------------------------------------------
+model Governorate {
+  id           String  @id @default(cuid())
+  nameEn       String  @unique
+  nameAr       String
+  displayOrder Int     @default(0)
+  isActive     Boolean @default(true)
+
+  areas Area[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Area {
+  id            String  @id @default(cuid())
+  nameEn        String
+  nameAr        String
+  displayOrder  Int     @default(0)
+  isActive      Boolean @default(true)
+
+  governorateId String
+  governorate   Governorate @relation(fields: [governorateId], references: [id], onDelete: Restrict)
+
+  requests InspectionRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([governorateId, nameEn])
+  @@index([governorateId])
+}
+
+// ---------------------------------------------------------------------------
+// Maintainable lookups. All five share the same shape. Each has a `kind` so a
+// single admin UI and a single table-per-kind stay consistent. Kept as
+// separate models (rather than one polymorphic table) for referential
+// integrity on the request.
+// ---------------------------------------------------------------------------
+model PurposeOption {
+  id           String              @id @default(cuid())
+  nameEn       String
+  nameAr       String
+  displayOrder Int                 @default(0)
+  isActive     Boolean             @default(true)
+  requests     InspectionRequest[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@unique([nameEn])
+}
+
+model StatusOption {
+  id           String              @id @default(cuid())
+  nameEn       String
+  nameAr       String
+  displayOrder Int                 @default(0)
+  isActive     Boolean             @default(true)
+  requests     InspectionRequest[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@unique([nameEn])
+}
+
+model ExteriorOption {
+  id           String              @id @default(cuid())
+  nameEn       String
+  nameAr       String
+  displayOrder Int                 @default(0)
+  isActive     Boolean             @default(true)
+  requests     InspectionRequest[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@unique([nameEn])
+}
+
+model ElevatorOption {
+  id           String              @id @default(cuid())
+  nameEn       String
+  nameAr       String
+  displayOrder Int                 @default(0)
+  isActive     Boolean             @default(true)
+  requests     InspectionRequest[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@unique([nameEn])
+}
+
+model AcOption {
+  id           String              @id @default(cuid())
+  nameEn       String
+  nameAr       String
+  displayOrder Int                 @default(0)
+  isActive     Boolean             @default(true)
+  requests     InspectionRequest[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@unique([nameEn])
+}
+
+// ---------------------------------------------------------------------------
+// The inspection request itself.
+// ---------------------------------------------------------------------------
+model InspectionRequest {
+  id        String @id @default(cuid())
+  reference String @unique // human-facing, e.g. INS-2026-0001
+
+  // Address
+  areaId      String
+  area        Area   @relation(fields: [areaId], references: [id], onDelete: Restrict)
+  block       String
+  street      String
+  houseNumber String
+
+  // Location (set via the Google Map pin)
+  latitude  Float?
+  longitude Float?
+
+  // Client
+  clientName  String
+  clientPhone String
+  clientEmail String?
+
+  // Property details + lookups
+  purposeId   String
+  purpose     PurposeOption  @relation(fields: [purposeId], references: [id], onDelete: Restrict)
+  statusId    String
+  status      StatusOption   @relation(fields: [statusId], references: [id], onDelete: Restrict)
+  exteriorId  String
+  exterior    ExteriorOption @relation(fields: [exteriorId], references: [id], onDelete: Restrict)
+  elevatorId  String
+  elevator    ElevatorOption @relation(fields: [elevatorId], references: [id], onDelete: Restrict)
+  acId        String
+  ac          AcOption       @relation(fields: [acId], references: [id], onDelete: Restrict)
+
+  yearsOld  Int
+  floors    Int
+
+  notes String?
+
+  images RequestImage[]
+
+  createdById String
+  createdBy   User   @relation("RequestCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([areaId])
+  @@index([createdAt])
+  @@index([createdById])
+}
+
+// Property photos, bytes stored in Postgres in a side table so listing
+// requests never pulls binary data. Served via /api/request-image/[id].
+model RequestImage {
+  id        String @id @default(cuid())
+  requestId String
+  request   InspectionRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  data      Bytes
+  mimeType  String
+  byteSize  Int
+  width     Int?
+  height    Int?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([requestId, sortOrder])
+}
+
+// Sequential per-year counter for reference numbers, incremented atomically.
+model Counter {
+  id    String @id
+  value Int    @default(0)
+}
+
+// Immutable log of every mutation.
+model AuditLog {
+  id           String   @id @default(cuid())
+  actorUserId  String
+  actor        User     @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+  action       String
+  entityType   String
+  entityId     String
+  entityName   String?
+  details      String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+}
