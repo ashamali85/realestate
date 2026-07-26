@@ -89,7 +89,7 @@ const requestSchema = z.object({
   elevatorId: z.string().min(1, 'f_elevator'),
   acId: z.string().min(1, 'f_ac'),
   yearsOld: z.number().int().min(0).max(500),
-  floors: z.number().int().min(0).max(300),
+  floors: z.number().int().min(1, 'f_floors').max(3, 'f_floors'),
   notes: z.string().trim().max(2000).optional()
 });
 
@@ -289,12 +289,18 @@ export async function updateRequest(
   redirect(`/requests/${id}`);
 }
 
-export async function deleteRequestImage(formData: FormData) {
+/**
+ * Bound-argument delete used by a button `formAction` inside the edit form.
+ * Because the id is bound server-side, this lives inside the main form without
+ * a nested <form> and without depending on the form's own fields.
+ */
+export async function deleteRequestImageById(imageId: string, requestId: string) {
   const user = await requireUser();
-  const imageId = getString(formData, 'imageId');
-  const requestId = getString(formData, 'requestId');
   if (!imageId) return;
   await prisma.requestImage.delete({ where: { id: imageId } });
   await logAction(user.id, 'DELETE_IMAGE', 'RequestImage', imageId);
-  if (requestId) revalidatePath(`/requests/${requestId}/edit`);
+  if (requestId) {
+    revalidatePath(`/requests/${requestId}/edit`);
+    revalidatePath(`/requests/${requestId}`);
+  }
 }

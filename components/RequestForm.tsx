@@ -4,7 +4,6 @@ import { useActionState, useMemo, useState } from 'react';
 import {
   createRequest,
   updateRequest,
-  deleteRequestImage,
   type RequestFormState
 } from '@/lib/actions';
 import { t, localName, type Locale } from '@/lib/i18n';
@@ -12,6 +11,7 @@ import type { FormLookups } from '@/lib/lookups';
 import { MapPicker } from './MapPicker';
 import { CollapsibleSection } from './CollapsibleSection';
 import { ImageDropzone } from './ImageDropzone';
+import { ExistingImages } from './ExistingImages';
 
 const initial: RequestFormState = {};
 
@@ -163,7 +163,12 @@ export function RequestForm({
             </div>
             <div className="field">
               <label htmlFor="floors">{t('f_floors', locale)}</label>
-              <input id="floors" name="floors" type="number" min={0} max={300} required defaultValue={existing?.floors ?? ''} />
+              <select id="floors" name="floors" required defaultValue={existing?.floors ?? ''}>
+                <option value="">{t('f_choose', locale)}</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
             </div>
             <div className="field" aria-hidden="true" />
           </div>
@@ -171,27 +176,7 @@ export function RequestForm({
 
         <CollapsibleSection title={t('sec_images', locale)}>
           {isEdit && existing!.images.length > 0 && (
-            <div className="thumb-grid" style={{ marginBottom: 12 }}>
-              {existing!.images.map((img) => (
-                <div className="thumb" key={img.id}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/api/request-image/${img.id}`} alt="" loading="lazy" />
-                  <form
-                    action={deleteRequestImage}
-                    className="thumb-del"
-                    onSubmit={(e) => {
-                      if (!window.confirm(t('confirm_delete', locale))) e.preventDefault();
-                    }}
-                  >
-                    <input type="hidden" name="imageId" value={img.id} />
-                    <input type="hidden" name="requestId" value={existing!.id} />
-                    <button type="submit" aria-label="delete">
-                      ×
-                    </button>
-                  </form>
-                </div>
-              ))}
-            </div>
+            <ExistingImages images={existing!.images} requestId={existing!.id} locale={locale} />
           )}
           <ImageDropzone locale={locale} />
         </CollapsibleSection>
