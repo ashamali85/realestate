@@ -5,8 +5,8 @@ import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { t, localName } from '@/lib/i18n';
 import { formatDate } from '@/lib/utils';
-import { deleteRequest } from '@/lib/actions';
 import { TopBar } from '@/components/TopBar';
+import { DeleteRequestButton } from '@/components/DeleteRequestButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,14 +63,10 @@ export default async function RequestDetailPage({
             <Link href="/requests" className="btn btn-ghost btn-sm">
               {t('requests_title', locale)}
             </Link>
-            {canDelete && (
-              <form action={deleteRequest}>
-                <input type="hidden" name="id" value={r.id} />
-                <button type="submit" className="btn btn-danger btn-sm">
-                  {t('btn_delete', locale)}
-                </button>
-              </form>
-            )}
+            <Link href={`/requests/${r.id}/edit`} className="btn btn-primary btn-sm">
+              {t('btn_edit', locale)}
+            </Link>
+            {canDelete && <DeleteRequestButton id={r.id} locale={locale} />}
           </div>
         </div>
 

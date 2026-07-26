@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { t, localName } from '@/lib/i18n';
 import { formatDate } from '@/lib/utils';
 import { TopBar } from '@/components/TopBar';
+import { RequestsTable, type RequestRow } from '@/components/RequestsTable';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,11 +15,22 @@ export default async function RequestsPage() {
 
   const requests = await prisma.inspectionRequest.findMany({
     orderBy: { createdAt: 'desc' },
-    include: {
-      area: { include: { governorate: true } }
-    },
-    take: 200
+    include: { area: { include: { governorate: true } } },
+    take: 500
   });
+
+  const rows: RequestRow[] = requests.map((r) => ({
+    id: r.id,
+    reference: r.reference,
+    clientName: r.clientName,
+    clientPhone: r.clientPhone,
+    area: localName(r.area, locale),
+    governorate: localName(r.area.governorate, locale),
+    created: formatDate(r.createdAt)
+  }));
+
+  const governorates = Array.from(new Set(rows.map((r) => r.governorate))).sort();
+  const areas = Array.from(new Set(rows.map((r) => r.area))).sort();
 
   return (
     <>
@@ -31,7 +43,7 @@ export default async function RequestsPage() {
           </Link>
         </div>
 
-        {requests.length === 0 ? (
+        {rows.length === 0 ? (
           <div className="card empty">
             <div className="empty-icon">🏠</div>
             <p>{t('requests_empty', locale)}</p>
@@ -40,36 +52,7 @@ export default async function RequestsPage() {
             </Link>
           </div>
         ) : (
-          <div className="table-card">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t('col_reference', locale)}</th>
-                  <th>{t('col_client', locale)}</th>
-                  <th>{t('col_area', locale)}</th>
-                  <th>{t('col_governorate', locale)}</th>
-                  <th>{t('col_created', locale)}</th>
-                  <th>{t('col_actions', locale)}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests.map((r) => (
-                  <tr key={r.id}>
-                    <td className="mono">{r.reference}</td>
-                    <td>{r.clientName}</td>
-                    <td>{localName(r.area, locale)}</td>
-                    <td>{localName(r.area.governorate, locale)}</td>
-                    <td className="small muted">{formatDate(r.createdAt, locale)}</td>
-                    <td>
-                      <Link href={`/requests/${r.id}`} className="btn btn-ghost btn-sm">
-                        {t('btn_view', locale)}
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RequestsTable rows={rows} locale={locale} governorates={governorates} areas={areas} />
         )}
       </main>
     </>

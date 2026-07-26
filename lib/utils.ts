@@ -24,8 +24,9 @@ export function getFloat(form: FormData, key: string): number | null {
   return Number(v);
 }
 
-export function formatDate(d: Date, locale: string): string {
-  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-KW' : 'en-GB', {
+export function formatDate(d: Date, _locale?: string): string {
+  // Dates are always shown in English, even in the Arabic view, per requirement.
+  return new Intl.DateTimeFormat('en-GB', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'

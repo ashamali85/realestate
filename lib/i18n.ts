@@ -110,7 +110,52 @@ const DICT: Dict = {
 
   saved_ok: { en: 'Saved.', ar: 'تم الحفظ.' },
   required: { en: 'This field is required.', ar: 'هذا الحقل مطلوب.' },
-  confirm_delete: { en: 'Delete this permanently?', ar: 'حذف هذا نهائيًا؟' }
+  confirm_delete: { en: 'Delete this permanently?', ar: 'حذف هذا نهائيًا؟' },
+  confirm_delete_request: {
+    en: 'Are you sure you want to delete this request? This cannot be undone.',
+    ar: 'هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن ذلك.'
+  },
+
+  // Filters
+  filter_all: { en: 'All', ar: 'الكل' },
+  filter_clear: { en: 'Clear filters', ar: 'مسح عوامل التصفية' },
+  showing_n: { en: 'Showing', ar: 'عرض' },
+  of_n: { en: 'of', ar: 'من' },
+
+  // Lookups admin
+  lookups_intro: {
+    en: 'Add, rename, reorder or deactivate the options used across request forms.',
+    ar: 'أضف أو أعد تسمية أو رتّب أو عطّل الخيارات المستخدمة في نماذج الطلبات.'
+  },
+  lookup_add_new: { en: 'Add new', ar: 'إضافة جديد' },
+  lookup_order: { en: 'Order', ar: 'الترتيب' },
+  gov_title: { en: 'Governorates', ar: 'المحافظات' },
+  area_title: { en: 'Areas', ar: 'المناطق' },
+  area_of_gov: { en: 'Governorate', ar: 'المحافظة' },
+  lookup_inuse: {
+    en: 'In use by requests — deactivate instead of deleting.',
+    ar: 'مستخدم في الطلبات — قم بالتعطيل بدلاً من الحذف.'
+  },
+
+  // Users admin
+  users_intro: {
+    en: 'Create inspector and admin accounts, and activate or deactivate them.',
+    ar: 'أنشئ حسابات المفتشين والمديرين، وقم بتفعيلها أو تعطيلها.'
+  },
+  user_add: { en: 'Add user', ar: 'إضافة مستخدم' },
+  user_new_password: { en: 'New password', ar: 'كلمة مرور جديدة' },
+  user_reset_password: { en: 'Reset password', ar: 'إعادة تعيين كلمة المرور' },
+  user_leave_blank: { en: 'Leave blank to keep current', ar: 'اتركه فارغًا للإبقاء على الحالي' },
+  user_activate: { en: 'Activate', ar: 'تفعيل' },
+  user_deactivate: { en: 'Deactivate', ar: 'تعطيل' },
+  user_status: { en: 'Status', ar: 'الحالة' },
+  user_inactive: { en: 'Inactive', ar: 'غير مفعّل' },
+  user_self_note: { en: 'You', ar: 'أنت' },
+  password_too_short: { en: 'Password must be at least 8 characters.', ar: 'يجب أن تكون كلمة المرور 8 أحرف على الأقل.' },
+  username_taken: { en: 'That username is already taken.', ar: 'اسم المستخدم مستخدم بالفعل.' },
+
+  btn_save_changes: { en: 'Save changes', ar: 'حفظ التغييرات' },
+  section_toggle: { en: 'Toggle section', ar: 'طيّ/فتح القسم' }
 };
 
 export function t(key: keyof typeof DICT | string, locale: Locale): string {

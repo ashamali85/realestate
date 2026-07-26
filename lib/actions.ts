@@ -107,8 +107,8 @@ function collectErrors(err: z.ZodError): Record<string, string> {
   return out;
 }
 
-async function saveImages(requestId: string, files: File[]): Promise<void> {
-  let order = 0;
+async function saveImages(requestId: string, files: File[], startOrder = 0): Promise<void> {
+  let order = startOrder;
   for (const file of files.slice(0, MAX_IMAGES)) {
     if (!file || file.size === 0) continue;
     const bytes = new Uint8Array(await file.arrayBuffer());
@@ -213,4 +213,88 @@ export async function deleteRequest(formData: FormData) {
 
   revalidatePath('/requests');
   redirect('/requests');
+}
+
+export async function updateRequest(
+  _prev: RequestFormState,
+  formData: FormData
+): Promise<RequestFormState> {
+  const user = await requireUser();
+  const id = getString(formData, 'id');
+  if (!id) return { error: 'required' };
+
+  const parsed = requestSchema.safeParse({
+    areaId: getString(formData, 'areaId'),
+    block: getString(formData, 'block'),
+    street: getString(formData, 'street'),
+    houseNumber: getString(formData, 'houseNumber'),
+    latitude: getFloat(formData, 'latitude'),
+    longitude: getFloat(formData, 'longitude'),
+    clientName: getString(formData, 'clientName'),
+    clientPhone: getString(formData, 'clientPhone'),
+    clientEmail: getOptionalString(formData, 'clientEmail') ?? '',
+    purposeId: getString(formData, 'purposeId'),
+    statusId: getString(formData, 'statusId'),
+    exteriorId: getString(formData, 'exteriorId'),
+    elevatorId: getString(formData, 'elevatorId'),
+    acId: getString(formData, 'acId'),
+    yearsOld: getInt(formData, 'yearsOld') ?? -1,
+    floors: getInt(formData, 'floors') ?? -1,
+    notes: getOptionalString(formData, 'notes')
+  });
+
+  if (!parsed.success) {
+    return { error: 'required', fieldErrors: collectErrors(parsed.error) };
+  }
+
+  const d = parsed.data;
+  const area = await prisma.area.findUnique({ where: { id: d.areaId } });
+  if (!area) return { error: 'f_area', fieldErrors: { areaId: 'f_area' } };
+
+  const existing = await prisma.inspectionRequest.findUnique({ where: { id } });
+  if (!existing) return { error: 'required' };
+
+  await prisma.inspectionRequest.update({
+    where: { id },
+    data: {
+      areaId: d.areaId,
+      block: d.block,
+      street: d.street,
+      houseNumber: d.houseNumber,
+      latitude: d.latitude,
+      longitude: d.longitude,
+      clientName: d.clientName,
+      clientPhone: d.clientPhone,
+      clientEmail: d.clientEmail ? d.clientEmail : null,
+      purposeId: d.purposeId,
+      statusId: d.statusId,
+      exteriorId: d.exteriorId,
+      elevatorId: d.elevatorId,
+      acId: d.acId,
+      yearsOld: d.yearsOld,
+      floors: d.floors,
+      notes: d.notes ?? null
+    }
+  });
+
+  // Newly uploaded images are appended (existing ones are kept).
+  const files = formData.getAll('images').filter((f): f is File => f instanceof File);
+  const existingCount = await prisma.requestImage.count({ where: { requestId: id } });
+  await saveImages(id, files, existingCount);
+
+  await logAction(user.id, 'UPDATE', 'InspectionRequest', id, existing.reference);
+
+  revalidatePath('/requests');
+  revalidatePath(`/requests/${id}`);
+  redirect(`/requests/${id}`);
+}
+
+export async function deleteRequestImage(formData: FormData) {
+  const user = await requireUser();
+  const imageId = getString(formData, 'imageId');
+  const requestId = getString(formData, 'requestId');
+  if (!imageId) return;
+  await prisma.requestImage.delete({ where: { id: imageId } });
+  await logAction(user.id, 'DELETE_IMAGE', 'RequestImage', imageId);
+  if (requestId) revalidatePath(`/requests/${requestId}/edit`);
 }

@@ -67,15 +67,28 @@ inputs — everything else still works.
 - Default options for all five property lookups (English + Arabic).
 - One super admin from the SEED_ADMIN_* variables.
 
-## Not yet built (next chunk)
-- Lookups admin (add/edit/deactivate areas, governorates, and the five option
-  lists) — the tables and seed exist; the management UI is pending.
-- Users admin (create inspectors, deactivate, reset passwords).
-- Edit an existing request.
-- Inspection rating/scoring (deferred by request).
+## Admin (super admin only)
+- **Lookups** (`/lookups`) — manage governorates, areas (each tied to a
+  governorate), and all five option lists (purpose, status, exterior,
+  elevator, AC). Add / edit / reorder / activate. Deleting an option that is
+  referenced by a request deactivates it instead, to preserve history.
+- **Users** (`/users`) — create inspector or super-admin accounts, activate /
+  deactivate, and reset passwords. A super admin cannot deactivate their own
+  account.
 
-Until the Lookups and Users admin screens are built, manage those tables with
-`npm run db:studio` (Prisma Studio) or by editing and re-running the seed.
+Both are restricted to `SUPER_ADMIN`: guarded in the nav, at the edge by
+middleware, and authoritatively in every server action.
+
+## Requests
+- List with per-column filters (text search over reference/client/phone, plus
+  governorate and area dropdowns) and a live count.
+- View, and **Edit** every request (edit button on both the list and the detail
+  view). Editing appends new photos and lets you remove existing ones.
+- **Delete** (super admin) prompts for confirmation first.
+- All dates display in English (en-GB) even in the Arabic view.
+
+## Not yet built
+- Inspection rating/scoring (deferred by request).
 
 ## Roles
 - `SUPER_ADMIN` — everything, including delete, and (once built) lookups + users
