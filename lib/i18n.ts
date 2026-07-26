@@ -80,6 +80,11 @@ const DICT: Dict = {
   f_images_hint: { en: 'JPEG, PNG or WebP, up to 4 MB each.', ar: 'JPEG أو PNG أو WebP، حتى 4 ميغابايت لكل صورة.' },
   dz_prompt: { en: 'Drag photos here', ar: 'اسحب الصور إلى هنا' },
   dz_browse: { en: 'Browse files', ar: 'تصفّح الملفات' },
+  dz_wrong_type: { en: 'Only JPEG, PNG or WebP images are allowed.', ar: 'يُسمح فقط بصور JPEG أو PNG أو WebP.' },
+  dz_too_much: {
+    en: 'Total attachments are too large. Remove some or add them in smaller batches.',
+    ar: 'حجم المرفقات كبير جدًا. أزل بعضها أو أضفها على دفعات أصغر.'
+  },
   f_notes_ph: { en: 'Anything else worth recording…', ar: 'أي شيء آخر يستحق التسجيل…' },
 
   btn_save: { en: 'Save request', ar: 'حفظ الطلب' },
