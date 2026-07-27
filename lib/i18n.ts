@@ -83,6 +83,7 @@ const DICT: Dict = {
   dz_wrong_type: { en: 'Only JPEG, PNG or WebP images are allowed.', ar: 'يُسمح فقط بصور JPEG أو PNG أو WebP.' },
   dz_uploading: { en: 'Uploading…', ar: 'جارٍ الرفع…' },
   dz_upload_failed: { en: 'Upload failed. Please try again.', ar: 'فشل الرفع. حاول مرة أخرى.' },
+  dz_upload_partial: { en: 'Uploaded {n}, but the rest failed. Please retry the others.', ar: 'تم رفع {n}، لكن فشل الباقي. أعد المحاولة.' },
   dz_remaining: { en: '{n} left', ar: 'يتبقّى {n}' },
   dz_max_reached: { en: 'Up to {n} photos.', ar: 'حتى {n} صور.' },
   dz_too_much: {
@@ -121,6 +122,8 @@ const DICT: Dict = {
   u_active: { en: 'Active', ar: 'مُفعّل' },
 
   saved_ok: { en: 'Saved.', ar: 'تم الحفظ.' },
+  loading: { en: 'Please wait…', ar: 'يرجى الانتظار…' },
+  saving: { en: 'Saving…', ar: 'جارٍ الحفظ…' },
   upload_partial: {
     en: 'The request was saved, but some photos failed to upload. Open the request and try adding them again.',
     ar: 'تم حفظ الطلب، لكن تعذّر رفع بعض الصور. افتح الطلب وحاول إضافتها مرة أخرى.'

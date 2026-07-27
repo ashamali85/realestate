@@ -3,10 +3,12 @@
 import { useTransition } from 'react';
 import { deleteRequest } from '@/lib/actions';
 import { useConfirm } from './ConfirmDialog';
+import { useLoading } from './LoadingOverlay';
 import { t, type Locale } from '@/lib/i18n';
 
 export function DeleteRequestButton({ id, locale }: { id: string; locale: Locale }) {
   const confirm = useConfirm();
+  const loading = useLoading();
   const [pending, startTransition] = useTransition();
 
   async function onClick() {
@@ -17,9 +19,11 @@ export function DeleteRequestButton({ id, locale }: { id: string; locale: Locale
     });
     if (!ok) return;
     startTransition(async () => {
-      const fd = new FormData();
-      fd.append('id', id);
-      await deleteRequest(fd); // ends in redirect('/requests')
+      await loading.run(async () => {
+        const fd = new FormData();
+        fd.append('id', id);
+        await deleteRequest(fd); // ends in redirect('/requests')
+      }, t('loading', locale));
     });
   }
 

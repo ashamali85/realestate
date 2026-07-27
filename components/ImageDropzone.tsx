@@ -44,6 +44,7 @@ export function ImageDropzone({
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
 
   const totalUsed = existingCount + savedCount + (requestId ? 0 : local.length);
   const remaining = Math.max(0, max - totalUsed);
@@ -76,22 +77,38 @@ export function ImageDropzone({
     }
 
     if (requestId) {
-      // EDIT mode: upload immediately.
+      // EDIT mode: upload each file as its OWN request, sequentially. This is
+      // exactly what "upload one by one" did manually — each request stays
+      // small, so it never hits the serverless body-size limit that made a
+      // single multi-file POST fail. We upload here and reload once at the end.
       setBusy(true);
+      let uploaded = 0;
       try {
-        const fd = new FormData();
-        fd.append('requestId', requestId);
-        for (const f of files) fd.append('images', f);
-        const res = await fetch('/api/request-image/upload', { method: 'POST', body: fd });
-        if (!res.ok) throw new Error(String(res.status));
-        const data: { saved: number } = await res.json();
-        setSavedCount((n) => n + (data.saved ?? files.length));
+        for (let i = 0; i < files.length; i++) {
+          setProgress({ done: i, total: files.length });
+          const fd = new FormData();
+          fd.append('requestId', requestId);
+          fd.append('images', files[i]!);
+          const res = await fetch('/api/request-image/upload', { method: 'POST', body: fd });
+          if (!res.ok) throw new Error(String(res.status));
+          uploaded++;
+        }
+        setSavedCount((n) => n + uploaded);
         // Refresh the server component so the saved thumbnails appear.
         window.location.reload();
       } catch {
-        setError(t('dz_upload_failed', locale));
+        setError(
+          uploaded > 0
+            ? t('dz_upload_partial', locale).replace('{n}', String(uploaded))
+            : t('dz_upload_failed', locale)
+        );
+        if (uploaded > 0) {
+          // Some succeeded — reload so at least those show, after a beat.
+          setTimeout(() => window.location.reload(), 1500);
+        }
       } finally {
         setBusy(false);
+        setProgress(null);
       }
     } else {
       // CREATE mode: hold locally, report up.
@@ -158,7 +175,11 @@ export function ImageDropzone({
           )}
         </div>
         <div className="dropzone-text">
-          {busy ? t('dz_uploading', locale) : t('dz_prompt', locale)}
+          {busy
+            ? progress
+              ? `${t('dz_uploading', locale)} ${progress.done + 1}/${progress.total}`
+              : t('dz_uploading', locale)
+            : t('dz_prompt', locale)}
         </div>
         <div className="dropzone-sub">
           {t('f_images_hint', locale)} · {t('dz_remaining', locale).replace('{n}', String(remaining))}

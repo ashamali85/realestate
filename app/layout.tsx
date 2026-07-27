@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getLocale } from '@/lib/locale';
 import { dir, t } from '@/lib/i18n';
 import { ConfirmProvider } from '@/components/ConfirmDialog';
+import { LoadingProvider } from '@/components/LoadingOverlay';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -24,7 +25,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <title>{t('app_name', locale)}</title>
       </head>
       <body className={locale === 'ar' ? 'is-rtl' : ''}>
-        <ConfirmProvider locale={locale}>{children}</ConfirmProvider>
+        <LoadingProvider locale={locale}>
+          <ConfirmProvider locale={locale}>{children}</ConfirmProvider>
+        </LoadingProvider>
       </body>
     </html>
   );

@@ -13,6 +13,7 @@ import { MapPicker } from './MapPicker';
 import { CollapsibleSection } from './CollapsibleSection';
 import { ImageDropzone } from './ImageDropzone';
 import { ExistingImages } from './ExistingImages';
+import { useLoading } from './LoadingOverlay';
 
 const initial: RequestFormState = {};
 
@@ -62,6 +63,7 @@ export function RequestForm({
   // new request is created. In edit mode the dropzone uploads immediately and
   // this stays empty, so re-saving never re-uploads anything.
   const filesRef = useRef<File[]>([]);
+  const loading = useLoading();
 
   const busy = pending || uploading;
 
@@ -71,38 +73,43 @@ export function RequestForm({
     const queued = filesRef.current.slice();
 
     startTransition(async () => {
-      const result = await (isEdit ? updateRequest : createRequest)(initial, formData);
+      loading.show(t('saving', locale));
+      try {
+        const result = await (isEdit ? updateRequest : createRequest)(initial, formData);
 
-      if (!result.ok || !result.id) {
-        setState(result);
-        return;
-      }
-      const targetId = result.id;
+        if (!result.ok || !result.id) {
+          setState(result);
+          return;
+        }
+        const targetId = result.id;
 
-      // Edit mode: images were already uploaded by the dropzone. Just go back.
-      if (isEdit) {
+        if (isEdit) {
+          router.push(`/requests/${targetId}`);
+          router.refresh();
+          return;
+        }
+
+        if (queued.length > 0) {
+          try {
+            setUploading(true);
+            for (const f of queued) {
+              const fd = new FormData();
+              fd.append('requestId', targetId);
+              fd.append('images', f);
+              await fetch('/api/request-image/upload', { method: 'POST', body: fd });
+            }
+          } catch {
+            setState({ error: 'upload_partial' });
+          } finally {
+            setUploading(false);
+          }
+        }
+
         router.push(`/requests/${targetId}`);
         router.refresh();
-        return;
+      } finally {
+        loading.hide();
       }
-
-      // Create mode: upload the queued photos once, then go to the request.
-      if (queued.length > 0) {
-        try {
-          setUploading(true);
-          const fd = new FormData();
-          fd.append('requestId', targetId);
-          for (const f of queued) fd.append('images', f);
-          await fetch('/api/request-image/upload', { method: 'POST', body: fd });
-        } catch {
-          setState({ error: 'upload_partial' });
-        } finally {
-          setUploading(false);
-        }
-      }
-
-      router.push(`/requests/${targetId}`);
-      router.refresh();
     });
   }
 
