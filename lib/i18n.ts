@@ -101,6 +101,35 @@ const DICT: Dict = {
   btn_view: { en: 'View', ar: 'عرض' },
   btn_confirm: { en: 'Confirm', ar: 'تأكيد' },
 
+  // Criteria
+  nav_criteria: { en: 'Criteria', ar: 'المعايير' },
+  criteria_title: { en: 'Evaluation Criteria', ar: 'معايير التقييم' },
+  criteria_intro: {
+    en: 'Define reusable evaluation criteria and their measures. Assign them to requests to fill in values.',
+    ar: 'عرّف معايير تقييم قابلة لإعادة الاستخدام وقياساتها. عيّنها للطلبات لتعبئة القيم.'
+  },
+  criteria_name: { en: 'Criteria name', ar: 'اسم المعيار' },
+  criteria_add: { en: 'Add criteria', ar: 'إضافة معيار' },
+  criteria_measures: { en: 'Measures', ar: 'القياسات' },
+  measure_name: { en: 'Measure name', ar: 'اسم القياس' },
+  measure_add: { en: 'Add measure', ar: 'إضافة قياس' },
+  measure_none: { en: 'No measures yet. Add the first one.', ar: 'لا توجد قياسات بعد. أضف الأول.' },
+  criteria_none: { en: 'No criteria yet.', ar: 'لا توجد معايير بعد.' },
+
+  // Assignment / fill on a request
+  sec_evaluation: { en: 'Evaluation', ar: 'التقييم' },
+  assign_criteria: { en: 'Assign criteria', ar: 'تعيين معيار' },
+  assign_choose: { en: 'Choose a criteria to assign…', ar: 'اختر معيارًا لتعيينه…' },
+  assign_btn: { en: 'Assign', ar: 'تعيين' },
+  unassign_confirm: { en: 'Remove this criteria and all its filled values from the request?', ar: 'إزالة هذا المعيار وكل قيمه من الطلب؟' },
+  m_status: { en: 'Status', ar: 'الحالة' },
+  m_notes: { en: 'Notes', ar: 'ملاحظات' },
+  m_recommendations: { en: 'Recommendations', ar: 'التوصيات' },
+  m_attachments: { en: 'Attachments', ar: 'المرفقات' },
+  m_save: { en: 'Save measure', ar: 'حفظ القياس' },
+  eval_none: { en: 'No criteria assigned to this request yet.', ar: 'لم يتم تعيين أي معيار لهذا الطلب بعد.' },
+  all_assigned: { en: 'All criteria are already assigned.', ar: 'تم تعيين جميع المعايير بالفعل.' },
+
   lookups_title: { en: 'Manage lookups', ar: 'إدارة القوائم' },
   lookup_purpose: { en: 'Purpose', ar: 'الغرض' },
   lookup_status: { en: 'Status', ar: 'الحالة' },

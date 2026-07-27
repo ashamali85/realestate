@@ -82,6 +82,7 @@ model PurposeOption {
   displayOrder Int                 @default(0)
   isActive     Boolean             @default(true)
   requests     InspectionRequest[]
+  measures     RequestMeasure[]
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
 
@@ -181,6 +182,7 @@ model InspectionRequest {
   notes String?
 
   images RequestImage[]
+  criteria RequestCriteria[]
 
   createdById String
   createdBy   User   @relation("RequestCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
@@ -232,4 +234,91 @@ model AuditLog {
 
   @@index([createdAt])
   @@index([entityType, entityId])
+}
+
+// ============================================================================
+// Evaluation criteria
+//
+// Templates (admin-defined, names only):
+//   Criteria -> CriteriaMeasure (fixed set of measure names)
+//
+// Instances (per request, filled by inspector):
+//   RequestCriteria -> RequestMeasure (one per template measure)
+//     each RequestMeasure carries: status (lookup), notes, recommendations,
+//     and up to 4 attachments (RequestMeasureImage).
+// ============================================================================
+
+model Criteria {
+  id        String            @id @default(cuid())
+  nameEn    String
+  nameAr    String
+  isActive  Boolean           @default(true)
+  measures  CriteriaMeasure[]
+  assigned  RequestCriteria[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([nameEn])
+}
+
+model CriteriaMeasure {
+  id           String   @id @default(cuid())
+  criteriaId   String
+  criteria     Criteria @relation(fields: [criteriaId], references: [id], onDelete: Cascade)
+  nameEn       String
+  nameAr       String
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model RequestCriteria {
+  id         String            @id @default(cuid())
+  requestId  String
+  request    InspectionRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  criteriaId String
+  criteria   Criteria          @relation(fields: [criteriaId], references: [id], onDelete: Restrict)
+  measures   RequestMeasure[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  // A given criteria is assigned to a request at most once.
+  @@unique([requestId, criteriaId])
+}
+
+model RequestMeasure {
+  id                String          @id @default(cuid())
+  requestCriteriaId String
+  requestCriteria   RequestCriteria @relation(fields: [requestCriteriaId], references: [id], onDelete: Cascade)
+
+  // Snapshot of the template measure name at assignment time, so later edits to
+  // the template don't retroactively change already-assigned instances.
+  nameEn       String
+  nameAr       String
+  displayOrder Int    @default(0)
+
+  // Filled-in values
+  statusId        String?
+  status          StatusOption?         @relation(fields: [statusId], references: [id], onDelete: SetNull)
+  notes           String?
+  recommendations String?
+  images          RequestMeasureImage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RequestMeasureImage {
+  id        String         @id @default(cuid())
+  measureId String
+  measure   RequestMeasure @relation(fields: [measureId], references: [id], onDelete: Cascade)
+
+  data      Bytes
+  mimeType  String
+  byteSize  Int
+  width     Int?
+  height    Int?
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
 }

@@ -29,12 +29,16 @@ export function ImageDropzone({
   requestId,
   existingCount = 0,
   max = 4,
+  uploadUrl = '/api/request-image/upload',
+  uploadKey = 'requestId',
   onFilesChange
 }: {
   locale: Locale;
   requestId?: string;
   existingCount?: number;
   max?: number;
+  uploadUrl?: string;
+  uploadKey?: string;
   onFilesChange?: (files: File[]) => void;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -87,9 +91,9 @@ export function ImageDropzone({
         for (let i = 0; i < files.length; i++) {
           setProgress({ done: i, total: files.length });
           const fd = new FormData();
-          fd.append('requestId', requestId);
+          fd.append(uploadKey, requestId);
           fd.append('images', files[i]!);
-          const res = await fetch('/api/request-image/upload', { method: 'POST', body: fd });
+          const res = await fetch(uploadUrl, { method: 'POST', body: fd });
           if (!res.ok) throw new Error(String(res.status));
           uploaded++;
         }

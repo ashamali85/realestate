@@ -225,6 +225,26 @@ async function main() {
 
   const govCount = await prisma.governorate.count();
   const areaCount = await prisma.area.count();
+
+  // One example evaluation criteria with a few measures (only if none exist).
+  const criteriaCount = await prisma.criteria.count();
+  if (criteriaCount === 0) {
+    await prisma.criteria.create({
+      data: {
+        nameEn: 'Structural Safety',
+        nameAr: 'السلامة الإنشائية',
+        measures: {
+          create: [
+            { nameEn: 'Foundation condition', nameAr: 'حالة الأساسات', displayOrder: 0 },
+            { nameEn: 'Load-bearing walls', nameAr: 'الجدران الحاملة', displayOrder: 1 },
+            { nameEn: 'Roof and ceilings', nameAr: 'السقف والأسقف', displayOrder: 2 }
+          ]
+        }
+      }
+    });
+    console.log('  example criteria seeded');
+  }
+
   console.log(`Done. ${govCount} governorates, ${areaCount} areas.`);
 }
 

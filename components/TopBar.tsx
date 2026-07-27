@@ -34,6 +34,9 @@ export function TopBar({
               <Link href="/lookups" className={active === 'lookups' ? 'active' : ''}>
                 {t('nav_lookups', locale)}
               </Link>
+              <Link href="/criteria" className={active === 'criteria' ? 'active' : ''}>
+                {t('nav_criteria', locale)}
+              </Link>
               <Link href="/users" className={active === 'users' ? 'active' : ''}>
                 {t('nav_users', locale)}
               </Link>

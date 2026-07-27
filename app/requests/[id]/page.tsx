@@ -7,6 +7,7 @@ import { t, localName } from '@/lib/i18n';
 import { formatDate } from '@/lib/utils';
 import { TopBar } from '@/components/TopBar';
 import { DeleteRequestButton } from '@/components/DeleteRequestButton';
+import { RequestEvaluation } from '@/components/RequestEvaluation';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +35,42 @@ export default async function RequestDetailPage({
   });
 
   if (!r) notFound();
+
+  // Evaluation data: assigned criteria (with filled measures + images),
+  // the criteria still available to assign, and status options for the pickers.
+  const [assignedRaw, allCriteria, statuses] = await Promise.all([
+    prisma.requestCriteria.findMany({
+      where: { requestId: id },
+      include: {
+        criteria: true,
+        measures: {
+          orderBy: { displayOrder: 'asc' },
+          include: { images: { orderBy: { sortOrder: 'asc' }, select: { id: true } } }
+        }
+      }
+    }),
+    prisma.criteria.findMany({ where: { isActive: true }, orderBy: { nameEn: 'asc' } }),
+    prisma.statusOption.findMany({ where: { isActive: true }, orderBy: { displayOrder: 'asc' } })
+  ]);
+
+  const assignedIds = new Set(assignedRaw.map((a: (typeof assignedRaw)[number]) => a.criteriaId));
+  const available = allCriteria
+    .filter((c: (typeof allCriteria)[number]) => !assignedIds.has(c.id))
+    .map((c: (typeof allCriteria)[number]) => ({ id: c.id, nameEn: c.nameEn, nameAr: c.nameAr }));
+
+  const assigned = assignedRaw.map((a: (typeof assignedRaw)[number]) => ({
+    id: a.id,
+    criteriaName: localName(a.criteria, locale),
+    measures: a.measures.map((m) => ({
+      id: m.id,
+      nameEn: m.nameEn,
+      nameAr: m.nameAr,
+      statusId: m.statusId,
+      notes: m.notes,
+      recommendations: m.recommendations,
+      images: m.images.map((img) => ({ id: img.id }))
+    }))
+  }));
 
   const canDelete = user.role === 'SUPER_ADMIN';
   const mapLink =
@@ -138,6 +175,17 @@ export default async function RequestDetailPage({
             </section>
           )}
         </div>
+
+        <section className="mt-6">
+          <h2 style={{ color: 'var(--brand)', marginBottom: 16 }}>{t('sec_evaluation', locale)}</h2>
+          <RequestEvaluation
+            requestId={r.id}
+            assigned={assigned}
+            available={available}
+            statuses={statuses.map((s: (typeof statuses)[number]) => ({ id: s.id, nameEn: s.nameEn, nameAr: s.nameAr }))}
+            locale={locale}
+          />
+        </section>
       </main>
     </>
   );
