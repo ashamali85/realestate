@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createOption, updateOption, deleteOption, type LookupKind } from '@/lib/lookup-actions';
+import { ConfirmSubmitButton } from './ConfirmSubmitButton';
 import { t, type Locale } from '@/lib/i18n';
 
 export type OptionRow = {
@@ -114,17 +115,12 @@ export function OptionListEditor({
                       <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditingId(row.id)}>
                         {t('btn_edit', locale)}
                       </button>
-                      <form
-                        action={deleteOption}
-                        onSubmit={(e) => {
-                          if (!window.confirm(t('confirm_delete', locale))) e.preventDefault();
-                        }}
-                      >
+                      <form action={deleteOption}>
                         <input type="hidden" name="kind" value={kind} />
                         <input type="hidden" name="id" value={row.id} />
-                        <button type="submit" className="btn btn-danger btn-sm">
+                        <ConfirmSubmitButton locale={locale} message={t('confirm_delete', locale)}>
                           {t('btn_delete', locale)}
-                        </button>
+                        </ConfirmSubmitButton>
                       </form>
                     </div>
                   </td>

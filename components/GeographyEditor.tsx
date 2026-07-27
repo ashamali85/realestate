@@ -9,6 +9,7 @@ import {
   updateArea,
   deleteArea
 } from '@/lib/lookup-actions';
+import { ConfirmSubmitButton } from './ConfirmSubmitButton';
 import { t, localName, type Locale } from '@/lib/i18n';
 
 type Gov = { id: string; nameEn: string; nameAr: string; displayOrder: number; isActive: boolean };
@@ -122,9 +123,9 @@ export function GeographyEditor({
                       <td>
                         <div className="row" style={{ gap: 6 }}>
                           <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditGov(g.id)}>{t('btn_edit', locale)}</button>
-                          <form action={deleteGovernorate} onSubmit={(e) => { if (!window.confirm(t('confirm_delete', locale))) e.preventDefault(); }}>
+                          <form action={deleteGovernorate}>
                             <input type="hidden" name="id" value={g.id} />
-                            <button type="submit" className="btn btn-danger btn-sm">{t('btn_delete', locale)}</button>
+                            <ConfirmSubmitButton locale={locale} message={t('confirm_delete', locale)}>{t('btn_delete', locale)}</ConfirmSubmitButton>
                           </form>
                         </div>
                       </td>
@@ -208,9 +209,9 @@ export function GeographyEditor({
                       <td>
                         <div className="row" style={{ gap: 6 }}>
                           <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditArea(a.id)}>{t('btn_edit', locale)}</button>
-                          <form action={deleteArea} onSubmit={(e) => { if (!window.confirm(t('confirm_delete', locale))) e.preventDefault(); }}>
+                          <form action={deleteArea}>
                             <input type="hidden" name="id" value={a.id} />
-                            <button type="submit" className="btn btn-danger btn-sm">{t('btn_delete', locale)}</button>
+                            <ConfirmSubmitButton locale={locale} message={t('confirm_delete', locale)}>{t('btn_delete', locale)}</ConfirmSubmitButton>
                           </form>
                         </div>
                       </td>

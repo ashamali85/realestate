@@ -4,110 +4,129 @@ import { useEffect, useRef, useState } from 'react';
 import { t, type Locale } from '@/lib/i18n';
 
 const MAX_BYTES = 4 * 1024 * 1024; // per file
-// Keep the combined payload comfortably under the server action body limit
-// (30 MB), leaving room for multipart overhead and the other form fields.
-const MAX_TOTAL_BYTES = 24 * 1024 * 1024;
 const ACCEPT = ['image/jpeg', 'image/png', 'image/webp'];
 
-type Picked = { file: File; url: string; key: string };
+export type SavedImage = { id: string };
+
+type Local = { file: File; url: string; key: string };
 
 /**
- * Drag-and-drop (or click) image picker.
+ * Image picker with two modes:
  *
- * React state (`items`) is the single source of truth. After every change the
- * hidden <input name="images"> is rebuilt from that state via DataTransfer, so
- * the server action receives exactly the files shown as thumbnails — no more,
- * no fewer. This avoids the earlier bug where selecting several files at once
- * desynced the input from the previews.
+ *  - EDIT mode (requestId provided): each picked/dropped file uploads to the
+ *    request immediately, then shows as a saved thumbnail. Nothing is queued,
+ *    so re-saving the form never re-uploads anything. This is what fixes the
+ *    "images multiply on save" bug.
+ *
+ *  - CREATE mode (no requestId): files are held locally and reported via
+ *    onFilesChange so the parent can upload them once, right after the new
+ *    request is created.
+ *
+ * A hard cap (default 4) is enforced against existing + pending files.
  */
 export function ImageDropzone({
   locale,
+  requestId,
+  existingCount = 0,
+  max = 4,
   onFilesChange
 }: {
   locale: Locale;
+  requestId?: string;
+  existingCount?: number;
+  max?: number;
   onFilesChange?: (files: File[]) => void;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [items, setItems] = useState<Picked[]>([]);
+  const counter = useRef(0);
+  const [local, setLocal] = useState<Local[]>([]); // create-mode queue / edit-mode transient previews
+  const [savedCount, setSavedCount] = useState(0); // uploaded this session (edit mode)
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const counter = useRef(0);
+  const [busy, setBusy] = useState(false);
 
-  // Report the current file list up to the parent form, which uploads them
-  // separately after the request is saved. Also keep the hidden input in sync
-  // for progressive-enhancement / no-JS fallback.
+  const totalUsed = existingCount + savedCount + (requestId ? 0 : local.length);
+  const remaining = Math.max(0, max - totalUsed);
+
   useEffect(() => {
-    if (inputRef.current) {
-      const dt = new DataTransfer();
-      for (const it of items) dt.items.add(it.file);
-      inputRef.current.files = dt.files;
-    }
-    onFilesChange?.(items.map((it) => it.file));
+    return () => local.forEach((l) => URL.revokeObjectURL(l.url));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items]);
-
-  // Clean up object URLs on unmount.
-  useEffect(() => {
-    return () => {
-      setItems((prev) => {
-        prev.forEach((it) => URL.revokeObjectURL(it.url));
-        return prev;
-      });
-    };
   }, []);
 
-  function addFiles(incoming: File[]) {
+  function validate(file: File): string | null {
+    if (!ACCEPT.includes(file.type)) return t('dz_wrong_type', locale);
+    if (file.size > MAX_BYTES) return `${file.name}: > 4 MB`;
+    return null;
+  }
+
+  async function handleFiles(incoming: File[]) {
     setError(null);
+    const files = incoming.slice(0, remaining);
+    if (incoming.length > remaining) {
+      setError(t('dz_max_reached', locale).replace('{n}', String(max)));
+    }
+    if (files.length === 0) return;
 
-    setItems((prev) => {
-      const next = [...prev];
-      let runningTotal = prev.reduce((n, it) => n + it.file.size, 0);
-      const seen = new Set(prev.map((it) => `${it.file.name}:${it.file.size}`));
-
-      for (const file of incoming) {
-        if (!ACCEPT.includes(file.type)) {
-          setError(t('dz_wrong_type', locale));
-          continue;
-        }
-        if (file.size > MAX_BYTES) {
-          setError(`${file.name}: ${(file.size / (1024 * 1024)).toFixed(1)} MB > 4 MB`);
-          continue;
-        }
-        const sig = `${file.name}:${file.size}`;
-        if (seen.has(sig)) continue; // skip exact duplicates
-        if (runningTotal + file.size > MAX_TOTAL_BYTES) {
-          setError(t('dz_too_much', locale));
-          break;
-        }
-        seen.add(sig);
-        runningTotal += file.size;
-        counter.current += 1;
-        next.push({
-          file,
-          url: URL.createObjectURL(file),
-          key: `f${counter.current}`
-        });
+    for (const f of files) {
+      const v = validate(f);
+      if (v) {
+        setError(v);
+        return;
       }
+    }
 
+    if (requestId) {
+      // EDIT mode: upload immediately.
+      setBusy(true);
+      try {
+        const fd = new FormData();
+        fd.append('requestId', requestId);
+        for (const f of files) fd.append('images', f);
+        const res = await fetch('/api/request-image/upload', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error(String(res.status));
+        const data: { saved: number } = await res.json();
+        setSavedCount((n) => n + (data.saved ?? files.length));
+        // Refresh the server component so the saved thumbnails appear.
+        window.location.reload();
+      } catch {
+        setError(t('dz_upload_failed', locale));
+      } finally {
+        setBusy(false);
+      }
+    } else {
+      // CREATE mode: hold locally, report up.
+      setLocal((prev) => {
+        const next = [
+          ...prev,
+          ...files.map((f) => {
+            counter.current += 1;
+            return { file: f, url: URL.createObjectURL(f), key: `f${counter.current}` };
+          })
+        ];
+        onFilesChange?.(next.map((l) => l.file));
+        return next;
+      });
+    }
+  }
+
+  function removeLocal(key: string) {
+    setLocal((prev) => {
+      const target = prev.find((l) => l.key === key);
+      if (target) URL.revokeObjectURL(target.url);
+      const next = prev.filter((l) => l.key !== key);
+      onFilesChange?.(next.map((l) => l.file));
       return next;
     });
   }
 
-  function removeKey(key: string) {
-    setItems((prev) => {
-      const target = prev.find((it) => it.key === key);
-      if (target) URL.revokeObjectURL(target.url);
-      return prev.filter((it) => it.key !== key);
-    });
-  }
-
-  const totalMb = (items.reduce((n, it) => n + it.file.size, 0) / (1024 * 1024)).toFixed(1);
+  const canAdd = remaining > 0 && !busy;
 
   return (
     <div>
       <div
-        className={`dropzone ${dragOver ? 'dropzone-over' : ''}`}
+        className={`dropzone ${dragOver ? 'dropzone-over' : ''} ${canAdd ? '' : 'dropzone-disabled'}`}
         onDragOver={(e) => {
+          if (!canAdd) return;
           e.preventDefault();
           setDragOver(true);
         }}
@@ -115,32 +134,38 @@ export function ImageDropzone({
         onDrop={(e) => {
           e.preventDefault();
           setDragOver(false);
-          if (e.dataTransfer.files?.length) addFiles(Array.from(e.dataTransfer.files));
+          if (canAdd && e.dataTransfer.files?.length) handleFiles(Array.from(e.dataTransfer.files));
         }}
-        onClick={() => inputRef.current?.click()}
+        onClick={() => canAdd && inputRef.current?.click()}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if ((e.key === 'Enter' || e.key === ' ') && canAdd) {
             e.preventDefault();
             inputRef.current?.click();
           }
         }}
       >
         <div className="dropzone-icon" aria-hidden="true">
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
+          {busy ? (
+            <span className="spinner" style={{ width: 28, height: 28 }} />
+          ) : (
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+          )}
         </div>
-        <div className="dropzone-text">{t('dz_prompt', locale)}</div>
-        <div className="dropzone-sub">{t('f_images_hint', locale)}</div>
-        <span className="btn btn-ghost btn-sm dropzone-btn">{t('dz_browse', locale)}</span>
+        <div className="dropzone-text">
+          {busy ? t('dz_uploading', locale) : t('dz_prompt', locale)}
+        </div>
+        <div className="dropzone-sub">
+          {t('f_images_hint', locale)} · {t('dz_remaining', locale).replace('{n}', String(remaining))}
+        </div>
+        {canAdd && <span className="btn btn-ghost btn-sm dropzone-btn">{t('dz_browse', locale)}</span>}
       </div>
 
-      {/* File picker. Files are reported to the parent via onFilesChange and
-          uploaded to the API route after save — not submitted in the form. */}
       <input
         ref={inputRef}
         type="file"
@@ -149,9 +174,8 @@ export function ImageDropzone({
         className="dropzone-input"
         onChange={(e) => {
           const picked = e.target.files ? Array.from(e.target.files) : [];
-          // The effect will rewrite input.files from state; clearing the raw
-          // value here avoids the browser keeping a stale native selection.
-          if (picked.length) addFiles(picked);
+          e.target.value = ''; // reset so the same file can be re-picked later
+          if (picked.length) handleFiles(picked);
         }}
       />
 
@@ -161,25 +185,21 @@ export function ImageDropzone({
         </span>
       )}
 
-      {items.length > 0 && (
-        <>
-          <div className="thumb-grid" style={{ marginTop: 12 }}>
-            {items.map((it) => (
-              <div className="thumb" key={it.key}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={it.url} alt={it.file.name} />
-                <div className="thumb-del">
-                  <button type="button" aria-label="remove" onClick={() => removeKey(it.key)}>
-                    ×
-                  </button>
-                </div>
+      {/* Create-mode local previews (edit mode reloads to show saved thumbs). */}
+      {!requestId && local.length > 0 && (
+        <div className="thumb-grid" style={{ marginTop: 12 }}>
+          {local.map((l) => (
+            <div className="thumb" key={l.key}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={l.url} alt={l.file.name} />
+              <div className="thumb-del">
+                <button type="button" aria-label="remove" onClick={() => removeLocal(l.key)}>
+                  ×
+                </button>
               </div>
-            ))}
-          </div>
-          <p className="small muted" style={{ marginTop: 8 }}>
-            {items.length} · {totalMb} MB
-          </p>
-        </>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

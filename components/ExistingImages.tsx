@@ -1,15 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { deleteRequestImageById } from '@/lib/actions';
+import { useConfirm } from './ConfirmDialog';
 import { t, type Locale } from '@/lib/i18n';
 
 /**
- * Photos already saved on a request, shown inside the edit form's Images
- * section. Delete uses a button `formAction` bound to the image id, so it does
- * NOT require a nested <form> (which HTML forbids and which previously made the
- * delete button inert). The bound server action ignores the surrounding form's
- * fields entirely.
+ * Photos already saved on a request, shown when editing. Deleting calls the
+ * server action directly (inside a transition) after a themed confirm, so
+ * there is no nested <form> and no native browser prompt.
  */
 export function ExistingImages({
   images,
@@ -20,10 +19,25 @@ export function ExistingImages({
   requestId: string;
   locale: Locale;
 }) {
+  const confirm = useConfirm();
   const [removed, setRemoved] = useState<Set<string>>(new Set());
+  const [, startTransition] = useTransition();
   const visible = images.filter((img) => !removed.has(img.id));
 
   if (visible.length === 0) return null;
+
+  async function onDelete(id: string) {
+    const ok = await confirm({
+      message: t('confirm_delete', locale),
+      danger: true,
+      confirmLabel: t('btn_delete', locale)
+    });
+    if (!ok) return;
+    setRemoved((prev) => new Set(prev).add(id));
+    startTransition(async () => {
+      await deleteRequestImageById(id, requestId);
+    });
+  }
 
   return (
     <div className="thumb-grid" style={{ marginBottom: 12 }}>
@@ -32,18 +46,7 @@ export function ExistingImages({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`/api/request-image/${img.id}`} alt="" loading="lazy" />
           <div className="thumb-del">
-            <button
-              type="submit"
-              aria-label="delete"
-              formAction={deleteRequestImageById.bind(null, img.id, requestId)}
-              onClick={(e) => {
-                if (!window.confirm(t('confirm_delete', locale))) {
-                  e.preventDefault();
-                  return;
-                }
-                setRemoved((prev) => new Set(prev).add(img.id));
-              }}
-            >
+            <button type="button" aria-label="delete" onClick={() => onDelete(img.id)}>
               ×
             </button>
           </div>

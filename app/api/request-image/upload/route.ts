@@ -5,7 +5,7 @@ import { validateImageBytes } from '@/lib/image';
 
 export const runtime = 'nodejs';
 
-const MAX_IMAGES_PER_REQUEST = 12;
+const MAX_IMAGES_PER_REQUEST = 4;
 
 /**
  * Uploads one or more property photos for an existing request.

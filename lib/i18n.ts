@@ -81,6 +81,10 @@ const DICT: Dict = {
   dz_prompt: { en: 'Drag photos here', ar: 'اسحب الصور إلى هنا' },
   dz_browse: { en: 'Browse files', ar: 'تصفّح الملفات' },
   dz_wrong_type: { en: 'Only JPEG, PNG or WebP images are allowed.', ar: 'يُسمح فقط بصور JPEG أو PNG أو WebP.' },
+  dz_uploading: { en: 'Uploading…', ar: 'جارٍ الرفع…' },
+  dz_upload_failed: { en: 'Upload failed. Please try again.', ar: 'فشل الرفع. حاول مرة أخرى.' },
+  dz_remaining: { en: '{n} left', ar: 'يتبقّى {n}' },
+  dz_max_reached: { en: 'Up to {n} photos.', ar: 'حتى {n} صور.' },
   dz_too_much: {
     en: 'Total attachments are too large. Remove some or add them in smaller batches.',
     ar: 'حجم المرفقات كبير جدًا. أزل بعضها أو أضفها على دفعات أصغر.'
@@ -94,6 +98,7 @@ const DICT: Dict = {
   btn_delete: { en: 'Delete', ar: 'حذف' },
   btn_add: { en: 'Add', ar: 'إضافة' },
   btn_view: { en: 'View', ar: 'عرض' },
+  btn_confirm: { en: 'Confirm', ar: 'تأكيد' },
 
   lookups_title: { en: 'Manage lookups', ar: 'إدارة القوائم' },
   lookup_purpose: { en: 'Purpose', ar: 'الغرض' },

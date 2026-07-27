@@ -58,35 +58,16 @@ export function RequestForm({
   const [pending, startTransition] = useTransition();
   const [uploading, setUploading] = useState(false);
   const [areaId, setAreaId] = useState(existing?.areaId ?? '');
-  // Files queued in the dropzone, reported up via onFilesChange.
+  // Create-mode only: files queued in the dropzone, uploaded once after the
+  // new request is created. In edit mode the dropzone uploads immediately and
+  // this stays empty, so re-saving never re-uploads anything.
   const filesRef = useRef<File[]>([]);
 
   const busy = pending || uploading;
 
-  async function uploadPhotos(requestId: string, files: File[]): Promise<void> {
-    if (files.length === 0) return;
-    // Upload in small batches so no single request is large enough to fail.
-    // One file per request is the most robust; batch of 2 balances speed.
-    const BATCH = 1;
-    for (let i = 0; i < files.length; i += BATCH) {
-      const slice = files.slice(i, i + BATCH);
-      const fd = new FormData();
-      fd.append('requestId', requestId);
-      for (const f of slice) fd.append('images', f);
-      const res = await fetch('/api/request-image/upload', {
-        method: 'POST',
-        body: fd
-      });
-      if (!res.ok) {
-        throw new Error(`upload failed with ${res.status}`);
-      }
-    }
-  }
-
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formEl = e.currentTarget;
-    const formData = new FormData(formEl);
+    const formData = new FormData(e.currentTarget);
     const queued = filesRef.current.slice();
 
     startTransition(async () => {
@@ -96,18 +77,28 @@ export function RequestForm({
         setState(result);
         return;
       }
-
-      // Request saved. Now upload photos separately (never in the form payload).
       const targetId = result.id;
-      try {
-        setUploading(true);
-        await uploadPhotos(targetId, queued);
-      } catch {
-        // Even if a photo fails, the request itself is saved — send the user to
-        // the detail page, where they can retry the upload via edit.
-        setState({ error: 'upload_partial' });
-      } finally {
-        setUploading(false);
+
+      // Edit mode: images were already uploaded by the dropzone. Just go back.
+      if (isEdit) {
+        router.push(`/requests/${targetId}`);
+        router.refresh();
+        return;
+      }
+
+      // Create mode: upload the queued photos once, then go to the request.
+      if (queued.length > 0) {
+        try {
+          setUploading(true);
+          const fd = new FormData();
+          fd.append('requestId', targetId);
+          for (const f of queued) fd.append('images', f);
+          await fetch('/api/request-image/upload', { method: 'POST', body: fd });
+        } catch {
+          setState({ error: 'upload_partial' });
+        } finally {
+          setUploading(false);
+        }
       }
 
       router.push(`/requests/${targetId}`);
@@ -244,7 +235,22 @@ export function RequestForm({
           {isEdit && existing!.images.length > 0 && (
             <ExistingImages images={existing!.images} requestId={existing!.id} locale={locale} />
           )}
-          <ImageDropzone locale={locale} onFilesChange={(f) => { filesRef.current = f; }} />
+          {isEdit ? (
+            <ImageDropzone
+              locale={locale}
+              requestId={existing!.id}
+              existingCount={existing!.images.length}
+              max={4}
+            />
+          ) : (
+            <ImageDropzone
+              locale={locale}
+              max={4}
+              onFilesChange={(f) => {
+                filesRef.current = f;
+              }}
+            />
+          )}
         </CollapsibleSection>
 
         <CollapsibleSection title={t('sec_notes', locale)}>

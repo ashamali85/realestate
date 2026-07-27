@@ -181,3 +181,37 @@ tr.row-inactive td { opacity: 0.55; }
 /* Scroll areas (lookup tables) ------------------------------------------- */
 .scroll-area { max-height: 360px; overflow-y: auto; }
 .scroll-area table thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
+
+/* Confirm modal ----------------------------------------------------------- */
+@keyframes modal-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modal-pop { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  background: rgba(10, 40, 79, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: modal-fade 0.14s ease;
+}
+.modal-card {
+  width: 100%; max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 26px 24px 20px;
+  animation: modal-pop 0.16s ease;
+}
+.modal-message {
+  font-size: 1.02rem; font-weight: 600; color: var(--ink);
+  line-height: 1.5; margin: 0 0 22px;
+}
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.modal-actions .btn { min-width: 96px; }
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop, .modal-card { animation-duration: 0s; }
+}
+
+.dropzone-disabled { opacity: 0.6; cursor: not-allowed; }
+.dropzone-disabled:hover { border-color: var(--line); background: var(--surface-2); }
