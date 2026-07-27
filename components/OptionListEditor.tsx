@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { createOption, updateOption, deleteOption, type LookupKind } from '@/lib/lookup-actions';
-import { ConfirmSubmitButton } from './ConfirmSubmitButton';
+import { useConfirm } from './ConfirmDialog';
+import { useLoading } from './LoadingOverlay';
 import { t, type Locale } from '@/lib/i18n';
 
 export type OptionRow = {
@@ -24,8 +26,48 @@ export function OptionListEditor({
   rows: OptionRow[];
   locale: Locale;
 }) {
+  const router = useRouter();
+  const confirm = useConfirm();
+  const loading = useLoading();
+  const [, startTransition] = useTransition();
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  function submitAdd(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    startTransition(async () => {
+      await loading.run(() => createOption(fd), t('saving', locale));
+      setAdding(false); // close the form → back to list view
+      router.refresh();
+    });
+  }
+
+  function submitEdit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    startTransition(async () => {
+      await loading.run(() => updateOption(fd), t('saving', locale));
+      setEditingId(null); // close the inline editor
+      router.refresh();
+    });
+  }
+
+  async function onDelete(id: string) {
+    const ok = await confirm({
+      message: t('confirm_delete', locale),
+      danger: true,
+      confirmLabel: t('btn_delete', locale)
+    });
+    if (!ok) return;
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append('kind', kind);
+      fd.append('id', id);
+      await loading.run(() => deleteOption(fd), t('loading', locale));
+      router.refresh();
+    });
+  }
 
   return (
     <div>
@@ -44,13 +86,13 @@ export function OptionListEditor({
       </div>
 
       {adding && (
-        <form action={createOption} className="lookup-form">
-          <input type="hidden" name="kind" value={kind} />
+        <form onSubmit={submitAdd} className="lookup-form">
           <div className="grid-3">
             <input name="nameEn" placeholder={t('lookup_name_en', locale)} dir="ltr" required />
             <input name="nameAr" placeholder={t('lookup_name_ar', locale)} dir="rtl" required />
             <input name="displayOrder" type="number" min={0} placeholder={t('lookup_order', locale)} defaultValue={rows.length} />
           </div>
+          <input type="hidden" name="kind" value={kind} />
           <div className="mt-2">
             <button type="submit" className="btn btn-primary btn-sm">
               {t('btn_add', locale)}
@@ -75,7 +117,7 @@ export function OptionListEditor({
               editingId === row.id ? (
                 <tr key={row.id}>
                   <td colSpan={5}>
-                    <form action={updateOption} className="lookup-form">
+                    <form onSubmit={submitEdit} className="lookup-form">
                       <input type="hidden" name="kind" value={kind} />
                       <input type="hidden" name="id" value={row.id} />
                       <div className="grid-3">
@@ -115,13 +157,9 @@ export function OptionListEditor({
                       <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditingId(row.id)}>
                         {t('btn_edit', locale)}
                       </button>
-                      <form action={deleteOption}>
-                        <input type="hidden" name="kind" value={kind} />
-                        <input type="hidden" name="id" value={row.id} />
-                        <ConfirmSubmitButton locale={locale} message={t('confirm_delete', locale)}>
-                          {t('btn_delete', locale)}
-                        </ConfirmSubmitButton>
-                      </form>
+                      <button type="button" className="btn btn-danger btn-sm" onClick={() => onDelete(row.id)}>
+                        {t('btn_delete', locale)}
+                      </button>
                     </div>
                   </td>
                 </tr>

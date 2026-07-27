@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   createGovernorate,
   updateGovernorate,
@@ -9,7 +10,8 @@ import {
   updateArea,
   deleteArea
 } from '@/lib/lookup-actions';
-import { ConfirmSubmitButton } from './ConfirmSubmitButton';
+import { useConfirm } from './ConfirmDialog';
+import { useLoading } from './LoadingOverlay';
 import { t, localName, type Locale } from '@/lib/i18n';
 
 type Gov = { id: string; nameEn: string; nameAr: string; displayOrder: number; isActive: boolean };
@@ -24,6 +26,10 @@ export function GeographyEditor({
   areas: AreaRow[];
   locale: Locale;
 }) {
+  const router = useRouter();
+  const confirm = useConfirm();
+  const loading = useLoading();
+  const [, startTransition] = useTransition();
   const [tab, setTab] = useState<'gov' | 'area'>('gov');
   const [addingGov, setAddingGov] = useState(false);
   const [addingArea, setAddingArea] = useState(false);
@@ -34,6 +40,38 @@ export function GeographyEditor({
     const g = governorates.find((x) => x.id === id);
     return g ? localName(g, locale) : '';
   };
+
+  // Each handler runs its server action, closes whatever form was open, and
+  // refreshes so the new/updated row appears — all inside a transition so the
+  // action returning void never throws mid-render.
+  function handle(
+    e: React.FormEvent<HTMLFormElement>,
+    action: (fd: FormData) => Promise<unknown>,
+    close: () => void
+  ) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    startTransition(async () => {
+      await loading.run(() => action(fd), t('saving', locale));
+      close();
+      router.refresh();
+    });
+  }
+
+  async function remove(action: (fd: FormData) => Promise<unknown>, id: string) {
+    const ok = await confirm({
+      message: t('confirm_delete', locale),
+      danger: true,
+      confirmLabel: t('btn_delete', locale)
+    });
+    if (!ok) return;
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append('id', id);
+      await loading.run(() => action(fd), t('loading', locale));
+      router.refresh();
+    });
+  }
 
   return (
     <div>
@@ -68,7 +106,7 @@ export function GeographyEditor({
       {tab === 'gov' && (
         <>
           {addingGov && (
-            <form action={createGovernorate} className="lookup-form">
+            <form onSubmit={(e) => handle(e, createGovernorate, () => setAddingGov(false))} className="lookup-form">
               <div className="grid-3">
                 <input name="nameEn" placeholder={t('lookup_name_en', locale)} dir="ltr" required />
                 <input name="nameAr" placeholder={t('lookup_name_ar', locale)} dir="rtl" required />
@@ -97,7 +135,7 @@ export function GeographyEditor({
                   editGov === g.id ? (
                     <tr key={g.id}>
                       <td colSpan={5}>
-                        <form action={updateGovernorate} className="lookup-form">
+                        <form onSubmit={(e) => handle(e, updateGovernorate, () => setEditGov(null))} className="lookup-form">
                           <input type="hidden" name="id" value={g.id} />
                           <div className="grid-3">
                             <input name="nameEn" defaultValue={g.nameEn} dir="ltr" required />
@@ -123,10 +161,7 @@ export function GeographyEditor({
                       <td>
                         <div className="row" style={{ gap: 6 }}>
                           <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditGov(g.id)}>{t('btn_edit', locale)}</button>
-                          <form action={deleteGovernorate}>
-                            <input type="hidden" name="id" value={g.id} />
-                            <ConfirmSubmitButton locale={locale} message={t('confirm_delete', locale)}>{t('btn_delete', locale)}</ConfirmSubmitButton>
-                          </form>
+                          <button type="button" className="btn btn-danger btn-sm" onClick={() => remove(deleteGovernorate, g.id)}>{t('btn_delete', locale)}</button>
                         </div>
                       </td>
                     </tr>
@@ -141,7 +176,7 @@ export function GeographyEditor({
       {tab === 'area' && (
         <>
           {addingArea && (
-            <form action={createArea} className="lookup-form">
+            <form onSubmit={(e) => handle(e, createArea, () => setAddingArea(false))} className="lookup-form">
               <div className="grid-2">
                 <input name="nameEn" placeholder={t('lookup_name_en', locale)} dir="ltr" required />
                 <input name="nameAr" placeholder={t('lookup_name_ar', locale)} dir="rtl" required />
@@ -176,7 +211,7 @@ export function GeographyEditor({
                   editArea === a.id ? (
                     <tr key={a.id}>
                       <td colSpan={5}>
-                        <form action={updateArea} className="lookup-form">
+                        <form onSubmit={(e) => handle(e, updateArea, () => setEditArea(null))} className="lookup-form">
                           <input type="hidden" name="id" value={a.id} />
                           <div className="grid-2">
                             <input name="nameEn" defaultValue={a.nameEn} dir="ltr" required />
@@ -209,10 +244,7 @@ export function GeographyEditor({
                       <td>
                         <div className="row" style={{ gap: 6 }}>
                           <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditArea(a.id)}>{t('btn_edit', locale)}</button>
-                          <form action={deleteArea}>
-                            <input type="hidden" name="id" value={a.id} />
-                            <ConfirmSubmitButton locale={locale} message={t('confirm_delete', locale)}>{t('btn_delete', locale)}</ConfirmSubmitButton>
-                          </form>
+                          <button type="button" className="btn btn-danger btn-sm" onClick={() => remove(deleteArea, a.id)}>{t('btn_delete', locale)}</button>
                         </div>
                       </td>
                     </tr>

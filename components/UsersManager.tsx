@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createUser, setUserActive, resetUserPassword, type UserFormState } from '@/lib/user-actions';
 import { t, type Locale } from '@/lib/i18n';
 
@@ -16,9 +17,23 @@ export type UserRow = {
 const initial: UserFormState = {};
 
 export function UsersManager({ rows, locale }: { rows: UserRow[]; locale: Locale }) {
+  const router = useRouter();
   const [state, formAction, pending] = useActionState(createUser, initial);
   const [adding, setAdding] = useState(false);
   const [resetId, setResetId] = useState<string | null>(null);
+  const handledOk = useRef(false);
+
+  // When a create succeeds, close the add form and refresh the list so the new
+  // user appears immediately. The ref guard ensures this runs once per success,
+  // so reopening the form later doesn't immediately close it.
+  useEffect(() => {
+    if (state.ok && !handledOk.current) {
+      handledOk.current = true;
+      setAdding(false);
+      router.refresh();
+    }
+    if (!state.ok) handledOk.current = false;
+  }, [state.ok, router]);
 
   return (
     <div className="stack" style={{ gap: 16 }}>
