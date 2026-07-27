@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState, useMemo, useState } from 'react';
+import { useMemo, useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   createRequest,
   updateRequest,
@@ -52,12 +53,71 @@ export function RequestForm({
   existing?: ExistingRequest;
 }) {
   const isEdit = Boolean(existing);
-  const action = isEdit ? updateRequest : createRequest;
-  const [state, formAction, pending] = useActionState(action, initial);
+  const router = useRouter();
+  const [state, setState] = useState<RequestFormState>(initial);
+  const [pending, startTransition] = useTransition();
+  const [uploading, setUploading] = useState(false);
   const [areaId, setAreaId] = useState(existing?.areaId ?? '');
+  // Files queued in the dropzone, reported up via onFilesChange.
+  const filesRef = useRef<File[]>([]);
+
+  const busy = pending || uploading;
+
+  async function uploadPhotos(requestId: string, files: File[]): Promise<void> {
+    if (files.length === 0) return;
+    // Upload in small batches so no single request is large enough to fail.
+    // One file per request is the most robust; batch of 2 balances speed.
+    const BATCH = 1;
+    for (let i = 0; i < files.length; i += BATCH) {
+      const slice = files.slice(i, i + BATCH);
+      const fd = new FormData();
+      fd.append('requestId', requestId);
+      for (const f of slice) fd.append('images', f);
+      const res = await fetch('/api/request-image/upload', {
+        method: 'POST',
+        body: fd
+      });
+      if (!res.ok) {
+        throw new Error(`upload failed with ${res.status}`);
+      }
+    }
+  }
+
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formEl = e.currentTarget;
+    const formData = new FormData(formEl);
+    const queued = filesRef.current.slice();
+
+    startTransition(async () => {
+      const result = await (isEdit ? updateRequest : createRequest)(initial, formData);
+
+      if (!result.ok || !result.id) {
+        setState(result);
+        return;
+      }
+
+      // Request saved. Now upload photos separately (never in the form payload).
+      const targetId = result.id;
+      try {
+        setUploading(true);
+        await uploadPhotos(targetId, queued);
+      } catch {
+        // Even if a photo fails, the request itself is saved — send the user to
+        // the detail page, where they can retry the upload via edit.
+        setState({ error: 'upload_partial' });
+      } finally {
+        setUploading(false);
+      }
+
+      router.push(`/requests/${targetId}`);
+      router.refresh();
+    });
+  }
+
 
   const govById = useMemo(
-    () => new Map(lookups.governorates.map((g) => [g.id, g])),
+    () => new Map(lookups.governorates.map((g) => [g.id, g] as const)),
     [lookups.governorates]
   );
   const selectedArea = lookups.areas.find((a) => a.id === areaId);
@@ -72,8 +132,14 @@ export function RequestForm({
   );
 
   return (
-    <form action={formAction}>
+    <form onSubmit={onSubmit}>
       {isEdit && <input type="hidden" name="id" value={existing!.id} />}
+
+      {state.error && (
+        <div className="alert alert-error" role="alert">
+          {t(state.error, locale)}
+        </div>
+      )}
 
       {state.fieldErrors && Object.keys(state.fieldErrors).length > 0 && (
         <div className="alert alert-error" role="alert">
@@ -178,7 +244,7 @@ export function RequestForm({
           {isEdit && existing!.images.length > 0 && (
             <ExistingImages images={existing!.images} requestId={existing!.id} locale={locale} />
           )}
-          <ImageDropzone locale={locale} />
+          <ImageDropzone locale={locale} onFilesChange={(f) => { filesRef.current = f; }} />
         </CollapsibleSection>
 
         <CollapsibleSection title={t('sec_notes', locale)}>
@@ -187,8 +253,8 @@ export function RequestForm({
       </div>
 
       <div className="row wrap mt-4">
-        <button type="submit" className="btn btn-primary" disabled={pending}>
-          {pending ? (
+        <button type="submit" className="btn btn-primary" disabled={busy}>
+          {busy ? (
             <>
               <span className="spinner" /> {t('btn_saving', locale)}
             </>

@@ -12,11 +12,9 @@ import {
 } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { nextReference } from '@/lib/file-number';
-import { validateImageBytes } from '@/lib/image';
 import { getString, getOptionalString, getInt, getFloat } from '@/lib/utils';
 import { LOCALE_COOKIE, isLocale } from '@/lib/i18n';
 
-const MAX_IMAGES = 12;
 
 // --------------------------------------------------------------------- audit
 async function logAction(
@@ -96,6 +94,8 @@ const requestSchema = z.object({
 export type RequestFormState = {
   error?: string;
   fieldErrors?: Record<string, string>;
+  ok?: boolean;
+  id?: string;
 };
 
 function collectErrors(err: z.ZodError): Record<string, string> {
@@ -105,27 +105,6 @@ function collectErrors(err: z.ZodError): Record<string, string> {
     if (typeof k === 'string' && !out[k]) out[k] = issue.message;
   }
   return out;
-}
-
-async function saveImages(requestId: string, files: File[], startOrder = 0): Promise<void> {
-  let order = startOrder;
-  for (const file of files.slice(0, MAX_IMAGES)) {
-    if (!file || file.size === 0) continue;
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const result = validateImageBytes(bytes);
-    if (!result.ok) continue; // skip invalid files silently; UI validates too
-    await prisma.requestImage.create({
-      data: {
-        requestId,
-        data: Buffer.from(bytes),
-        mimeType: result.detected.mimeType,
-        byteSize: bytes.byteLength,
-        width: result.detected.width,
-        height: result.detected.height,
-        sortOrder: order++
-      }
-    });
-  }
 }
 
 export async function createRequest(
@@ -191,13 +170,12 @@ export async function createRequest(
     });
   });
 
-  const files = formData.getAll('images').filter((f): f is File => f instanceof File);
-  await saveImages(created.id, files);
-
   await logAction(user.id, 'CREATE', 'InspectionRequest', created.id, created.reference);
 
   revalidatePath('/requests');
-  redirect(`/requests/${created.id}`);
+  // Images are uploaded separately by the client to /api/request-image/upload
+  // after this returns, so the form payload never carries binary data.
+  return { ok: true, id: created.id };
 }
 
 export async function deleteRequest(formData: FormData) {
@@ -277,16 +255,12 @@ export async function updateRequest(
     }
   });
 
-  // Newly uploaded images are appended (existing ones are kept).
-  const files = formData.getAll('images').filter((f): f is File => f instanceof File);
-  const existingCount = await prisma.requestImage.count({ where: { requestId: id } });
-  await saveImages(id, files, existingCount);
-
   await logAction(user.id, 'UPDATE', 'InspectionRequest', id, existing.reference);
 
   revalidatePath('/requests');
   revalidatePath(`/requests/${id}`);
-  redirect(`/requests/${id}`);
+  // New images are uploaded separately by the client after this returns.
+  return { ok: true, id };
 }
 
 /**

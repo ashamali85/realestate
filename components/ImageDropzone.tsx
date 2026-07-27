@@ -20,19 +20,30 @@ type Picked = { file: File; url: string; key: string };
  * no fewer. This avoids the earlier bug where selecting several files at once
  * desynced the input from the previews.
  */
-export function ImageDropzone({ locale }: { locale: Locale }) {
+export function ImageDropzone({
+  locale,
+  onFilesChange
+}: {
+  locale: Locale;
+  onFilesChange?: (files: File[]) => void;
+}) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [items, setItems] = useState<Picked[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const counter = useRef(0);
 
-  // Whenever items change, rebuild the hidden input's FileList to match.
+  // Report the current file list up to the parent form, which uploads them
+  // separately after the request is saved. Also keep the hidden input in sync
+  // for progressive-enhancement / no-JS fallback.
   useEffect(() => {
-    if (!inputRef.current) return;
-    const dt = new DataTransfer();
-    for (const it of items) dt.items.add(it.file);
-    inputRef.current.files = dt.files;
+    if (inputRef.current) {
+      const dt = new DataTransfer();
+      for (const it of items) dt.items.add(it.file);
+      inputRef.current.files = dt.files;
+    }
+    onFilesChange?.(items.map((it) => it.file));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
   // Clean up object URLs on unmount.
@@ -128,11 +139,11 @@ export function ImageDropzone({ locale }: { locale: Locale }) {
         <span className="btn btn-ghost btn-sm dropzone-btn">{t('dz_browse', locale)}</span>
       </div>
 
-      {/* Hidden real input the server action reads. Kept in sync from `items`. */}
+      {/* File picker. Files are reported to the parent via onFilesChange and
+          uploaded to the API route after save — not submitted in the form. */}
       <input
         ref={inputRef}
         type="file"
-        name="images"
         multiple
         accept={ACCEPT.join(',')}
         className="dropzone-input"

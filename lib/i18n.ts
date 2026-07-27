@@ -116,6 +116,10 @@ const DICT: Dict = {
   u_active: { en: 'Active', ar: 'مُفعّل' },
 
   saved_ok: { en: 'Saved.', ar: 'تم الحفظ.' },
+  upload_partial: {
+    en: 'The request was saved, but some photos failed to upload. Open the request and try adding them again.',
+    ar: 'تم حفظ الطلب، لكن تعذّر رفع بعض الصور. افتح الطلب وحاول إضافتها مرة أخرى.'
+  },
   required: { en: 'This field is required.', ar: 'هذا الحقل مطلوب.' },
   confirm_delete: { en: 'Delete this permanently?', ar: 'حذف هذا نهائيًا؟' },
   confirm_delete_request: {

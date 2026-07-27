@@ -1,7 +1,36 @@
 import { prisma } from '@/lib/db';
 
-/** All five request lookups plus areas/governorates, loaded for the form. */
-export async function loadFormLookups() {
+export type LookupOption = {
+  id: string;
+  nameEn: string;
+  nameAr: string;
+  displayOrder: number;
+  isActive: boolean;
+};
+
+export type AreaOption = {
+  id: string;
+  nameEn: string;
+  nameAr: string;
+  governorateId: string;
+};
+
+export type FormLookups = {
+  purposes: LookupOption[];
+  statuses: LookupOption[];
+  exteriors: LookupOption[];
+  elevators: LookupOption[];
+  acs: LookupOption[];
+  governorates: LookupOption[];
+  areas: AreaOption[];
+};
+
+/**
+ * All five request lookups plus areas/governorates, loaded for the form.
+ * The explicit return type keeps callers correctly typed regardless of whether
+ * the generated Prisma client is present at type-check time.
+ */
+export async function loadFormLookups(): Promise<FormLookups> {
   const [purposes, statuses, exteriors, elevators, acs, governorates, areas] =
     await Promise.all([
       prisma.purposeOption.findMany({ where: { isActive: true }, orderBy: { displayOrder: 'asc' } }),
@@ -18,5 +47,3 @@ export async function loadFormLookups() {
     ]);
   return { purposes, statuses, exteriors, elevators, acs, governorates, areas };
 }
-
-export type FormLookups = Awaited<ReturnType<typeof loadFormLookups>>;
