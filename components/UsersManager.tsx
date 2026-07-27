@@ -1,8 +1,9 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUser, setUserActive, resetUserPassword, type UserFormState } from '@/lib/user-actions';
+import { useLoading } from './LoadingOverlay';
 import { t, type Locale } from '@/lib/i18n';
 
 export type UserRow = {
@@ -18,10 +19,19 @@ const initial: UserFormState = {};
 
 export function UsersManager({ rows, locale }: { rows: UserRow[]; locale: Locale }) {
   const router = useRouter();
+  const loading = useLoading();
+  const [, startTransition] = useTransition();
   const [state, formAction, pending] = useActionState(createUser, initial);
   const [adding, setAdding] = useState(false);
   const [resetId, setResetId] = useState<string | null>(null);
   const handledOk = useRef(false);
+
+  // Show the overlay while the create action is pending.
+  useEffect(() => {
+    if (pending) loading.show(t('saving', locale));
+    else loading.hide();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pending]);
 
   // When a create succeeds, close the add form and refresh the list so the new
   // user appears immediately. The ref guard ensures this runs once per success,
@@ -34,6 +44,26 @@ export function UsersManager({ rows, locale }: { rows: UserRow[]; locale: Locale
     }
     if (!state.ok) handledOk.current = false;
   }, [state.ok, router]);
+
+  function toggleActive(id: string, active: boolean) {
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.append('id', id);
+      fd.append('active', String(active));
+      await loading.run(() => setUserActive(fd), t('saving', locale));
+      router.refresh();
+    });
+  }
+
+  function resetPassword(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    startTransition(async () => {
+      await loading.run(() => resetUserPassword(fd), t('saving', locale));
+      setResetId(null);
+      router.refresh();
+    });
+  }
 
   return (
     <div className="stack" style={{ gap: 16 }}>
@@ -119,17 +149,17 @@ export function UsersManager({ rows, locale }: { rows: UserRow[]; locale: Locale
                       {t('user_reset_password', locale)}
                     </button>
                     {!u.isSelf && (
-                      <form action={setUserActive}>
-                        <input type="hidden" name="id" value={u.id} />
-                        <input type="hidden" name="active" value={String(!u.isActive)} />
-                        <button type="submit" className={`btn btn-sm ${u.isActive ? 'btn-danger' : 'btn-ghost'}`}>
-                          {u.isActive ? t('user_deactivate', locale) : t('user_activate', locale)}
-                        </button>
-                      </form>
+                      <button
+                        type="button"
+                        className={`btn btn-sm ${u.isActive ? 'btn-danger' : 'btn-ghost'}`}
+                        onClick={() => toggleActive(u.id, !u.isActive)}
+                      >
+                        {u.isActive ? t('user_deactivate', locale) : t('user_activate', locale)}
+                      </button>
                     )}
                   </div>
                   {resetId === u.id && (
-                    <form action={resetUserPassword} className="row wrap mt-2" style={{ gap: 6 }}>
+                    <form onSubmit={resetPassword} className="row wrap mt-2" style={{ gap: 6 }}>
                       <input type="hidden" name="id" value={u.id} />
                       <input name="password" type="password" placeholder={t('user_new_password', locale)} minLength={8} required dir="ltr" style={{ maxWidth: 200 }} />
                       <button type="submit" className="btn btn-primary btn-sm">{t('btn_save', locale)}</button>

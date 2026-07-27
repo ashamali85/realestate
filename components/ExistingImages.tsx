@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { deleteRequestImageById } from '@/lib/actions';
 import { useConfirm } from './ConfirmDialog';
+import { useLoading } from './LoadingOverlay';
 import { t, type Locale } from '@/lib/i18n';
 
 /**
@@ -20,6 +21,7 @@ export function ExistingImages({
   locale: Locale;
 }) {
   const confirm = useConfirm();
+  const loading = useLoading();
   const [removed, setRemoved] = useState<Set<string>>(new Set());
   const [, startTransition] = useTransition();
   const visible = images.filter((img) => !removed.has(img.id));
@@ -35,7 +37,7 @@ export function ExistingImages({
     if (!ok) return;
     setRemoved((prev) => new Set(prev).add(id));
     startTransition(async () => {
-      await deleteRequestImageById(id, requestId);
+      await loading.run(() => deleteRequestImageById(id, requestId), t('loading', locale));
     });
   }
 
