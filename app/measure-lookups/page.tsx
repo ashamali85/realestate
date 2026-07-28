@@ -32,6 +32,7 @@ export default async function MeasureLookupsPage() {
               title={t('measure_status_title', locale)}
               rows={measureStatuses}
               locale={locale}
+              showScore
             />
           </CollapsibleSection>
         </div>

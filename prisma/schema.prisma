@@ -251,6 +251,7 @@ model MeasureStatusOption {
   id           String           @id @default(cuid())
   nameEn       String
   nameAr       String
+  score        Int              @default(0) // 0–3, used to compute evaluation scores
   displayOrder Int              @default(0)
   isActive     Boolean          @default(true)
   measures     RequestMeasure[]

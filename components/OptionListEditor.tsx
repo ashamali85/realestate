@@ -13,18 +13,21 @@ export type OptionRow = {
   nameAr: string;
   displayOrder: number;
   isActive: boolean;
+  score?: number;
 };
 
 export function OptionListEditor({
   kind,
   title,
   rows,
-  locale
+  locale,
+  showScore = false
 }: {
   kind: LookupKind;
   title: string;
   rows: OptionRow[];
   locale: Locale;
+  showScore?: boolean;
 }) {
   const router = useRouter();
   const confirm = useConfirm();
@@ -92,6 +95,14 @@ export function OptionListEditor({
             <input name="nameAr" placeholder={t('lookup_name_ar', locale)} dir="rtl" required />
             <input name="displayOrder" type="number" min={0} placeholder={t('lookup_order', locale)} defaultValue={rows.length} />
           </div>
+          {showScore && (
+            <div className="grid-3 mt-2">
+              <div className="field" style={{ margin: 0 }}>
+                <label>{t('measure_score', locale)}</label>
+                <input name="score" type="number" min={0} max={3} defaultValue={0} required />
+              </div>
+            </div>
+          )}
           <input type="hidden" name="kind" value={kind} />
           <div className="mt-2">
             <button type="submit" className="btn btn-primary btn-sm">
@@ -107,6 +118,7 @@ export function OptionListEditor({
             <tr>
               <th>{t('lookup_name_en', locale)}</th>
               <th>{t('lookup_name_ar', locale)}</th>
+              {showScore && <th>{t('measure_score', locale)}</th>}
               <th>{t('lookup_order', locale)}</th>
               <th>{t('lookup_active', locale)}</th>
               <th>{t('col_actions', locale)}</th>
@@ -116,7 +128,7 @@ export function OptionListEditor({
             {rows.map((row) =>
               editingId === row.id ? (
                 <tr key={row.id}>
-                  <td colSpan={5}>
+                  <td colSpan={showScore ? 6 : 5}>
                     <form onSubmit={submitEdit} className="lookup-form">
                       <input type="hidden" name="kind" value={kind} />
                       <input type="hidden" name="id" value={row.id} />
@@ -125,6 +137,14 @@ export function OptionListEditor({
                         <input name="nameAr" defaultValue={row.nameAr} dir="rtl" required />
                         <input name="displayOrder" type="number" min={0} defaultValue={row.displayOrder} />
                       </div>
+                      {showScore && (
+                        <div className="grid-3 mt-2">
+                          <div className="field" style={{ margin: 0 }}>
+                            <label>{t('measure_score', locale)}</label>
+                            <input name="score" type="number" min={0} max={3} defaultValue={row.score ?? 0} required />
+                          </div>
+                        </div>
+                      )}
                       <div className="row wrap mt-2">
                         <label className="check">
                           <input type="checkbox" name="isActive" defaultChecked={row.isActive} />{' '}
@@ -144,6 +164,7 @@ export function OptionListEditor({
                 <tr key={row.id} className={row.isActive ? '' : 'row-inactive'}>
                   <td dir="ltr">{row.nameEn}</td>
                   <td dir="rtl">{row.nameAr}</td>
+                  {showScore && <td className="mono">{row.score ?? 0}</td>}
                   <td>{row.displayOrder}</td>
                   <td>
                     {row.isActive ? (

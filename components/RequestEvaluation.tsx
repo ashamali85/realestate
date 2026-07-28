@@ -12,6 +12,7 @@ import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
 import { CollapsibleSection } from './CollapsibleSection';
 import { ImageDropzone } from './ImageDropzone';
+import { formatScore } from '@/lib/scoring';
 import { t, localName, type Locale } from '@/lib/i18n';
 
 type StatusOpt = { id: string; nameEn: string; nameAr: string };
@@ -21,6 +22,7 @@ type Measure = {
   nameEn: string;
   nameAr: string;
   statusId: string | null;
+  score: number | null;
   notes: string | null;
   recommendations: string | null;
   images: MeasureImage[];
@@ -28,6 +30,7 @@ type Measure = {
 type Assigned = {
   id: string;
   criteriaName: string;
+  score: number | null;
   measures: Measure[];
 };
 
@@ -97,7 +100,10 @@ export function RequestEvaluation({
         <p className="muted small">{t('eval_none', locale)}</p>
       ) : (
         assigned.map((a) => (
-          <CollapsibleSection key={a.id} title={a.criteriaName}>
+          <CollapsibleSection
+            key={a.id}
+            title={`${a.criteriaName}${a.score !== null ? `  ·  ${formatScore(a.score)}` : ''}`}
+          >
             <div className="row-between" style={{ marginBottom: 12 }}>
               <span className="muted small">{a.measures.length} · {t('criteria_measures', locale)}</span>
               <button type="button" className="btn btn-danger btn-sm" onClick={() => unassign(a.id)}>
@@ -155,7 +161,12 @@ function MeasureCard({
 
   return (
     <div className="card" style={{ padding: 16 }}>
-      <h3 style={{ marginBottom: 12 }}>{localName(measure, locale)}</h3>
+      <div className="row-between" style={{ marginBottom: 12 }}>
+        <h3>{localName(measure, locale)}</h3>
+        <span className="score-pill small">
+          {measure.score !== null ? `${measure.score} / 3` : t('eval_unscored', locale)}
+        </span>
+      </div>
       <form onSubmit={save}>
         <input type="hidden" name="id" value={measure.id} />
         <input type="hidden" name="requestId" value={requestId} />

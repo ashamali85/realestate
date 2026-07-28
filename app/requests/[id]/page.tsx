@@ -8,6 +8,7 @@ import { formatDate } from '@/lib/utils';
 import { TopBar } from '@/components/TopBar';
 import { DeleteRequestButton } from '@/components/DeleteRequestButton';
 import { RequestEvaluation } from '@/components/RequestEvaluation';
+import { criteriaScore, overallScore, formatScore } from '@/lib/scoring';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,7 +46,10 @@ export default async function RequestDetailPage({
         criteria: true,
         measures: {
           orderBy: { displayOrder: 'asc' },
-          include: { images: { orderBy: { sortOrder: 'asc' }, select: { id: true } } }
+          include: {
+            images: { orderBy: { sortOrder: 'asc' }, select: { id: true } },
+            status: { select: { score: true } }
+          }
         }
       }
     }),
@@ -61,16 +65,22 @@ export default async function RequestDetailPage({
   const assigned = assignedRaw.map((a: (typeof assignedRaw)[number]) => ({
     id: a.id,
     criteriaName: localName(a.criteria, locale),
+    score: criteriaScore(
+      a.measures.map((m) => ({ score: m.statusId && m.status ? m.status.score : null }))
+    ),
     measures: a.measures.map((m) => ({
       id: m.id,
       nameEn: m.nameEn,
       nameAr: m.nameAr,
       statusId: m.statusId,
+      score: m.statusId && m.status ? m.status.score : null,
       notes: m.notes,
       recommendations: m.recommendations,
       images: m.images.map((img) => ({ id: img.id }))
     }))
   }));
+
+  const overall = overallScore(assigned.map((a: { score: number | null }) => a.score));
 
   const canDelete = user.role === 'SUPER_ADMIN';
   const mapLink =
@@ -177,7 +187,14 @@ export default async function RequestDetailPage({
         </div>
 
         <section className="mt-6">
-          <h2 style={{ color: 'var(--brand)', marginBottom: 16 }}>{t('sec_evaluation', locale)}</h2>
+          <div className="section-title" style={{ marginBottom: 16 }}>
+            <h2 style={{ color: 'var(--brand)' }}>{t('sec_evaluation', locale)}</h2>
+            {overall !== null && (
+              <span className="score-pill" title={t('eval_overall_score', locale)}>
+                {t('eval_overall_score', locale)}: <strong>{formatScore(overall)}</strong>
+              </span>
+            )}
+          </div>
           <RequestEvaluation
             requestId={r.id}
             assigned={assigned}

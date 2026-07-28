@@ -110,6 +110,11 @@ const DICT: Dict = {
     ar: 'إدارة قائمة الحالات المستخدمة في قياسات المعايير. وهي منفصلة عن قائمة حالات الطلبات.'
   },
   measure_status_title: { en: 'Measure Status', ar: 'حالة القياس' },
+  measure_score: { en: 'Score (0–3)', ar: 'الدرجة (0–3)' },
+  eval_score: { en: 'Score', ar: 'الدرجة' },
+  eval_criteria_score: { en: 'Criteria score', ar: 'درجة المعيار' },
+  eval_overall_score: { en: 'Overall score', ar: 'الدرجة الإجمالية' },
+  eval_unscored: { en: 'Not scored', ar: 'غير مقيّم' },
   criteria_title: { en: 'Evaluation Criteria', ar: 'معايير التقييم' },
   criteria_intro: {
     en: 'Define reusable evaluation criteria and their measures. Assign them to requests to fill in values.',

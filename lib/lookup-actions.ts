@@ -56,6 +56,12 @@ const optionSchema = z.object({
   displayOrder: z.number().int().min(0).max(9999)
 });
 
+/** Constrain a measure-status score to the allowed 0–3 range. */
+function clampScore(n: number): number {
+  if (Number.isNaN(n)) return 0;
+  return Math.max(0, Math.min(3, Math.trunc(n)));
+}
+
 async function audit(actorUserId: string, action: string, entityType: string, entityId: string, entityName?: string) {
   await prisma.auditLog.create({ data: { actorUserId, action, entityType, entityId, entityName } });
 }
@@ -72,7 +78,13 @@ export async function createOption(formData: FormData) {
   });
   if (!parsed.success) return;
 
-  await modelFor(kind).create({ data: parsed.data });
+  // Measure status carries a 0–3 score; other lookups don't have this column.
+  const data =
+    kind === 'measureStatus'
+      ? { ...parsed.data, score: clampScore(getInt(formData, 'score') ?? 0) }
+      : parsed.data;
+
+  await modelFor(kind).create({ data });
   await audit(user.id, 'CREATE', `Lookup:${kind}`, 'new', parsed.data.nameEn);
   revalidatePath('/lookups');
   revalidatePath('/measure-lookups');
@@ -94,7 +106,12 @@ export async function updateOption(formData: FormData) {
     });
   if (!parsed.success) return;
 
-  await modelFor(kind).update({ where: { id }, data: parsed.data });
+  const data =
+    kind === 'measureStatus'
+      ? { ...parsed.data, score: clampScore(getInt(formData, 'score') ?? 0) }
+      : parsed.data;
+
+  await modelFor(kind).update({ where: { id }, data });
   await audit(user.id, 'UPDATE', `Lookup:${kind}`, id, parsed.data.nameEn);
   revalidatePath('/lookups');
   revalidatePath('/measure-lookups');

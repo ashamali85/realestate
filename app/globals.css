@@ -253,3 +253,13 @@ tr.row-inactive td { opacity: 0.55; }
   .loading-bars span { animation-duration: 0s; }
   .loading-overlay { animation-duration: 0s; }
 }
+
+/* Score pill -------------------------------------------------------------- */
+.score-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--brand-tint); color: var(--brand);
+  border: 1px solid rgba(10, 61, 145, 0.15);
+  padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 0.9rem;
+  white-space: nowrap;
+}
+.score-pill.small { padding: 2px 10px; font-size: 0.82rem; }
