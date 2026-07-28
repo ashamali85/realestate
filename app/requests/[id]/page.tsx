@@ -178,7 +178,7 @@ export default async function RequestDetailPage({
 
           {r.notes && (
             <CollapsibleSection title={t('sec_notes', locale)}>
-              <p>{r.notes}</p>
+              <p className="detail-value">{r.notes}</p>
             </CollapsibleSection>
           )}
         </div>
