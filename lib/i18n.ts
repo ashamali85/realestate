@@ -25,7 +25,7 @@ const DICT: Dict = {
 
   nav_requests: { en: 'Requests', ar: 'الطلبات' },
   nav_new_request: { en: 'New request', ar: 'طلب جديد' },
-  nav_lookups: { en: 'Lookups', ar: 'القوائم' },
+  nav_lookups: { en: 'Request Lookups', ar: 'قوائم الطلبات' },
   nav_users: { en: 'Users', ar: 'المستخدمون' },
   nav_signout: { en: 'Sign out', ar: 'تسجيل الخروج' },
   nav_language: { en: 'العربية', ar: 'English' },
@@ -103,6 +103,13 @@ const DICT: Dict = {
 
   // Criteria
   nav_criteria: { en: 'Criteria', ar: 'المعايير' },
+  nav_measure_lookups: { en: 'Measure Lookups', ar: 'قوائم القياسات' },
+  measure_lookups_title: { en: 'Measure Lookups', ar: 'قوائم القياسات' },
+  measure_lookups_intro: {
+    en: 'Maintain the status list used by criteria measures. This is separate from the request status list.',
+    ar: 'إدارة قائمة الحالات المستخدمة في قياسات المعايير. وهي منفصلة عن قائمة حالات الطلبات.'
+  },
+  measure_status_title: { en: 'Measure Status', ar: 'حالة القياس' },
   criteria_title: { en: 'Evaluation Criteria', ar: 'معايير التقييم' },
   criteria_intro: {
     en: 'Define reusable evaluation criteria and their measures. Assign them to requests to fill in values.',
@@ -130,7 +137,7 @@ const DICT: Dict = {
   eval_none: { en: 'No criteria assigned to this request yet.', ar: 'لم يتم تعيين أي معيار لهذا الطلب بعد.' },
   all_assigned: { en: 'All criteria are already assigned.', ar: 'تم تعيين جميع المعايير بالفعل.' },
 
-  lookups_title: { en: 'Manage lookups', ar: 'إدارة القوائم' },
+  lookups_title: { en: 'Request Lookups', ar: 'قوائم الطلبات' },
   lookup_purpose: { en: 'Purpose', ar: 'الغرض' },
   lookup_status: { en: 'Status', ar: 'الحالة' },
   lookup_exterior: { en: 'Exterior', ar: 'الواجهة' },

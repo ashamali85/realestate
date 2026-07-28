@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose/jwt/verify';
 
-const protectedPrefixes = ['/requests', '/lookups', '/users', '/criteria'];
+const protectedPrefixes = ['/requests', '/lookups', '/users', '/criteria', '/measure-lookups'];
 
 function getSecret(): Uint8Array {
   const raw = process.env.JWT_SECRET;
@@ -31,5 +31,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/requests/:path*', '/lookups/:path*', '/users/:path*', '/criteria/:path*']
+  matcher: ['/requests/:path*', '/lookups/:path*', '/users/:path*', '/criteria/:path*', '/measure-lookups/:path*']
 };

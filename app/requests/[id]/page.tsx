@@ -50,7 +50,7 @@ export default async function RequestDetailPage({
       }
     }),
     prisma.criteria.findMany({ where: { isActive: true }, orderBy: { nameEn: 'asc' } }),
-    prisma.statusOption.findMany({ where: { isActive: true }, orderBy: { displayOrder: 'asc' } })
+    prisma.measureStatusOption.findMany({ where: { isActive: true }, orderBy: { displayOrder: 'asc' } })
   ]);
 
   const assignedIds = new Set(assignedRaw.map((a: (typeof assignedRaw)[number]) => a.criteriaId));

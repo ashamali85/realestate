@@ -16,14 +16,16 @@ export type LookupKind =
   | 'status'
   | 'exterior'
   | 'elevator'
-  | 'ac';
+  | 'ac'
+  | 'measureStatus';
 
 const KIND_TO_MODEL = {
   purpose: 'purposeOption',
   status: 'statusOption',
   exterior: 'exteriorOption',
   elevator: 'elevatorOption',
-  ac: 'acOption'
+  ac: 'acOption',
+  measureStatus: 'measureStatusOption'
 } as const;
 
 function modelFor(kind: LookupKind) {
@@ -38,7 +40,14 @@ function modelFor(kind: LookupKind) {
 }
 
 function isKind(v: string): v is LookupKind {
-  return v === 'purpose' || v === 'status' || v === 'exterior' || v === 'elevator' || v === 'ac';
+  return (
+    v === 'purpose' ||
+    v === 'status' ||
+    v === 'exterior' ||
+    v === 'elevator' ||
+    v === 'ac' ||
+    v === 'measureStatus'
+  );
 }
 
 const optionSchema = z.object({
@@ -66,6 +75,7 @@ export async function createOption(formData: FormData) {
   await modelFor(kind).create({ data: parsed.data });
   await audit(user.id, 'CREATE', `Lookup:${kind}`, 'new', parsed.data.nameEn);
   revalidatePath('/lookups');
+  revalidatePath('/measure-lookups');
 }
 
 export async function updateOption(formData: FormData) {
@@ -87,6 +97,7 @@ export async function updateOption(formData: FormData) {
   await modelFor(kind).update({ where: { id }, data: parsed.data });
   await audit(user.id, 'UPDATE', `Lookup:${kind}`, id, parsed.data.nameEn);
   revalidatePath('/lookups');
+  revalidatePath('/measure-lookups');
 }
 
 export async function deleteOption(formData: FormData) {
@@ -95,14 +106,20 @@ export async function deleteOption(formData: FormData) {
   const id = getString(formData, 'id');
   if (!isKind(kind) || !id) return;
 
-  // If the option is referenced by any request, deactivate rather than delete
-  // to preserve referential integrity (the FK uses onDelete: Restrict).
-  const relationField = `${kind === 'ac' ? 'ac' : kind}Id`;
-  const inUse = await prisma.inspectionRequest.count({
-    where: { [relationField]: id } as Record<string, string>
-  });
+  // Determine whether the option is in use. Measure status is referenced by
+  // RequestMeasure; the other lookups are referenced by InspectionRequest.
+  let inUse = 0;
+  if (kind === 'measureStatus') {
+    inUse = await prisma.requestMeasure.count({ where: { statusId: id } });
+  } else {
+    const relationField = `${kind}Id`;
+    inUse = await prisma.inspectionRequest.count({
+      where: { [relationField]: id } as Record<string, string>
+    });
+  }
 
   if (inUse > 0) {
+    // Deactivate rather than delete to preserve referential integrity.
     await modelFor(kind).update({ where: { id }, data: { isActive: false } });
     await audit(user.id, 'DEACTIVATE', `Lookup:${kind}`, id);
   } else {
@@ -110,6 +127,7 @@ export async function deleteOption(formData: FormData) {
     await audit(user.id, 'DELETE', `Lookup:${kind}`, id);
   }
   revalidatePath('/lookups');
+  revalidatePath('/measure-lookups');
 }
 
 // ------------------------------------------------------------- governorates

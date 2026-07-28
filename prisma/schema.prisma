@@ -95,7 +95,6 @@ model StatusOption {
   displayOrder Int                 @default(0)
   isActive     Boolean             @default(true)
   requests     InspectionRequest[]
-  measures     RequestMeasure[]
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
 
@@ -248,6 +247,19 @@ model AuditLog {
 //     and up to 4 attachments (RequestMeasureImage).
 // ============================================================================
 
+model MeasureStatusOption {
+  id           String           @id @default(cuid())
+  nameEn       String
+  nameAr       String
+  displayOrder Int              @default(0)
+  isActive     Boolean          @default(true)
+  measures     RequestMeasure[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([nameEn])
+}
+
 model Criteria {
   id        String            @id @default(cuid())
   nameEn    String
@@ -299,7 +311,7 @@ model RequestMeasure {
 
   // Filled-in values
   statusId        String?
-  status          StatusOption?         @relation(fields: [statusId], references: [id], onDelete: SetNull)
+  status          MeasureStatusOption?  @relation(fields: [statusId], references: [id], onDelete: SetNull)
   notes           String?
   recommendations String?
   images          RequestMeasureImage[]
