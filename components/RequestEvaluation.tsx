@@ -161,13 +161,15 @@ function MeasureCard({
   const visibleImages = measure.images.filter((img) => !removed.has(img.id));
 
   return (
-    <div className="card" style={{ padding: 16 }}>
-      <div className="row-between" style={{ marginBottom: 12 }}>
-        <h3>{localName(measure, locale)}</h3>
+    <CollapsibleSection
+      title={localName(measure, locale)}
+      defaultOpen={false}
+      titleExtra={
         <span className="score-pill small">
           {measure.score !== null ? `${measure.score} / 3` : t('eval_unscored', locale)}
         </span>
-      </div>
+      }
+    >
       <form onSubmit={save}>
         <input type="hidden" name="id" value={measure.id} />
         <input type="hidden" name="requestId" value={requestId} />
@@ -222,6 +224,6 @@ function MeasureCard({
           uploadKey="measureId"
         />
       </div>
-    </div>
+    </CollapsibleSection>
   );
 }

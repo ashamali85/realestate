@@ -267,13 +267,22 @@ tr.row-inactive td { opacity: 0.55; }
 /* Star rating ------------------------------------------------------------- */
 .star-rating { display: inline-flex; align-items: center; gap: 8px; }
 .star-row { display: inline-flex; gap: 3px; }
-.star { position: relative; display: inline-block; line-height: 0; }
-.star .star-bg { color: rgba(10, 61, 145, 0.16); display: block; } /* dimmed */
-.star-fill-clip { position: absolute; inset-inline-start: 0; top: 0; height: 100%; overflow: hidden; display: inline-block; }
-.star .star-fg { color: #f5a623; display: block; } /* filled gold */
+.star { position: relative; display: inline-block; line-height: 0; flex: 0 0 auto; }
+.star .star-bg { color: rgba(10, 61, 145, 0.18); } /* dimmed base */
+.star .star-fg { color: #f5a623; }                 /* filled gold */
+/* Gold overlay: absolutely positioned, clipped to a percentage width. The
+   inner SVG keeps its full pixel size (min-width in the component), so the
+   overflow:hidden crops it instead of squishing it. */
+.star-clip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  overflow: hidden;
+  display: block;
+}
+/* In RTL, fill each star from its right edge. */
+body.is-rtl .star-clip { left: auto; right: 0; }
 .star-number { font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; font-size: 0.92rem; }
-
-/* In RTL the clip should fill from the right edge of each star. */
-body.is-rtl .star-fill-clip { inset-inline-start: auto; inset-inline-end: 0; }
 
 .collapse-title { display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; }
