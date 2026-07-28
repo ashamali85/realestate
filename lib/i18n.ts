@@ -137,6 +137,7 @@ const DICT: Dict = {
 
   // Assignment / fill on a request
   sec_evaluation: { en: 'Evaluation', ar: 'التقييم' },
+  sec_criteria: { en: 'Criteria', ar: 'المعايير' },
   assign_criteria: { en: 'Assign criteria', ar: 'تعيين معيار' },
   assign_choose: { en: 'Choose a criteria to assign…', ar: 'اختر معيارًا لتعيينه…' },
   assign_btn: { en: 'Assign', ar: 'تعيين' },
