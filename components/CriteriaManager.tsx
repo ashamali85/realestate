@@ -13,6 +13,7 @@ import {
 import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
 import { CollapsibleSection } from './CollapsibleSection';
+import { Modal } from './Modal';
 import { t, localName, type Locale } from '@/lib/i18n';
 
 export type MeasureRow = { id: string; nameEn: string; nameAr: string; displayOrder: number };
@@ -30,7 +31,7 @@ export function CriteriaManager({ criteria, locale }: { criteria: CriteriaRow[];
   const loading = useLoading();
   const [, startTransition] = useTransition();
   const [adding, setAdding] = useState(false);
-  const [editId, setEditId] = useState<string | null>(null);
+  const [editing, setEditing] = useState<CriteriaRow | null>(null);
 
   function run(action: () => Promise<unknown>, after?: () => void) {
     startTransition(async () => {
@@ -50,7 +51,7 @@ export function CriteriaManager({ criteria, locale }: { criteria: CriteriaRow[];
   function submitEdit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    run(() => updateCriteria(fd), () => setEditId(null));
+    run(() => updateCriteria(fd), () => setEditing(null));
   }
 
   async function removeCriteria(id: string) {
@@ -91,31 +92,37 @@ export function CriteriaManager({ criteria, locale }: { criteria: CriteriaRow[];
             title={`${localName(c, locale)}${c.isActive ? '' : ' •'}`}
             defaultOpen={false}
           >
-            {editId === c.id ? (
-              <form onSubmit={submitEdit} className="lookup-form">
-                <input type="hidden" name="id" value={c.id} />
-                <div className="grid-2">
-                  <input name="nameEn" defaultValue={c.nameEn} dir="ltr" required />
-                  <input name="nameAr" defaultValue={c.nameAr} dir="rtl" required />
-                </div>
-                <div className="row wrap mt-2">
-                  <label className="check">
-                    <input type="checkbox" name="isActive" defaultChecked={c.isActive} /> {t('lookup_active', locale)}
-                  </label>
-                  <button type="submit" className="btn btn-primary btn-sm">{t('btn_save', locale)}</button>
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditId(null)}>{t('btn_cancel', locale)}</button>
-                </div>
-              </form>
-            ) : (
-              <div className="row wrap" style={{ gap: 6, marginBottom: 12 }}>
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditId(c.id)}>{t('btn_edit', locale)}</button>
-                <button type="button" className="btn btn-danger btn-sm" onClick={() => removeCriteria(c.id)}>{t('btn_delete', locale)}</button>
-              </div>
-            )}
+            <div className="row wrap" style={{ gap: 6, marginBottom: 12 }}>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditing(c)}>{t('btn_edit', locale)}</button>
+              <button type="button" className="btn btn-danger btn-sm" onClick={() => removeCriteria(c.id)}>{t('btn_delete', locale)}</button>
+            </div>
 
             <MeasureList criteriaId={c.id} measures={c.measures} locale={locale} run={run} confirm={confirm} />
           </CollapsibleSection>
         ))
+      )}
+
+      {editing && (
+        <Modal title={t('criteria_edit_title', locale)} onClose={() => setEditing(null)}>
+          <form onSubmit={submitEdit}>
+            <input type="hidden" name="id" value={editing.id} />
+            <div className="field">
+              <label>{t('criteria_name', locale)} (EN)</label>
+              <input name="nameEn" defaultValue={editing.nameEn} dir="ltr" required autoFocus />
+            </div>
+            <div className="field">
+              <label>{t('criteria_name', locale)} (AR)</label>
+              <input name="nameAr" defaultValue={editing.nameAr} dir="rtl" required />
+            </div>
+            <label className="check" style={{ marginTop: 4 }}>
+              <input type="checkbox" name="isActive" defaultChecked={editing.isActive} /> {t('lookup_active', locale)}
+            </label>
+            <div className="modal-actions" style={{ marginTop: 20 }}>
+              <button type="button" className="btn btn-ghost" onClick={() => setEditing(null)}>{t('btn_cancel', locale)}</button>
+              <button type="submit" className="btn btn-primary">{t('btn_save', locale)}</button>
+            </div>
+          </form>
+        </Modal>
       )}
     </div>
   );
@@ -135,7 +142,7 @@ function MeasureList({
   confirm: ReturnType<typeof useConfirm>;
 }) {
   const [addingM, setAddingM] = useState(false);
-  const [editMId, setEditMId] = useState<string | null>(null);
+  const [editingM, setEditingM] = useState<MeasureRow | null>(null);
 
   function submitAddM(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -146,7 +153,7 @@ function MeasureList({
   function submitEditM(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    run(() => updateMeasure(fd), () => setEditMId(null));
+    run(() => updateMeasure(fd), () => setEditingM(null));
   }
   async function removeM(id: string) {
     const ok = await confirm({ message: t('confirm_delete', locale), danger: true, confirmLabel: t('btn_delete', locale) });
@@ -185,44 +192,53 @@ function MeasureList({
         <div className="stack" style={{ gap: 8, marginTop: 8 }}>
           {measures.map((m) => (
             <CollapsibleSection key={m.id} title={localName(m, locale)} defaultOpen={false}>
-              {editMId === m.id ? (
-                <form onSubmit={submitEditM} className="lookup-form">
-                  <input type="hidden" name="id" value={m.id} />
-                  <div className="grid-3">
-                    <input name="nameEn" defaultValue={m.nameEn} dir="ltr" required />
-                    <input name="nameAr" defaultValue={m.nameAr} dir="rtl" required />
-                    <input name="displayOrder" type="number" min={0} defaultValue={m.displayOrder} />
+              <div>
+                <div className="detail-grid" style={{ marginBottom: 12 }}>
+                  <div className="detail-item">
+                    <div className="detail-label">{t('lookup_name_en', locale)}</div>
+                    <div className="detail-value" dir="ltr">{m.nameEn}</div>
                   </div>
-                  <div className="row wrap mt-2">
-                    <button type="submit" className="btn btn-primary btn-sm">{t('btn_save', locale)}</button>
-                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditMId(null)}>{t('btn_cancel', locale)}</button>
+                  <div className="detail-item">
+                    <div className="detail-label">{t('lookup_name_ar', locale)}</div>
+                    <div className="detail-value" dir="rtl">{m.nameAr}</div>
                   </div>
-                </form>
-              ) : (
-                <div>
-                  <div className="detail-grid" style={{ marginBottom: 12 }}>
-                    <div className="detail-item">
-                      <div className="detail-label">{t('lookup_name_en', locale)}</div>
-                      <div className="detail-value" dir="ltr">{m.nameEn}</div>
-                    </div>
-                    <div className="detail-item">
-                      <div className="detail-label">{t('lookup_name_ar', locale)}</div>
-                      <div className="detail-value" dir="rtl">{m.nameAr}</div>
-                    </div>
-                    <div className="detail-item">
-                      <div className="detail-label">{t('lookup_order', locale)}</div>
-                      <div className="detail-value">{m.displayOrder}</div>
-                    </div>
-                  </div>
-                  <div className="row" style={{ gap: 6 }}>
-                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditMId(m.id)}>{t('btn_edit', locale)}</button>
-                    <button type="button" className="btn btn-danger btn-sm" onClick={() => removeM(m.id)}>{t('btn_delete', locale)}</button>
+                  <div className="detail-item">
+                    <div className="detail-label">{t('lookup_order', locale)}</div>
+                    <div className="detail-value">{m.displayOrder}</div>
                   </div>
                 </div>
-              )}
+                <div className="row" style={{ gap: 6 }}>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditingM(m)}>{t('btn_edit', locale)}</button>
+                  <button type="button" className="btn btn-danger btn-sm" onClick={() => removeM(m.id)}>{t('btn_delete', locale)}</button>
+                </div>
+              </div>
             </CollapsibleSection>
           ))}
         </div>
+      )}
+
+      {editingM && (
+        <Modal title={t('measure_edit_title', locale)} onClose={() => setEditingM(null)}>
+          <form onSubmit={submitEditM}>
+            <input type="hidden" name="id" value={editingM.id} />
+            <div className="field">
+              <label>{t('measure_name', locale)} (EN)</label>
+              <input name="nameEn" defaultValue={editingM.nameEn} dir="ltr" required autoFocus />
+            </div>
+            <div className="field">
+              <label>{t('measure_name', locale)} (AR)</label>
+              <input name="nameAr" defaultValue={editingM.nameAr} dir="rtl" required />
+            </div>
+            <div className="field">
+              <label>{t('lookup_order', locale)}</label>
+              <input name="displayOrder" type="number" min={0} defaultValue={editingM.displayOrder} />
+            </div>
+            <div className="modal-actions" style={{ marginTop: 20 }}>
+              <button type="button" className="btn btn-ghost" onClick={() => setEditingM(null)}>{t('btn_cancel', locale)}</button>
+              <button type="submit" className="btn btn-primary">{t('btn_save', locale)}</button>
+            </div>
+          </form>
+        </Modal>
       )}
     </div>
   );

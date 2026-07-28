@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createOption, updateOption, deleteOption, type LookupKind } from '@/lib/lookup-actions';
 import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
+import { Modal } from './Modal';
 import { t, type Locale } from '@/lib/i18n';
 
 export type OptionRow = {
@@ -183,57 +184,41 @@ function EditModal({
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onClose: () => void;
 }) {
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
-    }
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
   return (
-    <div className="modal-backdrop" role="presentation" onClick={onClose}>
-      <div
-        className="modal-card"
-        role="dialog"
-        aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 style={{ color: 'var(--brand)', marginBottom: 16 }}>{t('lookup_edit_title', locale)}</h3>
-        <form onSubmit={onSubmit}>
-          <input type="hidden" name="kind" value={kind} />
-          <input type="hidden" name="id" value={row.id} />
+    <Modal title={t('lookup_edit_title', locale)} onClose={onClose}>
+      <form onSubmit={onSubmit}>
+        <input type="hidden" name="kind" value={kind} />
+        <input type="hidden" name="id" value={row.id} />
+        <div className="field">
+          <label>{t('lookup_name_en', locale)}</label>
+          <input name="nameEn" defaultValue={row.nameEn} dir="ltr" required autoFocus />
+        </div>
+        <div className="field">
+          <label>{t('lookup_name_ar', locale)}</label>
+          <input name="nameAr" defaultValue={row.nameAr} dir="rtl" required />
+        </div>
+        <div className="field">
+          <label>{t('lookup_order', locale)}</label>
+          <input name="displayOrder" type="number" min={0} defaultValue={row.displayOrder} />
+        </div>
+        {showScore && (
           <div className="field">
-            <label>{t('lookup_name_en', locale)}</label>
-            <input name="nameEn" defaultValue={row.nameEn} dir="ltr" required autoFocus />
+            <label>{t('measure_score', locale)}</label>
+            <input name="score" type="number" min={0} max={3} defaultValue={row.score ?? 0} required />
           </div>
-          <div className="field">
-            <label>{t('lookup_name_ar', locale)}</label>
-            <input name="nameAr" defaultValue={row.nameAr} dir="rtl" required />
-          </div>
-          <div className="field">
-            <label>{t('lookup_order', locale)}</label>
-            <input name="displayOrder" type="number" min={0} defaultValue={row.displayOrder} />
-          </div>
-          {showScore && (
-            <div className="field">
-              <label>{t('measure_score', locale)}</label>
-              <input name="score" type="number" min={0} max={3} defaultValue={row.score ?? 0} required />
-            </div>
-          )}
-          <label className="check" style={{ marginTop: 4 }}>
-            <input type="checkbox" name="isActive" defaultChecked={row.isActive} /> {t('lookup_active', locale)}
-          </label>
-          <div className="modal-actions" style={{ marginTop: 20 }}>
-            <button type="button" className="btn btn-ghost" onClick={onClose}>
-              {t('btn_cancel', locale)}
-            </button>
-            <button type="submit" className="btn btn-primary">
-              {t('btn_save', locale)}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        )}
+        <label className="check" style={{ marginTop: 4 }}>
+          <input type="checkbox" name="isActive" defaultChecked={row.isActive} /> {t('lookup_active', locale)}
+        </label>
+        <div className="modal-actions" style={{ marginTop: 20 }}>
+          <button type="button" className="btn btn-ghost" onClick={onClose}>
+            {t('btn_cancel', locale)}
+          </button>
+          <button type="submit" className="btn btn-primary">
+            {t('btn_save', locale)}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }
