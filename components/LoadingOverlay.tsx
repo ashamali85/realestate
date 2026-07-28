@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import { t, type Locale } from '@/lib/i18n';
 
 type LoadingContextValue = {
@@ -32,12 +33,27 @@ export function LoadingProvider({ locale, children }: { locale: Locale; children
 
   const run = useCallback(
     async <T,>(task: () => Promise<T>, msg?: string): Promise<T> => {
-      setMessage(msg ?? null);
-      setCount((c) => c + 1);
+      // Force the overlay to paint immediately, even when this runs inside a
+      // startTransition (where state updates are otherwise deprioritized and
+      // the overlay would never appear before the work finishes).
+      flushSync(() => {
+        setMessage(msg ?? null);
+        setCount((c) => c + 1);
+      });
+      const startedAt = Date.now();
       try {
         return await task();
       } finally {
-        setCount((c) => Math.max(0, c - 1));
+        // Keep the overlay up for a minimum time so quick operations don't
+        // flash it invisibly — it should be clearly seen.
+        const elapsed = Date.now() - startedAt;
+        const minVisibleMs = 450;
+        if (elapsed < minVisibleMs) {
+          await new Promise((r) => setTimeout(r, minVisibleMs - elapsed));
+        }
+        flushSync(() => {
+          setCount((c) => Math.max(0, c - 1));
+        });
       }
     },
     []
