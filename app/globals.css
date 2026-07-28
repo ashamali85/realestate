@@ -139,6 +139,15 @@ tr:last-child td { border-bottom: none; }
 .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
 .detail-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); font-weight: 600; margin-bottom: 3px; }
 .detail-value { font-size: 1.02rem; font-weight: 700; color: var(--ink); }
+/* Align labels and values to the page's reading direction, even when an
+   element carries dir="ltr" for correct character rendering. This keeps an
+   English value sitting under its (right-aligned) label in the Arabic view. */
+.detail-label, .detail-value { text-align: left; }
+.is-rtl .detail-label, .is-rtl .detail-value { text-align: right; }
+/* Table cells carrying dir="ltr" (English names, usernames, dates) should still
+   align to the page's reading side so each column lines up with its header. */
+td[dir="ltr"] { text-align: left; }
+.is-rtl td[dir="ltr"] { text-align: right; }
 
 /* Collapsible sections ---------------------------------------------------- */
 .collapse { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); }
