@@ -2,8 +2,9 @@ import Link from 'next/link';
 import { logout, setLocale } from '@/lib/actions';
 import { t, type Locale } from '@/lib/i18n';
 import type { SessionUser } from '@/lib/auth';
+import { loadNav } from '@/lib/nav';
 
-export function TopBar({
+export async function TopBar({
   user,
   locale,
   active
@@ -14,6 +15,8 @@ export function TopBar({
 }) {
   const isSuper = user.role === 'SUPER_ADMIN';
   const other: Locale = locale === 'ar' ? 'en' : 'ar';
+  const nav = await loadNav(locale);
+  const visible = nav.filter((item) => !item.superOnly || isSuper);
 
   return (
     <header className="topbar">
@@ -23,27 +26,19 @@ export function TopBar({
           {t('app_name', locale)}
         </Link>
         <nav className="nav">
-          <Link href="/requests" className={active === 'requests' ? 'active' : ''}>
-            {t('nav_requests', locale)}
-          </Link>
-          <Link href="/requests/new" className={active === 'new' ? 'active' : ''}>
-            {t('nav_new_request', locale)}
-          </Link>
+          {visible.map((item) => (
+            <Link
+              key={item.key}
+              href={item.href}
+              className={active === item.active ? 'active' : ''}
+            >
+              {item.label}
+            </Link>
+          ))}
           {isSuper && (
-            <>
-              <Link href="/lookups" className={active === 'lookups' ? 'active' : ''}>
-                {t('nav_lookups', locale)}
-              </Link>
-              <Link href="/criteria" className={active === 'criteria' ? 'active' : ''}>
-                {t('nav_criteria', locale)}
-              </Link>
-              <Link href="/measure-lookups" className={active === 'measure-lookups' ? 'active' : ''}>
-                {t('nav_measure_lookups', locale)}
-              </Link>
-              <Link href="/users" className={active === 'users' ? 'active' : ''}>
-                {t('nav_users', locale)}
-              </Link>
-            </>
+            <Link href="/nav" className={active === 'nav' ? 'active' : ''}>
+              {t('nav_manage_link', locale)}
+            </Link>
           )}
           <form action={setLocale} style={{ display: 'inline' }}>
             <input type="hidden" name="locale" value={other} />

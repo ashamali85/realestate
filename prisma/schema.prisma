@@ -335,3 +335,16 @@ model RequestMeasureImage {
 
   createdAt DateTime @default(now())
 }
+
+// Admin-configurable top navigation. Each row corresponds to a fixed
+// destination identified by `key` (route + visibility live in code); admins
+// may reorder and rename (EN/AR) only.
+model NavLink {
+  id           String   @id @default(cuid())
+  key          String   @unique // e.g. "requests", "new", "lookups", ...
+  labelEn      String
+  labelAr      String
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

@@ -110,6 +110,13 @@ const DICT: Dict = {
     ar: 'إدارة قائمة الحالات المستخدمة في قياسات المعايير. وهي منفصلة عن قائمة حالات الطلبات.'
   },
   measure_status_title: { en: 'Measure Status', ar: 'حالة القياس' },
+  nav_manage_link: { en: 'Navigation', ar: 'التنقل' },
+  nav_manage_title: { en: 'Manage Navigation', ar: 'إدارة التنقل' },
+  nav_manage_intro: {
+    en: 'Reorder the top menu links and rename them in both languages. Destinations stay fixed.',
+    ar: 'أعد ترتيب روابط القائمة العلوية وأعد تسميتها باللغتين. الوجهات تبقى ثابتة.'
+  },
+  nav_order: { en: 'Order', ar: 'الترتيب' },
   measure_score: { en: 'Score (0–3)', ar: 'الدرجة (0–3)' },
   eval_score: { en: 'Score', ar: 'الدرجة' },
   eval_criteria_score: { en: 'Criteria score', ar: 'درجة المعيار' },

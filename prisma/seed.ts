@@ -240,6 +240,24 @@ async function main() {
     console.log(`  super admin "${username}" already exists — left unchanged`);
   }
 
+  // Default top-navigation links (admin can reorder/rename later).
+  const NAV_LINKS: Array<[string, string, string]> = [
+    ['requests', 'Requests', 'الطلبات'],
+    ['new', 'New Request', 'طلب جديد'],
+    ['lookups', 'Request Lookups', 'قوائم الطلبات'],
+    ['criteria', 'Criteria', 'المعايير'],
+    ['measure-lookups', 'Measure Lookups', 'قوائم القياسات'],
+    ['users', 'Users', 'المستخدمون']
+  ];
+  for (let i = 0; i < NAV_LINKS.length; i++) {
+    const [key, labelEn, labelAr] = NAV_LINKS[i]!;
+    await prisma.navLink.upsert({
+      where: { key },
+      create: { key, labelEn, labelAr, displayOrder: i },
+      update: {} // don't overwrite admin's customizations on re-seed
+    });
+  }
+
   const govCount = await prisma.governorate.count();
   const areaCount = await prisma.area.count();
 
