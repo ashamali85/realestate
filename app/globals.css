@@ -289,3 +289,7 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 
 /* Requests list: taller scroll area than the compact lookup lists. */
 .requests-scroll { max-height: calc(100vh - 320px); min-height: 240px; }
+
+/* Icon-only nav link (e.g. the navigation editor pencil). */
+.nav-icon-link { display: inline-flex; align-items: center; justify-content: center; padding: 6px; }
+.nav-icon-link svg { display: block; }
