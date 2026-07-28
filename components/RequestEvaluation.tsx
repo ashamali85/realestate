@@ -165,9 +165,11 @@ function MeasureCard({
       title={localName(measure, locale)}
       defaultOpen={false}
       titleExtra={
-        <span className="score-pill small">
-          {measure.score !== null ? `${measure.score} / 3` : t('eval_unscored', locale)}
-        </span>
+        measure.score !== null ? (
+          <StarRating score={measure.score} size={16} />
+        ) : (
+          <span className="muted small">{t('eval_unscored', locale)}</span>
+        )
       }
     >
       <form onSubmit={save}>

@@ -9,6 +9,7 @@ import { TopBar } from '@/components/TopBar';
 import { DeleteRequestButton } from '@/components/DeleteRequestButton';
 import { RequestEvaluation } from '@/components/RequestEvaluation';
 import { StarRating } from '@/components/StarRating';
+import { CollapsibleSection } from '@/components/CollapsibleSection';
 import { criteriaScore, overallScore } from '@/lib/scoring';
 
 export const dynamic = 'force-dynamic';
@@ -118,9 +119,8 @@ export default async function RequestDetailPage({
           </div>
         </div>
 
-        <div className="card card-pad-lg stack" style={{ gap: 24 }}>
-          <section>
-            <h3 style={{ color: 'var(--brand)', marginBottom: 12 }}>{t('sec_address', locale)}</h3>
+        <div className="stack" style={{ gap: 14 }}>
+          <CollapsibleSection title={t('sec_address', locale)}>
             <div className="detail-grid">
               {item('f_governorate', localName(r.area.governorate, locale))}
               {item('f_area', localName(r.area, locale))}
@@ -135,19 +135,17 @@ export default async function RequestDetailPage({
                   </a>
                 )}
             </div>
-          </section>
+          </CollapsibleSection>
 
-          <section>
-            <h3 style={{ color: 'var(--brand)', marginBottom: 12 }}>{t('sec_client', locale)}</h3>
+          <CollapsibleSection title={t('sec_client', locale)}>
             <div className="detail-grid">
               {item('f_client_name', r.clientName)}
               {item('f_client_phone', <span dir="ltr">{r.clientPhone}</span>)}
               {item('f_client_email', r.clientEmail ? <span dir="ltr">{r.clientEmail}</span> : '—')}
             </div>
-          </section>
+          </CollapsibleSection>
 
-          <section>
-            <h3 style={{ color: 'var(--brand)', marginBottom: 12 }}>{t('sec_property', locale)}</h3>
+          <CollapsibleSection title={t('sec_property', locale)}>
             <div className="detail-grid">
               {item('f_purpose', localName(r.purpose, locale))}
               {item('f_status', localName(r.status, locale))}
@@ -157,13 +155,12 @@ export default async function RequestDetailPage({
               {item('f_elevator', localName(r.elevator, locale))}
               {item('f_ac', localName(r.ac, locale))}
             </div>
-          </section>
+          </CollapsibleSection>
 
           {r.images.length > 0 && (
-            <section>
-              <h3 style={{ color: 'var(--brand)', marginBottom: 12 }}>{t('sec_images', locale)}</h3>
+            <CollapsibleSection title={t('sec_images', locale)}>
               <div className="thumb-grid">
-                {r.images.map((img) => (
+                {r.images.map((img: { id: string }) => (
                   <a
                     key={img.id}
                     href={`/api/request-image/${img.id}`}
@@ -176,14 +173,13 @@ export default async function RequestDetailPage({
                   </a>
                 ))}
               </div>
-            </section>
+            </CollapsibleSection>
           )}
 
           {r.notes && (
-            <section>
-              <h3 style={{ color: 'var(--brand)', marginBottom: 12 }}>{t('sec_notes', locale)}</h3>
+            <CollapsibleSection title={t('sec_notes', locale)}>
               <p>{r.notes}</p>
-            </section>
+            </CollapsibleSection>
           )}
         </div>
 
