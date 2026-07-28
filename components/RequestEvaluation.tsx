@@ -12,7 +12,7 @@ import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
 import { CollapsibleSection } from './CollapsibleSection';
 import { ImageDropzone } from './ImageDropzone';
-import { formatScore } from '@/lib/scoring';
+import { StarRating } from './StarRating';
 import { t, localName, type Locale } from '@/lib/i18n';
 
 type StatusOpt = { id: string; nameEn: string; nameAr: string };
@@ -102,7 +102,8 @@ export function RequestEvaluation({
         assigned.map((a) => (
           <CollapsibleSection
             key={a.id}
-            title={`${a.criteriaName}${a.score !== null ? `  ·  ${formatScore(a.score)}` : ''}`}
+            title={a.criteriaName}
+            titleExtra={a.score !== null ? <StarRating score={a.score} size={16} /> : undefined}
           >
             <div className="row-between" style={{ marginBottom: 12 }}>
               <span className="muted small">{a.measures.length} · {t('criteria_measures', locale)}</span>

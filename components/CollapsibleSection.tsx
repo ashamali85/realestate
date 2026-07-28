@@ -4,10 +4,12 @@ import { useState, type ReactNode } from 'react';
 
 export function CollapsibleSection({
   title,
+  titleExtra,
   children,
   defaultOpen = true
 }: {
   title: string;
+  titleExtra?: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
 }) {
@@ -20,7 +22,10 @@ export function CollapsibleSection({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
       >
-        <span>{title}</span>
+        <span className="collapse-title">
+          <span>{title}</span>
+          {titleExtra}
+        </span>
         <span className={`collapse-chevron ${open ? 'open' : ''}`} aria-hidden="true">
           ▾
         </span>

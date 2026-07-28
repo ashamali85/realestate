@@ -8,7 +8,8 @@ import { formatDate } from '@/lib/utils';
 import { TopBar } from '@/components/TopBar';
 import { DeleteRequestButton } from '@/components/DeleteRequestButton';
 import { RequestEvaluation } from '@/components/RequestEvaluation';
-import { criteriaScore, overallScore, formatScore } from '@/lib/scoring';
+import { StarRating } from '@/components/StarRating';
+import { criteriaScore, overallScore } from '@/lib/scoring';
 
 export const dynamic = 'force-dynamic';
 
@@ -190,8 +191,9 @@ export default async function RequestDetailPage({
           <div className="section-title" style={{ marginBottom: 16 }}>
             <h2 style={{ color: 'var(--brand)' }}>{t('sec_evaluation', locale)}</h2>
             {overall !== null && (
-              <span className="score-pill" title={t('eval_overall_score', locale)}>
-                {t('eval_overall_score', locale)}: <strong>{formatScore(overall)}</strong>
+              <span className="row" style={{ gap: 8 }}>
+                <span className="muted small">{t('eval_overall_score', locale)}</span>
+                <StarRating score={overall} />
               </span>
             )}
           </div>

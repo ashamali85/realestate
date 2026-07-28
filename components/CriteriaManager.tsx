@@ -182,51 +182,46 @@ function MeasureList({
       {measures.length === 0 ? (
         <p className="muted small">{t('measure_none', locale)}</p>
       ) : (
-        <div className="table-card" style={{ marginTop: 8 }}>
-          <table>
-            <thead>
-              <tr>
-                <th>{t('lookup_name_en', locale)}</th>
-                <th>{t('lookup_name_ar', locale)}</th>
-                <th>{t('lookup_order', locale)}</th>
-                <th>{t('col_actions', locale)}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {measures.map((m) =>
-                editMId === m.id ? (
-                  <tr key={m.id}>
-                    <td colSpan={4}>
-                      <form onSubmit={submitEditM} className="lookup-form">
-                        <input type="hidden" name="id" value={m.id} />
-                        <div className="grid-3">
-                          <input name="nameEn" defaultValue={m.nameEn} dir="ltr" required />
-                          <input name="nameAr" defaultValue={m.nameAr} dir="rtl" required />
-                          <input name="displayOrder" type="number" min={0} defaultValue={m.displayOrder} />
-                        </div>
-                        <div className="row wrap mt-2">
-                          <button type="submit" className="btn btn-primary btn-sm">{t('btn_save', locale)}</button>
-                          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditMId(null)}>{t('btn_cancel', locale)}</button>
-                        </div>
-                      </form>
-                    </td>
-                  </tr>
-                ) : (
-                  <tr key={m.id}>
-                    <td dir="ltr">{m.nameEn}</td>
-                    <td dir="rtl">{m.nameAr}</td>
-                    <td>{m.displayOrder}</td>
-                    <td>
-                      <div className="row" style={{ gap: 6 }}>
-                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditMId(m.id)}>{t('btn_edit', locale)}</button>
-                        <button type="button" className="btn btn-danger btn-sm" onClick={() => removeM(m.id)}>{t('btn_delete', locale)}</button>
-                      </div>
-                    </td>
-                  </tr>
-                )
+        <div className="stack" style={{ gap: 8, marginTop: 8 }}>
+          {measures.map((m) => (
+            <CollapsibleSection key={m.id} title={localName(m, locale)} defaultOpen={false}>
+              {editMId === m.id ? (
+                <form onSubmit={submitEditM} className="lookup-form">
+                  <input type="hidden" name="id" value={m.id} />
+                  <div className="grid-3">
+                    <input name="nameEn" defaultValue={m.nameEn} dir="ltr" required />
+                    <input name="nameAr" defaultValue={m.nameAr} dir="rtl" required />
+                    <input name="displayOrder" type="number" min={0} defaultValue={m.displayOrder} />
+                  </div>
+                  <div className="row wrap mt-2">
+                    <button type="submit" className="btn btn-primary btn-sm">{t('btn_save', locale)}</button>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditMId(null)}>{t('btn_cancel', locale)}</button>
+                  </div>
+                </form>
+              ) : (
+                <div>
+                  <div className="detail-grid" style={{ marginBottom: 12 }}>
+                    <div className="detail-item">
+                      <div className="detail-label">{t('lookup_name_en', locale)}</div>
+                      <div className="detail-value" dir="ltr">{m.nameEn}</div>
+                    </div>
+                    <div className="detail-item">
+                      <div className="detail-label">{t('lookup_name_ar', locale)}</div>
+                      <div className="detail-value" dir="rtl">{m.nameAr}</div>
+                    </div>
+                    <div className="detail-item">
+                      <div className="detail-label">{t('lookup_order', locale)}</div>
+                      <div className="detail-value">{m.displayOrder}</div>
+                    </div>
+                  </div>
+                  <div className="row" style={{ gap: 6 }}>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditMId(m.id)}>{t('btn_edit', locale)}</button>
+                    <button type="button" className="btn btn-danger btn-sm" onClick={() => removeM(m.id)}>{t('btn_delete', locale)}</button>
+                  </div>
+                </div>
               )}
-            </tbody>
-          </table>
+            </CollapsibleSection>
+          ))}
         </div>
       )}
     </div>
