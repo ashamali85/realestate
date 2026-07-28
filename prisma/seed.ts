@@ -154,15 +154,6 @@ const ACS: Array<[string, string]> = [
   ['None', 'لا يوجد']
 ];
 
-// Separate status list for criteria measures — independent of request status.
-// Third value is the 0–3 score used for evaluation averages.
-const MEASURE_STATUSES: Array<[string, string, number]> = [
-  ['Compliant', 'مطابق', 3],
-  ['Minor issue', 'ملاحظة بسيطة', 2],
-  ['Major issue', 'ملاحظة جوهرية', 1],
-  ['Not applicable', 'لا ينطبق', 0]
-];
-
 async function seedLookup(
   model: {
     upsert: (args: {
@@ -208,14 +199,6 @@ async function main() {
   // Lookups
   await seedLookup(prisma.purposeOption, PURPOSES);
   await seedLookup(prisma.statusOption, STATUSES);
-  for (let i = 0; i < MEASURE_STATUSES.length; i++) {
-    const [nameEn, nameAr, score] = MEASURE_STATUSES[i]!;
-    await prisma.measureStatusOption.upsert({
-      where: { nameEn },
-      create: { nameEn, nameAr, score, displayOrder: i },
-      update: { nameAr, score, displayOrder: i }
-    });
-  }
   await seedLookup(prisma.exteriorOption, EXTERIORS);
   await seedLookup(prisma.elevatorOption, ELEVATORS);
   await seedLookup(prisma.acOption, ACS);
