@@ -91,7 +91,7 @@ export function RequestsTable({
         {t('showing_n', locale)} {filtered.length} {t('of_n', locale)} {rows.length}
       </p>
 
-      <div className="table-card">
+      <div className="table-card scroll-area requests-scroll">
         <table>
           <thead>
             <tr>
