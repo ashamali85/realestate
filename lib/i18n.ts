@@ -118,6 +118,7 @@ const DICT: Dict = {
   },
   nav_order: { en: 'Order', ar: 'الترتيب' },
   measure_score: { en: 'Score (0–3)', ar: 'الدرجة (0–3)' },
+  lookup_edit_title: { en: 'Edit item', ar: 'تعديل العنصر' },
   eval_score: { en: 'Score', ar: 'الدرجة' },
   eval_criteria_score: { en: 'Criteria score', ar: 'درجة المعيار' },
   eval_overall_score: { en: 'Overall score', ar: 'الدرجة الإجمالية' },

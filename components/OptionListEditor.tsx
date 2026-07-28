@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createOption, updateOption, deleteOption, type LookupKind } from '@/lib/lookup-actions';
 import { useConfirm } from './ConfirmDialog';
@@ -34,7 +34,7 @@ export function OptionListEditor({
   const loading = useLoading();
   const [, startTransition] = useTransition();
   const [adding, setAdding] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editing, setEditing] = useState<OptionRow | null>(null);
 
   function submitAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -51,7 +51,7 @@ export function OptionListEditor({
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
       await loading.run(() => updateOption(fd), t('saving', locale));
-      setEditingId(null); // close the inline editor
+      setEditing(null); // close the modal
       router.refresh();
     });
   }
@@ -81,7 +81,7 @@ export function OptionListEditor({
           className="btn btn-ghost btn-sm"
           onClick={() => {
             setAdding((v) => !v);
-            setEditingId(null);
+            setEditing(null);
           }}
         >
           {adding ? t('btn_cancel', locale) : t('lookup_add_new', locale)}
@@ -125,69 +125,114 @@ export function OptionListEditor({
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) =>
-              editingId === row.id ? (
-                <tr key={row.id}>
-                  <td colSpan={showScore ? 6 : 5}>
-                    <form onSubmit={submitEdit} className="lookup-form">
-                      <input type="hidden" name="kind" value={kind} />
-                      <input type="hidden" name="id" value={row.id} />
-                      <div className="grid-3">
-                        <input name="nameEn" defaultValue={row.nameEn} dir="ltr" required />
-                        <input name="nameAr" defaultValue={row.nameAr} dir="rtl" required />
-                        <input name="displayOrder" type="number" min={0} defaultValue={row.displayOrder} />
-                      </div>
-                      {showScore && (
-                        <div className="grid-3 mt-2">
-                          <div className="field" style={{ margin: 0 }}>
-                            <label>{t('measure_score', locale)}</label>
-                            <input name="score" type="number" min={0} max={3} defaultValue={row.score ?? 0} required />
-                          </div>
-                        </div>
-                      )}
-                      <div className="row wrap mt-2">
-                        <label className="check">
-                          <input type="checkbox" name="isActive" defaultChecked={row.isActive} />{' '}
-                          {t('lookup_active', locale)}
-                        </label>
-                        <button type="submit" className="btn btn-primary btn-sm">
-                          {t('btn_save', locale)}
-                        </button>
-                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditingId(null)}>
-                          {t('btn_cancel', locale)}
-                        </button>
-                      </div>
-                    </form>
-                  </td>
-                </tr>
-              ) : (
-                <tr key={row.id} className={row.isActive ? '' : 'row-inactive'}>
-                  <td dir="ltr">{row.nameEn}</td>
-                  <td dir="rtl">{row.nameAr}</td>
-                  {showScore && <td className="mono">{row.score ?? 0}</td>}
-                  <td>{row.displayOrder}</td>
-                  <td>
-                    {row.isActive ? (
-                      <span className="badge badge-super">{t('lookup_active', locale)}</span>
-                    ) : (
-                      <span className="badge badge-off">{t('user_inactive', locale)}</span>
-                    )}
-                  </td>
-                  <td>
-                    <div className="row" style={{ gap: 6 }}>
-                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditingId(row.id)}>
-                        {t('btn_edit', locale)}
-                      </button>
-                      <button type="button" className="btn btn-danger btn-sm" onClick={() => onDelete(row.id)}>
-                        {t('btn_delete', locale)}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )
-            )}
+            {rows.map((row) => (
+              <tr key={row.id} className={row.isActive ? '' : 'row-inactive'}>
+                <td dir="ltr">{row.nameEn}</td>
+                <td dir="rtl">{row.nameAr}</td>
+                {showScore && <td className="mono">{row.score ?? 0}</td>}
+                <td>{row.displayOrder}</td>
+                <td>
+                  {row.isActive ? (
+                    <span className="badge badge-super">{t('lookup_active', locale)}</span>
+                  ) : (
+                    <span className="badge badge-off">{t('user_inactive', locale)}</span>
+                  )}
+                </td>
+                <td>
+                  <div className="row" style={{ gap: 6 }}>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditing(row)}>
+                      {t('btn_edit', locale)}
+                    </button>
+                    <button type="button" className="btn btn-danger btn-sm" onClick={() => onDelete(row.id)}>
+                      {t('btn_delete', locale)}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
+      </div>
+
+      {editing && (
+        <EditModal
+          row={editing}
+          kind={kind}
+          locale={locale}
+          showScore={showScore}
+          onSubmit={submitEdit}
+          onClose={() => setEditing(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function EditModal({
+  row,
+  kind,
+  locale,
+  showScore,
+  onSubmit,
+  onClose
+}: {
+  row: OptionRow;
+  kind: LookupKind;
+  locale: Locale;
+  showScore: boolean;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div className="modal-backdrop" role="presentation" onClick={onClose}>
+      <div
+        className="modal-card"
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 style={{ color: 'var(--brand)', marginBottom: 16 }}>{t('lookup_edit_title', locale)}</h3>
+        <form onSubmit={onSubmit}>
+          <input type="hidden" name="kind" value={kind} />
+          <input type="hidden" name="id" value={row.id} />
+          <div className="field">
+            <label>{t('lookup_name_en', locale)}</label>
+            <input name="nameEn" defaultValue={row.nameEn} dir="ltr" required autoFocus />
+          </div>
+          <div className="field">
+            <label>{t('lookup_name_ar', locale)}</label>
+            <input name="nameAr" defaultValue={row.nameAr} dir="rtl" required />
+          </div>
+          <div className="field">
+            <label>{t('lookup_order', locale)}</label>
+            <input name="displayOrder" type="number" min={0} defaultValue={row.displayOrder} />
+          </div>
+          {showScore && (
+            <div className="field">
+              <label>{t('measure_score', locale)}</label>
+              <input name="score" type="number" min={0} max={3} defaultValue={row.score ?? 0} required />
+            </div>
+          )}
+          <label className="check" style={{ marginTop: 4 }}>
+            <input type="checkbox" name="isActive" defaultChecked={row.isActive} /> {t('lookup_active', locale)}
+          </label>
+          <div className="modal-actions" style={{ marginTop: 20 }}>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>
+              {t('btn_cancel', locale)}
+            </button>
+            <button type="submit" className="btn btn-primary">
+              {t('btn_save', locale)}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
