@@ -51,14 +51,10 @@ export function LoadingProvider({ locale, children }: { locale: Locale; children
       {visible && (
         <div className="loading-overlay" role="status" aria-live="polite">
           <div className="loading-box">
-            <div className="loading-bars" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
             <div className="loading-text">{message ?? t('loading', locale)}</div>
+            <div className="loading-stripe" aria-hidden="true">
+              <div className="loading-stripe-fill" />
+            </div>
           </div>
         </div>
       )}

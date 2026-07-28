@@ -171,8 +171,8 @@ const DICT: Dict = {
   u_active: { en: 'Active', ar: 'مُفعّل' },
 
   saved_ok: { en: 'Saved.', ar: 'تم الحفظ.' },
-  loading: { en: 'Please wait…', ar: 'يرجى الانتظار…' },
-  saving: { en: 'Saving…', ar: 'جارٍ الحفظ…' },
+  loading: { en: 'Working…', ar: 'جاري العمل' },
+  saving: { en: 'Working…', ar: 'جاري العمل' },
   upload_partial: {
     en: 'The request was saved, but some photos failed to upload. Open the request and try adding them again.',
     ar: 'تم حفظ الطلب، لكن تعذّر رفع بعض الصور. افتح الطلب وحاول إضافتها مرة أخرى.'
