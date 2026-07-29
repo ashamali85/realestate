@@ -182,7 +182,7 @@ export function RequestsTable({
                         className="btn btn-ghost btn-icon btn-sm"
                         aria-label={t('btn_view', locale)}
                         title={t('btn_view', locale)}
-                        onClick={() => loading.show(t('loading', locale))}
+                        onClick={() => loading.showForNavigation(t('loading', locale))}
                       >
                         <IconEye />
                       </Link>
@@ -191,7 +191,7 @@ export function RequestsTable({
                         className="btn btn-ghost btn-icon btn-sm"
                         aria-label={t('btn_edit', locale)}
                         title={t('btn_edit', locale)}
-                        onClick={() => loading.show(t('loading', locale))}
+                        onClick={() => loading.showForNavigation(t('loading', locale))}
                       >
                         <IconPencil />
                       </Link>

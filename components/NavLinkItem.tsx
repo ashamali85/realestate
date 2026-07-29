@@ -31,7 +31,7 @@ export function NavLinkItem({
 
   function onClick() {
     // Don't show the overlay if we're already on this page.
-    if (pathname !== href) loading.show(t('loading', locale));
+    if (pathname !== href) loading.showForNavigation(t('loading', locale));
   }
 
   return (

@@ -1,12 +1,15 @@
 'use client';
 
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import { flushSync } from 'react-dom';
 import { t, type Locale } from '@/lib/i18n';
 
 type LoadingContextValue = {
   show: (message?: string) => void;
   hide: () => void;
+  /** Show the overlay for a navigation; auto-clears when the route changes. */
+  showForNavigation: (message?: string) => void;
   /** Wrap an async task so the overlay shows for its duration. */
   run: <T>(task: () => Promise<T>, message?: string) => Promise<T>;
 };
@@ -19,8 +22,21 @@ const LoadingContext = createContext<LoadingContextValue | null>(null);
  * something happens in the background. Themed, RTL-agnostic (centered).
  */
 export function LoadingProvider({ locale, children }: { locale: Locale; children: ReactNode }) {
-  const [count, setCount] = useState(0); // supports overlapping tasks
+  const [count, setCount] = useState(0); // task-based overlays (run/show/hide)
+  const [navLoading, setNavLoading] = useState(false); // navigation overlay
   const [message, setMessage] = useState<string | null>(null);
+  const pathname = usePathname();
+  const navTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clear the navigation overlay whenever the route actually changes (the
+  // destination page has rendered). Also clears on unmount.
+  useEffect(() => {
+    setNavLoading(false);
+    if (navTimer.current) {
+      clearTimeout(navTimer.current);
+      navTimer.current = null;
+    }
+  }, [pathname]);
 
   const show = useCallback((msg?: string) => {
     setMessage(msg ?? null);
@@ -29,6 +45,16 @@ export function LoadingProvider({ locale, children }: { locale: Locale; children
 
   const hide = useCallback(() => {
     setCount((c) => Math.max(0, c - 1));
+  }, []);
+
+  // Show the overlay for a navigation. It auto-clears when the route changes
+  // (see the effect above), with a safety timeout so it can never get stuck if
+  // navigation is cancelled or the target is unreachable.
+  const showForNavigation = useCallback((msg?: string) => {
+    setMessage(msg ?? null);
+    setNavLoading(true);
+    if (navTimer.current) clearTimeout(navTimer.current);
+    navTimer.current = setTimeout(() => setNavLoading(false), 8000);
   }, []);
 
   const run = useCallback(
@@ -59,10 +85,10 @@ export function LoadingProvider({ locale, children }: { locale: Locale; children
     []
   );
 
-  const visible = count > 0;
+  const visible = count > 0 || navLoading;
 
   return (
-    <LoadingContext.Provider value={{ show, hide, run }}>
+    <LoadingContext.Provider value={{ show, hide, showForNavigation, run }}>
       {children}
       {visible && (
         <div className="loading-overlay" role="status" aria-live="polite">
@@ -85,6 +111,7 @@ export function useLoading(): LoadingContextValue {
     return {
       show: () => {},
       hide: () => {},
+      showForNavigation: () => {},
       run: async (task) => task()
     };
   }
