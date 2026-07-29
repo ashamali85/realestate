@@ -14,6 +14,7 @@ import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
 import { CollapsibleSection } from './CollapsibleSection';
 import { Modal } from './Modal';
+import { IconPencil, IconTrash } from './Icons';
 import { t, localName, type Locale } from '@/lib/i18n';
 
 export type MeasureRow = { id: string; nameEn: string; nameAr: string; displayOrder: number };
@@ -93,8 +94,8 @@ export function CriteriaManager({ criteria, locale }: { criteria: CriteriaRow[];
             defaultOpen={false}
           >
             <div className="row wrap" style={{ gap: 6, marginBottom: 12 }}>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditing(c)}>{t('btn_edit', locale)}</button>
-              <button type="button" className="btn btn-danger btn-sm" onClick={() => removeCriteria(c.id)}>{t('btn_delete', locale)}</button>
+              <button type="button" className="btn btn-ghost btn-icon btn-sm" onClick={() => setEditing(c)} aria-label={t('btn_edit', locale)} title={t('btn_edit', locale)}><IconPencil /></button>
+              <button type="button" className="btn btn-danger btn-icon btn-sm" onClick={() => removeCriteria(c.id)} aria-label={t('btn_delete', locale)} title={t('btn_delete', locale)}><IconTrash /></button>
             </div>
 
             <MeasureList criteriaId={c.id} measures={c.measures} locale={locale} run={run} confirm={confirm} />
@@ -208,8 +209,8 @@ function MeasureList({
                   </div>
                 </div>
                 <div className="row" style={{ gap: 6 }}>
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditingM(m)}>{t('btn_edit', locale)}</button>
-                  <button type="button" className="btn btn-danger btn-sm" onClick={() => removeM(m.id)}>{t('btn_delete', locale)}</button>
+                  <button type="button" className="btn btn-ghost btn-icon btn-sm" onClick={() => setEditingM(m)} aria-label={t('btn_edit', locale)} title={t('btn_edit', locale)}><IconPencil /></button>
+                  <button type="button" className="btn btn-danger btn-icon btn-sm" onClick={() => removeM(m.id)} aria-label={t('btn_delete', locale)} title={t('btn_delete', locale)}><IconTrash /></button>
                 </div>
               </div>
             </CollapsibleSection>

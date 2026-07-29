@@ -7,6 +7,7 @@ import { t, localName } from '@/lib/i18n';
 import { formatDate } from '@/lib/utils';
 import { TopBar } from '@/components/TopBar';
 import { DeleteRequestButton } from '@/components/DeleteRequestButton';
+import { IconPencil } from '@/components/Icons';
 import { RequestEvaluation } from '@/components/RequestEvaluation';
 import { StarRating } from '@/components/StarRating';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
@@ -112,8 +113,8 @@ export default async function RequestDetailPage({
             <Link href="/requests" className="btn btn-ghost btn-sm">
               {t('requests_title', locale)}
             </Link>
-            <Link href={`/requests/${r.id}/edit`} className="btn btn-primary btn-sm">
-              {t('btn_edit', locale)}
+            <Link href={`/requests/${r.id}/edit`} className="btn btn-primary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <IconPencil /> {t('btn_edit', locale)}
             </Link>
             {canDelete && <DeleteRequestButton id={r.id} locale={locale} />}
           </div>

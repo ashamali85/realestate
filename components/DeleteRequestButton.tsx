@@ -4,6 +4,7 @@ import { useTransition } from 'react';
 import { deleteRequest } from '@/lib/actions';
 import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
+import { IconTrash } from './Icons';
 import { t, type Locale } from '@/lib/i18n';
 
 export function DeleteRequestButton({ id, locale }: { id: string; locale: Locale }) {
@@ -28,8 +29,8 @@ export function DeleteRequestButton({ id, locale }: { id: string; locale: Locale
   }
 
   return (
-    <button type="button" className="btn btn-danger btn-sm" disabled={pending} onClick={onClick}>
-      {pending ? <span className="spinner" /> : t('btn_delete', locale)}
+    <button type="button" className="btn btn-danger btn-icon btn-sm" disabled={pending} onClick={onClick} aria-label={t('btn_delete', locale)} title={t('btn_delete', locale)}>
+      {pending ? <span className="spinner" /> : <IconTrash />}
     </button>
   );
 }

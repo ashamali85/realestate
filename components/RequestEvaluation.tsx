@@ -13,6 +13,7 @@ import { useLoading } from './LoadingOverlay';
 import { CollapsibleSection } from './CollapsibleSection';
 import { ImageDropzone } from './ImageDropzone';
 import { StarRating } from './StarRating';
+import { IconTrash } from './Icons';
 import { t, localName, type Locale } from '@/lib/i18n';
 
 type StatusOpt = { id: string; nameEn: string; nameAr: string };
@@ -107,8 +108,8 @@ export function RequestEvaluation({
           >
             <div className="row-between" style={{ marginBottom: 12 }}>
               <span className="muted small">{a.measures.length} · {t('criteria_measures', locale)}</span>
-              <button type="button" className="btn btn-danger btn-sm" onClick={() => unassign(a.id)}>
-                {t('btn_delete', locale)}
+              <button type="button" className="btn btn-danger btn-icon btn-sm" onClick={() => unassign(a.id)} aria-label={t('btn_delete', locale)} title={t('btn_delete', locale)}>
+                <IconTrash />
               </button>
             </div>
             <div className="stack" style={{ gap: 14 }}>

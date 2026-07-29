@@ -13,6 +13,7 @@ import {
 import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
 import { Modal } from './Modal';
+import { IconPencil, IconTrash } from './Icons';
 import { t, localName, type Locale } from '@/lib/i18n';
 
 type Gov = { id: string; nameEn: string; nameAr: string; displayOrder: number; isActive: boolean };
@@ -140,8 +141,8 @@ export function GeographyEditor({
                     <td>{g.isActive ? <span className="badge badge-super">{t('lookup_active', locale)}</span> : <span className="badge badge-off">{t('user_inactive', locale)}</span>}</td>
                     <td>
                       <div className="row" style={{ gap: 6 }}>
-                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditGov(g)}>{t('btn_edit', locale)}</button>
-                        <button type="button" className="btn btn-danger btn-sm" onClick={() => remove(deleteGovernorate, g.id)}>{t('btn_delete', locale)}</button>
+                        <button type="button" className="btn btn-ghost btn-icon btn-sm" onClick={() => setEditGov(g)} aria-label={t('btn_edit', locale)} title={t('btn_edit', locale)}><IconPencil /></button>
+                        <button type="button" className="btn btn-danger btn-icon btn-sm" onClick={() => remove(deleteGovernorate, g.id)} aria-label={t('btn_delete', locale)} title={t('btn_delete', locale)}><IconTrash /></button>
                       </div>
                     </td>
                   </tr>
@@ -194,8 +195,8 @@ export function GeographyEditor({
                     <td>{a.isActive ? <span className="badge badge-super">{t('lookup_active', locale)}</span> : <span className="badge badge-off">{t('user_inactive', locale)}</span>}</td>
                     <td>
                       <div className="row" style={{ gap: 6 }}>
-                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditArea(a)}>{t('btn_edit', locale)}</button>
-                        <button type="button" className="btn btn-danger btn-sm" onClick={() => remove(deleteArea, a.id)}>{t('btn_delete', locale)}</button>
+                        <button type="button" className="btn btn-ghost btn-icon btn-sm" onClick={() => setEditArea(a)} aria-label={t('btn_edit', locale)} title={t('btn_edit', locale)}><IconPencil /></button>
+                        <button type="button" className="btn btn-danger btn-icon btn-sm" onClick={() => remove(deleteArea, a.id)} aria-label={t('btn_delete', locale)} title={t('btn_delete', locale)}><IconTrash /></button>
                       </div>
                     </td>
                   </tr>

@@ -6,6 +6,7 @@ import { createOption, updateOption, deleteOption, type LookupKind } from '@/lib
 import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
 import { Modal } from './Modal';
+import { IconPencil, IconTrash } from './Icons';
 import { t, type Locale } from '@/lib/i18n';
 
 export type OptionRow = {
@@ -141,11 +142,11 @@ export function OptionListEditor({
                 </td>
                 <td>
                   <div className="row" style={{ gap: 6 }}>
-                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditing(row)}>
-                      {t('btn_edit', locale)}
+                    <button type="button" className="btn btn-ghost btn-icon btn-sm" onClick={() => setEditing(row)} aria-label={t('btn_edit', locale)} title={t('btn_edit', locale)}>
+                      <IconPencil />
                     </button>
-                    <button type="button" className="btn btn-danger btn-sm" onClick={() => onDelete(row.id)}>
-                      {t('btn_delete', locale)}
+                    <button type="button" className="btn btn-danger btn-icon btn-sm" onClick={() => onDelete(row.id)} aria-label={t('btn_delete', locale)} title={t('btn_delete', locale)}>
+                      <IconTrash />
                     </button>
                   </div>
                 </td>
