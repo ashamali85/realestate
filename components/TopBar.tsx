@@ -3,6 +3,7 @@ import { logout, setLocale } from '@/lib/actions';
 import { t, type Locale } from '@/lib/i18n';
 import type { SessionUser } from '@/lib/auth';
 import { loadNav } from '@/lib/nav';
+import { NavLinkItem } from './NavLinkItem';
 
 export async function TopBar({
   user,
@@ -27,26 +28,27 @@ export async function TopBar({
         </Link>
         <nav className="nav">
           {visible.map((item) => (
-            <Link
+            <NavLinkItem
               key={item.key}
               href={item.href}
-              className={active === item.active ? 'active' : ''}
-            >
-              {item.label}
-            </Link>
+              label={item.label}
+              isActive={active === item.active}
+              locale={locale}
+            />
           ))}
           {isSuper && (
-            <Link
+            <NavLinkItem
               href="/nav"
-              className={`nav-icon-link ${active === 'nav' ? 'active' : ''}`}
-              aria-label={t('nav_manage_link', locale)}
-              title={t('nav_manage_link', locale)}
+              isActive={active === 'nav'}
+              locale={locale}
+              className="nav-icon-link"
+              ariaLabel={t('nav_manage_link', locale)}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M12 20h9" />
                 <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
               </svg>
-            </Link>
+            </NavLinkItem>
           )}
           <form action={setLocale} style={{ display: 'inline' }}>
             <input type="hidden" name="locale" value={other} />

@@ -190,7 +190,11 @@ export async function deleteRequest(formData: FormData) {
   await logAction(user.id, 'DELETE', 'InspectionRequest', id, existing.reference);
 
   revalidatePath('/requests');
-  redirect('/requests');
+  // When deleting from the list, stay there (the client refreshes). Otherwise
+  // (e.g. from the detail page) redirect back to the list.
+  if (getString(formData, 'stay') !== '1') {
+    redirect('/requests');
+  }
 }
 
 export async function updateRequest(

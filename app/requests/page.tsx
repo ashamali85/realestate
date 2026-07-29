@@ -3,7 +3,7 @@ import { requireUser } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { t, localName } from '@/lib/i18n';
-import { formatDate } from '@/lib/utils';
+import { formatDateTime } from '@/lib/utils';
 import { TopBar } from '@/components/TopBar';
 import { RequestsTable, type RequestRow } from '@/components/RequestsTable';
 
@@ -26,7 +26,7 @@ export default async function RequestsPage() {
     clientPhone: r.clientPhone,
     area: localName(r.area, locale),
     governorate: localName(r.area.governorate, locale),
-    created: formatDate(r.createdAt)
+    created: formatDateTime(r.createdAt)
   }));
 
   const governorates = Array.from(new Set(rows.map((r) => r.governorate))).sort();
@@ -52,7 +52,7 @@ export default async function RequestsPage() {
             </Link>
           </div>
         ) : (
-          <RequestsTable rows={rows} locale={locale} governorates={governorates} areas={areas} />
+          <RequestsTable rows={rows} locale={locale} governorates={governorates} areas={areas} canDelete={user.role === 'SUPER_ADMIN'} />
         )}
       </main>
     </>

@@ -32,3 +32,15 @@ export function formatDate(d: Date, _locale?: string): string {
     day: 'numeric'
   }).format(d);
 }
+
+/** Same as formatDate but with a 24-hour time appended (English, pinned). */
+export function formatDateTime(d: Date): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(d);
+}

@@ -306,3 +306,7 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 /* Icon-only nav link (e.g. the navigation editor pencil). */
 .nav-icon-link { display: inline-flex; align-items: center; justify-content: center; padding: 6px; }
 .nav-icon-link svg { display: block; }
+
+/* Square icon-only buttons (e.g. requests row actions). */
+.btn-icon { display: inline-flex; align-items: center; justify-content: center; padding: 7px; width: 34px; height: 34px; }
+.btn-icon svg { display: block; }
