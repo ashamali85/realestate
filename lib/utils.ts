@@ -26,14 +26,17 @@ export function getFloat(form: FormData, key: string): number | null {
 
 export function formatDate(d: Date, _locale?: string): string {
   // Dates are always shown in English, even in the Arabic view, per requirement.
+  // Pinned to Kuwait time (GMT+3) so it's correct regardless of server timezone
+  // (Vercel runs in UTC).
   return new Intl.DateTimeFormat('en-GB', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
+    timeZone: 'Asia/Kuwait'
   }).format(d);
 }
 
-/** Same as formatDate but with a 24-hour time appended (English, pinned). */
+/** Same as formatDate but with a 24-hour time appended (English, Kuwait time). */
 export function formatDateTime(d: Date): string {
   return new Intl.DateTimeFormat('en-GB', {
     year: 'numeric',
@@ -41,6 +44,7 @@ export function formatDateTime(d: Date): string {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false
+    hour12: false,
+    timeZone: 'Asia/Kuwait'
   }).format(d);
 }
