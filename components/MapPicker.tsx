@@ -77,6 +77,7 @@ export function MapPicker({
     function initMap() {
       try {
         if (!mapRef.current || !window.google?.maps) return;
+        if (mapObjRef.current) return; // already initialized — don't rebuild
         const start = pos ?? KUWAIT_CENTER;
         const map = new window.google.maps.Map(mapRef.current, {
           center: start,
@@ -157,7 +158,12 @@ export function MapPicker({
       <p className="small muted" style={{ marginBottom: 8 }}>
         {t('f_pick_on_map', locale)}
       </p>
-      <div className="map-box" ref={mapRef}>
+      <div className="map-box" style={{ position: 'relative' }}>
+        {/* Google Maps owns this div exclusively — React must never render
+            children into it, or React and Google fight over the same DOM nodes
+            (causing "removeChild" NotFoundError). The loading placeholder is a
+            SIBLING, not a child. */}
+        <div ref={mapRef} style={{ position: 'absolute', inset: 0 }} />
         {!ready && <div className="map-fallback">…</div>}
       </div>
       {/* Hidden inputs carry the chosen coordinates into the form submission. */}
