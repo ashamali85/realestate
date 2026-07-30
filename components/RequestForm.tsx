@@ -10,6 +10,7 @@ import {
 import { t, localName, type Locale } from '@/lib/i18n';
 import type { FormLookups } from '@/lib/lookups';
 import { MapPicker } from './MapPicker';
+import { MapErrorBoundary } from './MapErrorBoundary';
 import { CollapsibleSection } from './CollapsibleSection';
 import { ImageDropzone } from './ImageDropzone';
 import { ExistingImages } from './ExistingImages';
@@ -186,7 +187,9 @@ export function RequestForm({
         </CollapsibleSection>
 
         <CollapsibleSection title={t('sec_location', locale)}>
-          <MapPicker locale={locale} initialLat={existing?.latitude} initialLng={existing?.longitude} />
+          <MapErrorBoundary locale={locale} initialLat={existing?.latitude} initialLng={existing?.longitude}>
+            <MapPicker locale={locale} initialLat={existing?.latitude} initialLng={existing?.longitude} />
+          </MapErrorBoundary>
         </CollapsibleSection>
 
         <CollapsibleSection title={t('sec_client', locale)}>
