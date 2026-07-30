@@ -12,6 +12,7 @@ declare global {
   interface Window {
     google?: typeof google;
     __initInspectMap?: () => void;
+    gm_authFailure?: () => void;
   }
 }
 
@@ -45,42 +46,56 @@ export function MapPicker({
   useEffect(() => {
     if (!apiKey) return;
 
+    // Google calls this global if the API key is invalid/unauthorized. Fall
+    // back to manual inputs instead of letting anything crash the page.
+    window.gm_authFailure = () => setFailed(true);
+
     function place(latLng: LatLng) {
       setPos(latLng);
       const map = mapObjRef.current;
       if (!map) return;
-      if (markerRef.current) {
-        markerRef.current.setPosition(latLng);
-      } else {
-        const marker = new window.google!.maps.Marker({
-          position: latLng,
-          map,
-          draggable: true
-        });
-        marker.addListener('dragend', () => {
-          const p = marker.getPosition();
-          if (p) setPos({ lat: p.lat(), lng: p.lng() });
-        });
-        markerRef.current = marker;
+      try {
+        if (markerRef.current) {
+          markerRef.current.setPosition(latLng);
+        } else {
+          const marker = new window.google!.maps.Marker({
+            position: latLng,
+            map,
+            draggable: true
+          });
+          marker.addListener('dragend', () => {
+            const p = marker.getPosition();
+            if (p) setPos({ lat: p.lat(), lng: p.lng() });
+          });
+          markerRef.current = marker;
+        }
+      } catch (err) {
+        console.error('Map marker error:', err);
       }
     }
 
     function initMap() {
-      if (!mapRef.current || !window.google) return;
-      const start = pos ?? KUWAIT_CENTER;
-      const map = new window.google.maps.Map(mapRef.current, {
-        center: start,
-        zoom: pos ? 15 : 11,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false
-      });
-      mapObjRef.current = map;
-      if (pos) place(pos);
-      map.addListener('click', (e: google.maps.MapMouseEvent) => {
-        if (e.latLng) place({ lat: e.latLng.lat(), lng: e.latLng.lng() });
-      });
-      setReady(true);
+      try {
+        if (!mapRef.current || !window.google?.maps) return;
+        const start = pos ?? KUWAIT_CENTER;
+        const map = new window.google.maps.Map(mapRef.current, {
+          center: start,
+          zoom: pos ? 15 : 11,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: false
+        });
+        mapObjRef.current = map;
+        if (pos) place(pos);
+        map.addListener('click', (e: google.maps.MapMouseEvent) => {
+          if (e.latLng) place({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+        });
+        setReady(true);
+      } catch (err) {
+        // Any failure constructing the map falls back to manual entry.
+        console.error('Google Maps init failed:', err);
+        setFailed(true);
+      }
     }
 
     if (window.google?.maps) {
@@ -99,7 +114,7 @@ export function MapPicker({
     script.id = 'gmaps-script';
     script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
       apiKey
-    )}&callback=__initInspectMap`;
+    )}&loading=async&callback=__initInspectMap`;
     script.async = true;
     script.onerror = () => setFailed(true);
     document.head.appendChild(script);
