@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getLocale } from '@/lib/locale';
 import { dir, t } from '@/lib/i18n';
 import { loadLabelOverrides } from '@/lib/label-overrides';
+import { LabelOverridesProvider } from '@/components/LabelOverridesProvider';
 import { ConfirmProvider } from '@/components/ConfirmDialog';
 import { LoadingProvider } from '@/components/LoadingOverlay';
 import './globals.css';
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  await loadLabelOverrides();
+  const overrides = await loadLabelOverrides();
   const locale = await getLocale();
 
   return (
@@ -27,9 +28,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <title>{t('app_name', locale)}</title>
       </head>
       <body className={locale === 'ar' ? 'is-rtl' : ''}>
-        <LoadingProvider locale={locale}>
-          <ConfirmProvider locale={locale}>{children}</ConfirmProvider>
-        </LoadingProvider>
+        <LabelOverridesProvider overrides={overrides}>
+          <LoadingProvider locale={locale}>
+            <ConfirmProvider locale={locale}>{children}</ConfirmProvider>
+          </LoadingProvider>
+        </LabelOverridesProvider>
       </body>
     </html>
   );

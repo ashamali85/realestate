@@ -272,14 +272,35 @@ const DICT: Dict = {
 };
 
 // Admin overrides loaded from the database. When present for a key/locale they
-// replace the built-in default. Populated per-request by loadLabelOverrides()
-// (called from the root layout) so every t() call reflects admin edits.
-let OVERRIDES: Record<string, { en?: string | null; ar?: string | null }> = {};
+// Admin overrides for UI text. These must be request-scoped: a plain module
+// variable would be shared across concurrent requests on the server and cause
+// values to flip between requests. On the server we use React cache() so each
+// request gets its own isolated store. On the client we use a plain variable
+// set once from context (a single client has one consistent value).
+import { cache } from 'react';
 
-export function setLabelOverrides(
-  overrides: Record<string, { en?: string | null; ar?: string | null }>
-): void {
-  OVERRIDES = overrides ?? {};
+type OverrideMap = Record<string, { en?: string | null; ar?: string | null }>;
+
+// Server: request-scoped holder. cache() returns the same object within one
+// request and a fresh one per request, so there is no cross-request bleed.
+const serverOverrides = cache((): { current: OverrideMap } => ({ current: {} }));
+
+// Client: a single browser has one user/one value, so a module variable is safe
+// here (it is NOT shared across users the way the server would be).
+let clientOverrides: OverrideMap = {};
+
+const isServer = typeof window === 'undefined';
+
+export function setLabelOverrides(overrides: OverrideMap): void {
+  if (isServer) {
+    serverOverrides().current = overrides ?? {};
+  } else {
+    clientOverrides = overrides ?? {};
+  }
+}
+
+function getOverrides(): OverrideMap {
+  return isServer ? serverOverrides().current : clientOverrides;
 }
 
 /** The built-in default text for a key (ignores overrides). */
@@ -293,7 +314,7 @@ export function allLabels(): Array<{ key: string; en: string; ar: string }> {
 }
 
 export function t(key: keyof typeof DICT | string, locale: Locale): string {
-  const override = OVERRIDES[key as string];
+  const override = getOverrides()[key as string];
   if (override) {
     const val = override[locale];
     if (val != null && val !== '') return val;

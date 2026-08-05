@@ -99,7 +99,6 @@ export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Loca
               <th>{t('label_key', locale)}</th>
               <th>English</th>
               <th>العربية</th>
-              <th>{t('label_status', locale)}</th>
               <th />
             </tr>
           </thead>
@@ -109,13 +108,6 @@ export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Loca
                 <td className="mono small">{row.key}</td>
                 <td dir="ltr">{row.en}</td>
                 <td dir="rtl">{row.ar}</td>
-                <td>
-                  {row.overridden ? (
-                    <span className="badge badge-super">{t('label_custom', locale)}</span>
-                  ) : (
-                    <span className="badge badge-off">{t('label_default', locale)}</span>
-                  )}
-                </td>
                 <td>
                   <button
                     type="button"
@@ -131,7 +123,7 @@ export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Loca
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="muted" style={{ textAlign: 'center', padding: 24 }}>
+                <td colSpan={4} className="muted" style={{ textAlign: 'center', padding: 24 }}>
                   {t('label_none', locale)}
                 </td>
               </tr>
@@ -156,11 +148,9 @@ export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Loca
               <span className="hint">{t('label_default', locale)}: {editing.defaultAr}</span>
             </div>
             <div className="modal-actions" style={{ marginTop: 20 }}>
-              {editing.overridden && (
-                <button type="button" className="btn btn-danger" onClick={() => onReset(editing)} style={{ marginInlineEnd: 'auto' }}>
-                  {t('label_reset', locale)}
-                </button>
-              )}
+              <button type="button" className="btn btn-danger" onClick={() => onReset(editing)} style={{ marginInlineEnd: 'auto' }}>
+                {t('label_reset', locale)}
+              </button>
               <button type="button" className="btn btn-ghost" onClick={() => setEditing(null)}>
                 {t('btn_cancel', locale)}
               </button>
