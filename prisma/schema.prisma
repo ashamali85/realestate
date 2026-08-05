@@ -177,6 +177,8 @@ model InspectionRequest {
 
   yearsOld  Int
   floors    Int
+  hasBasement  Boolean @default(false)
+  hasMezzanine Boolean @default(false)
 
   notes String?
 
@@ -303,6 +305,11 @@ model RequestMeasure {
   id                String          @id @default(cuid())
   requestCriteriaId String
   requestCriteria   RequestCriteria @relation(fields: [requestCriteriaId], references: [id], onDelete: Cascade)
+
+  // Which floor this filled measure belongs to. Stable key (e.g. "basement",
+  // "ground", "mezzanine", "1", "2", ...); the UI resolves the display label.
+  // Measures are snapshotted per floor when the criteria is assigned.
+  floor String @default("ground")
 
   // Snapshot of the template measure name at assignment time, so later edits to
   // the template don't retroactively change already-assigned instances.

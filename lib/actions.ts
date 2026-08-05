@@ -88,8 +88,15 @@ const requestSchema = z.object({
   acId: z.string().min(1, 'f_ac'),
   yearsOld: z.number().int().min(0).max(500),
   floors: z.number().int().min(1, 'f_floors').max(3, 'f_floors'),
+  hasBasement: z.boolean(),
+  hasMezzanine: z.boolean(),
   notes: z.string().trim().max(2000).optional()
-});
+}).refine(
+  // A mezzanine sits between two levels, so it's only valid when there's a
+  // level below (basement) or above (a First floor, i.e. floors >= 2).
+  (d) => !d.hasMezzanine || d.hasBasement || d.floors >= 2,
+  { message: 'f_mezzanine_invalid', path: ['hasMezzanine'] }
+);
 
 export type RequestFormState = {
   error?: string;
@@ -130,6 +137,8 @@ export async function createRequest(
     acId: getString(formData, 'acId'),
     yearsOld: getInt(formData, 'yearsOld') ?? -1,
     floors: getInt(formData, 'floors') ?? -1,
+    hasBasement: formData.get('hasBasement') === 'on',
+    hasMezzanine: formData.get('hasMezzanine') === 'on',
     notes: getOptionalString(formData, 'notes')
   });
 
@@ -164,6 +173,8 @@ export async function createRequest(
         acId: d.acId,
         yearsOld: d.yearsOld,
         floors: d.floors,
+        hasBasement: d.hasBasement,
+        hasMezzanine: d.hasMezzanine,
         notes: d.notes ?? null,
         createdById: user.id
       }
@@ -222,6 +233,8 @@ export async function updateRequest(
     acId: getString(formData, 'acId'),
     yearsOld: getInt(formData, 'yearsOld') ?? -1,
     floors: getInt(formData, 'floors') ?? -1,
+    hasBasement: formData.get('hasBasement') === 'on',
+    hasMezzanine: formData.get('hasMezzanine') === 'on',
     notes: getOptionalString(formData, 'notes')
   });
 
@@ -255,6 +268,8 @@ export async function updateRequest(
       acId: d.acId,
       yearsOld: d.yearsOld,
       floors: d.floors,
+      hasBasement: d.hasBasement,
+      hasMezzanine: d.hasMezzanine,
       notes: d.notes ?? null
     }
   });

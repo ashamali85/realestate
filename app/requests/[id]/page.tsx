@@ -12,6 +12,7 @@ import { RequestEvaluation } from '@/components/RequestEvaluation';
 import { StarRating } from '@/components/StarRating';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
 import { criteriaScore, overallScore } from '@/lib/scoring';
+import { floorsFor } from '@/lib/floors';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,6 +74,7 @@ export default async function RequestDetailPage({
     ),
     measures: a.measures.map((m) => ({
       id: m.id,
+      floor: m.floor,
       nameEn: m.nameEn,
       nameAr: m.nameAr,
       statusId: m.statusId,
@@ -82,6 +84,11 @@ export default async function RequestDetailPage({
       images: m.images.map((img) => ({ id: img.id }))
     }))
   }));
+
+  const floorTabs = floorsFor(
+    { floors: r.floors, hasBasement: r.hasBasement, hasMezzanine: r.hasMezzanine },
+    locale
+  );
 
   const overall = overallScore(assigned.map((a: { score: number | null }) => a.score));
 
@@ -152,6 +159,8 @@ export default async function RequestDetailPage({
               {item('f_status', localName(r.status, locale))}
               {item('f_years', r.yearsOld)}
               {item('f_floors', r.floors)}
+              {item('f_has_basement', r.hasBasement ? t('yes', locale) : t('no', locale))}
+              {item('f_has_mezzanine', r.hasMezzanine ? t('yes', locale) : t('no', locale))}
               {item('f_exterior', localName(r.exterior, locale))}
               {item('f_elevator', localName(r.elevator, locale))}
               {item('f_ac', localName(r.ac, locale))}
@@ -198,6 +207,7 @@ export default async function RequestDetailPage({
             requestId={r.id}
             assigned={assigned}
             available={available}
+            floorTabs={floorTabs}
             statuses={statuses.map((s: (typeof statuses)[number]) => ({ id: s.id, nameEn: s.nameEn, nameAr: s.nameAr }))}
             locale={locale}
           />

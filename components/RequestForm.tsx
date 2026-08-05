@@ -36,6 +36,8 @@ export type ExistingRequest = {
   acId: string;
   yearsOld: number;
   floors: number;
+  hasBasement: boolean;
+  hasMezzanine: boolean;
   notes: string | null;
   images: { id: string }[];
 };
@@ -237,7 +239,15 @@ export function RequestForm({
                 <option value="3">3</option>
               </select>
             </div>
-            <div className="field" aria-hidden="true" />
+            <div className="field">
+              <label className="check" style={{ marginTop: 26 }}>
+                <input type="checkbox" name="hasBasement" defaultChecked={existing?.hasBasement ?? false} /> {t('f_has_basement', locale)}
+              </label>
+              <label className="check" style={{ marginTop: 10 }}>
+                <input type="checkbox" name="hasMezzanine" defaultChecked={existing?.hasMezzanine ?? false} /> {t('f_has_mezzanine', locale)}
+              </label>
+              <span className="field-error">{fieldError(state, 'hasMezzanine', locale)}</span>
+            </div>
           </div>
         </CollapsibleSection>
 

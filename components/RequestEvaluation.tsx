@@ -18,8 +18,10 @@ import { t, localName, type Locale } from '@/lib/i18n';
 
 type StatusOpt = { id: string; nameEn: string; nameAr: string };
 type MeasureImage = { id: string };
+type FloorTab = { key: string; label: string };
 type Measure = {
   id: string;
+  floor: string;
   nameEn: string;
   nameAr: string;
   statusId: string | null;
@@ -39,12 +41,14 @@ export function RequestEvaluation({
   requestId,
   assigned,
   available,
+  floorTabs,
   statuses,
   locale
 }: {
   requestId: string;
   assigned: Assigned[];
   available: { id: string; nameEn: string; nameAr: string }[];
+  floorTabs: FloorTab[];
   statuses: StatusOpt[];
   locale: Locale;
 }) {
@@ -106,20 +110,76 @@ export function RequestEvaluation({
             title={a.criteriaName}
             titleExtra={a.score !== null ? <StarRating score={a.score} size={16} /> : undefined}
           >
-            <div className="row-between" style={{ marginBottom: 12 }}>
-              <span className="muted small">{a.measures.length} · {t('criteria_measures', locale)}</span>
-              <button type="button" className="btn btn-danger btn-icon btn-sm" onClick={() => unassign(a.id)} aria-label={t('btn_delete', locale)} title={t('btn_delete', locale)}>
-                <IconTrash />
-              </button>
-            </div>
-            <div className="stack" style={{ gap: 14 }}>
-              {a.measures.map((m) => (
-                <MeasureCard key={m.id} measure={m} requestId={requestId} statuses={statuses} locale={locale} />
-              ))}
-            </div>
+            <CriteriaBlock
+              assigned={a}
+              floorTabs={floorTabs}
+              requestId={requestId}
+              statuses={statuses}
+              locale={locale}
+              onUnassign={() => unassign(a.id)}
+            />
           </CollapsibleSection>
         ))
       )}
+    </div>
+  );
+}
+
+function CriteriaBlock({
+  assigned,
+  floorTabs,
+  requestId,
+  statuses,
+  locale,
+  onUnassign
+}: {
+  assigned: Assigned;
+  floorTabs: FloorTab[];
+  requestId: string;
+  statuses: StatusOpt[];
+  locale: Locale;
+  onUnassign: () => void;
+}) {
+  // Only show tabs for floors that actually have measures (guards against a
+  // request whose floor count changed after assignment).
+  const presentFloors = new Set(assigned.measures.map((m) => m.floor));
+  const tabs = floorTabs.filter((f) => presentFloors.has(f.key));
+  const effectiveTabs = tabs.length > 0 ? tabs : floorTabs;
+  const [floor, setFloor] = useState<string>(effectiveTabs[0]?.key ?? 'ground');
+
+  const floorMeasures = assigned.measures.filter((m) => m.floor === floor);
+
+  return (
+    <div>
+      <div className="row-between" style={{ marginBottom: 12 }}>
+        <span className="muted small">{floorMeasures.length} · {t('criteria_measures', locale)}</span>
+        <button type="button" className="btn btn-danger btn-icon btn-sm" onClick={onUnassign} aria-label={t('btn_delete', locale)} title={t('btn_delete', locale)}>
+          <IconTrash />
+        </button>
+      </div>
+
+      {effectiveTabs.length > 1 && (
+        <div className="floor-tabs" role="tablist">
+          {effectiveTabs.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              role="tab"
+              aria-selected={floor === f.key}
+              className={`floor-tab ${floor === f.key ? 'active' : ''}`}
+              onClick={() => setFloor(f.key)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="stack" style={{ gap: 14 }}>
+        {floorMeasures.map((m) => (
+          <MeasureCard key={m.id} measure={m} requestId={requestId} statuses={statuses} locale={locale} />
+        ))}
+      </div>
     </div>
   );
 }

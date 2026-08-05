@@ -57,6 +57,8 @@ export default async function EditRequestPage({
               acId: r.acId,
               yearsOld: r.yearsOld,
               floors: r.floors,
+              hasBasement: r.hasBasement,
+              hasMezzanine: r.hasMezzanine,
               notes: r.notes,
               images: r.images
             }}

@@ -123,6 +123,21 @@ const DICT: Dict = {
   geo_edit_area: { en: 'Edit area', ar: 'تعديل المنطقة' },
   criteria_edit_title: { en: 'Edit criteria', ar: 'تعديل المعيار' },
   measure_edit_title: { en: 'Edit measure', ar: 'تعديل القياس' },
+
+  // Floors
+  floor_basement: { en: 'Basement', ar: 'البدروم' },
+  floor_ground: { en: 'Ground', ar: 'الأرضي' },
+  floor_mezzanine: { en: 'Mezzanine', ar: 'الميزانين' },
+  floor_first: { en: 'First', ar: 'الأول' },
+  floor_second: { en: 'Second', ar: 'الثاني' },
+  f_has_basement: { en: 'Has basement?', ar: 'يوجد بدروم؟' },
+  f_has_mezzanine: { en: 'Has mezzanine?', ar: 'يوجد ميزانين؟' },
+  f_mezzanine_invalid: {
+    en: 'A mezzanine requires a basement or at least a first floor above the ground floor.',
+    ar: 'يتطلب الميزانين وجود بدروم أو طابق أول على الأقل فوق الطابق الأرضي.'
+  },
+  yes: { en: 'Yes', ar: 'نعم' },
+  no: { en: 'No', ar: 'لا' },
   eval_score: { en: 'Score', ar: 'الدرجة' },
   eval_criteria_score: { en: 'Criteria score', ar: 'درجة المعيار' },
   eval_overall_score: { en: 'Overall score', ar: 'الدرجة الإجمالية' },

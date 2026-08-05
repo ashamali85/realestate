@@ -136,17 +136,37 @@ export async function assignCriteria(formData: FormData) {
   });
   if (!template) return;
 
+  // Determine the request's floors so we snapshot each template measure once
+  // per floor. Floor keys: "basement", "ground", "mezzanine", then "1", "2"...
+  const request = await prisma.inspectionRequest.findUnique({
+    where: { id: requestId },
+    select: { floors: true, hasBasement: true, hasMezzanine: true }
+  });
+  if (!request) return;
+
+  const floorKeys: string[] = [];
+  if (request.hasBasement) floorKeys.push('basement');
+  const count = Math.max(1, Math.min(3, request.floors));
+  for (let i = 0; i < count; i++) {
+    floorKeys.push(i === 0 ? 'ground' : String(i));
+    if (i === 0 && request.hasMezzanine) floorKeys.push('mezzanine');
+  }
+
+  const templateMeasures = template.measures ?? [];
+  const measureRows = floorKeys.flatMap((floor) =>
+    templateMeasures.map((m) => ({
+      floor,
+      nameEn: m.nameEn,
+      nameAr: m.nameAr,
+      displayOrder: m.displayOrder
+    }))
+  );
+
   await prisma.requestCriteria.create({
     data: {
       requestId,
       criteriaId,
-      measures: {
-        create: (template.measures ?? []).map((m) => ({
-          nameEn: m.nameEn,
-          nameAr: m.nameAr,
-          displayOrder: m.displayOrder
-        }))
-      }
+      measures: { create: measureRows }
     }
   });
 

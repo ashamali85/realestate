@@ -310,3 +310,13 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 /* Square icon-only buttons (e.g. requests row actions). */
 .btn-icon { display: inline-flex; align-items: center; justify-content: center; padding: 7px; width: 34px; height: 34px; }
 .btn-icon svg { display: block; }
+
+/* Floor tabs inside an assigned criteria. */
+.floor-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.floor-tab {
+  padding: 6px 16px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink-soft); font-family: inherit;
+  font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.15s;
+}
+.floor-tab:hover { background: var(--brand-tint); }
+.floor-tab.active { background: var(--brand); color: #fff; border-color: var(--brand); }
