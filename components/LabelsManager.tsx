@@ -20,16 +20,20 @@ export type LabelRow = {
 
 /**
  * Normalizes text for forgiving search. Lowercases, trims, and for Arabic it
- * strips diacritics (tashkeel) and unifies common letter variants (alef, ya,
- * ta-marbuta) so a search without diacritics still matches stored text that has
- * them (and vice-versa).
+ * strips diacritics (tashkeel) and unifies letter variants that look identical
+ * but have different Unicode codepoints across keyboards (Arabic vs Persian
+ * ya/kaf, alef forms, ta-marbuta, alef-maksura). Without this, typing on a
+ * Persian-style keyboard wouldn't match text stored in the Arabic forms.
  */
 function normalizeText(s: string): string {
   return s
     .replace(/[\u0617-\u061A\u064B-\u0652\u0670\u0640]/g, '') // tashkeel + tatweel
-    .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627') // أ إ آ ٱ -> ا
-    .replace(/\u0649/g, '\u064A') // ى -> ي
-    .replace(/\u0629/g, '\u0647') // ة -> ه
+    .replace(/[\u0622\u0623\u0625\u0671\u0672\u0673]/g, '\u0627') // أ إ آ ٱ ٲ ٳ -> ا
+    .replace(/[\u0649\u06CC\u064A\u06D2]/g, '\u064A') // ى ی ي ے -> ي (Persian/Arabic ya)
+    .replace(/[\u0643\u06A9\u06AA\u06AB]/g, '\u0643') // ک ٩ etc (Persian kaf) -> ك
+    .replace(/[\u0629\u06C0]/g, '\u0647') // ة ۀ -> ه
+    .replace(/[\u06BE\u06C1\u06C2]/g, '\u0647') // heh variants -> ه
+    .replace(/\u200C|\u200D|\u200E|\u200F|\uFEFF/g, '') // zero-width / direction marks
     .toLowerCase()
     .trim();
 }
