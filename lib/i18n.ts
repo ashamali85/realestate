@@ -130,11 +130,11 @@ const DICT: Dict = {
   floor_mezzanine: { en: 'Mezzanine', ar: 'الميزانين' },
   floor_first: { en: 'First', ar: 'الأول' },
   floor_second: { en: 'Second', ar: 'الثاني' },
-  f_has_basement: { en: 'Has basement?', ar: 'يوجد سرداب؟' },
-  f_has_mezzanine: { en: 'Has mezzanine?', ar: 'يوجد ميزانين؟' },
+  f_has_basement: { en: 'Has basement', ar: 'يوجد سرداب' },
+  f_has_mezzanine: { en: 'Has mezzanine', ar: 'يوجد ميزانين' },
   f_mezzanine_invalid: {
     en: 'A mezzanine requires a basement or at least a first floor above the ground floor.',
-    ar: 'يتطلب الميزانين وجود بدروم أو طابق أول على الأقل فوق الطابق الأرضي.'
+    ar: 'يتطلب الميزانين وجود سرداب أو طابق أول على الأقل فوق الطابق الأرضي.'
   },
   yes: { en: 'Yes', ar: 'نعم' },
   no: { en: 'No', ar: 'لا' },

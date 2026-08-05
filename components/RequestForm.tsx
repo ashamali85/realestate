@@ -227,19 +227,6 @@ export function RequestForm({
           </div>
           <div className="grid-3">
             <div className="field">
-              <label htmlFor="yearsOld">{t('f_years', locale)}</label>
-              <input id="yearsOld" name="yearsOld" type="number" min={0} max={500} required defaultValue={existing?.yearsOld ?? ''} />
-            </div>
-            <div className="field">
-              <label htmlFor="floors">{t('f_floors', locale)}</label>
-              <select id="floors" name="floors" required defaultValue={existing?.floors ?? ''}>
-                <option value="">{t('f_choose', locale)}</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-              </select>
-            </div>
-            <div className="field">
               <label className="toggle-card">
                 <input type="checkbox" name="hasBasement" defaultChecked={existing?.hasBasement ?? false} />
                 <span className="toggle-box" aria-hidden="true">
@@ -255,6 +242,19 @@ export function RequestForm({
                 <span className="toggle-label">{t('f_has_mezzanine', locale)}</span>
               </label>
               <span className="field-error">{fieldError(state, 'hasMezzanine', locale)}</span>
+            </div>
+            <div className="field">
+              <label htmlFor="yearsOld">{t('f_years', locale)}</label>
+              <input id="yearsOld" name="yearsOld" type="number" min={0} max={500} required defaultValue={existing?.yearsOld ?? ''} />
+            </div>
+            <div className="field">
+              <label htmlFor="floors">{t('f_floors', locale)}</label>
+              <select id="floors" name="floors" required defaultValue={existing?.floors ?? ''}>
+                <option value="">{t('f_choose', locale)}</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
             </div>
           </div>
         </CollapsibleSection>
