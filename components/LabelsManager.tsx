@@ -47,14 +47,21 @@ export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Loca
   const [editing, setEditing] = useState<LabelRow | null>(null);
 
   const filtered = useMemo(() => {
-    const q = normalizeText(search);
-    if (!q) return rows;
-    return rows.filter(
-      (r) =>
-        normalizeText(r.key).includes(q) ||
-        normalizeText(r.en).includes(q) ||
-        normalizeText(r.ar).includes(q)
-    );
+    const nq = normalizeText(search);
+    if (!nq) return rows;
+    // Match on individual words: every whitespace-separated term the user typed
+    // must appear somewhere in the label's key, English, or Arabic. This is far
+    // more forgiving than a single substring match — extra/odd spaces, word
+    // order, and partial words all still match.
+    const terms = nq.split(/\s+/).filter(Boolean);
+    const nqNoSpace = nq.replace(/\s+/g, '');
+    return rows.filter((r) => {
+      const hay = `${normalizeText(r.key)} ${normalizeText(r.en)} ${normalizeText(r.ar)} ${normalizeText(r.defaultEn)} ${normalizeText(r.defaultAr)}`;
+      // Every typed word appears somewhere, OR the whole query (spaces removed)
+      // is a substring of the label text (spaces removed) — covers odd spacing.
+      if (terms.every((term) => hay.includes(term))) return true;
+      return hay.replace(/\s+/g, '').includes(nqNoSpace);
+    });
   }, [rows, search]);
 
   function submitEdit(e: React.FormEvent<HTMLFormElement>) {
