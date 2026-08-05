@@ -320,3 +320,34 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 }
 .floor-tab:hover { background: var(--brand-tint); }
 .floor-tab.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+/* Modern toggle cards (building-feature checkboxes). */
+.toggle-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border: 1.5px solid var(--line); border-radius: 12px;
+  background: var(--surface); cursor: pointer; user-select: none;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.toggle-card:hover { border-color: var(--brand-2); background: var(--brand-tint); }
+.toggle-card input { position: absolute; opacity: 0; width: 0; height: 0; }
+.toggle-box {
+  flex: 0 0 auto; width: 24px; height: 24px; border-radius: 7px;
+  border: 2px solid var(--line); background: var(--surface);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; transition: all 0.15s;
+}
+.toggle-box svg { opacity: 0; transform: scale(0.6); transition: all 0.15s; }
+.toggle-label { font-weight: 700; color: var(--ink); font-size: 0.95rem; }
+/* Checked state */
+.toggle-card input:checked ~ .toggle-box {
+  background: var(--brand); border-color: var(--brand);
+}
+.toggle-card input:checked ~ .toggle-box svg { opacity: 1; transform: scale(1); }
+.toggle-card:has(input:checked) {
+  border-color: var(--brand); background: var(--brand-tint);
+  box-shadow: 0 0 0 1px var(--brand) inset;
+}
+/* Keyboard focus visibility */
+.toggle-card input:focus-visible ~ .toggle-box {
+  box-shadow: 0 0 0 3px rgba(27, 103, 213, 0.35);
+}

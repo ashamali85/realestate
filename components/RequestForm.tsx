@@ -240,11 +240,19 @@ export function RequestForm({
               </select>
             </div>
             <div className="field">
-              <label className="check" style={{ marginTop: 26 }}>
-                <input type="checkbox" name="hasBasement" defaultChecked={existing?.hasBasement ?? false} /> {t('f_has_basement', locale)}
+              <label className="toggle-card">
+                <input type="checkbox" name="hasBasement" defaultChecked={existing?.hasBasement ?? false} />
+                <span className="toggle-box" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                </span>
+                <span className="toggle-label">{t('f_has_basement', locale)}</span>
               </label>
-              <label className="check" style={{ marginTop: 10 }}>
-                <input type="checkbox" name="hasMezzanine" defaultChecked={existing?.hasMezzanine ?? false} /> {t('f_has_mezzanine', locale)}
+              <label className="toggle-card" style={{ marginTop: 10 }}>
+                <input type="checkbox" name="hasMezzanine" defaultChecked={existing?.hasMezzanine ?? false} />
+                <span className="toggle-box" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                </span>
+                <span className="toggle-label">{t('f_has_mezzanine', locale)}</span>
               </label>
               <span className="field-error">{fieldError(state, 'hasMezzanine', locale)}</span>
             </div>
