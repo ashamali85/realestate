@@ -14,6 +14,7 @@ import { prisma } from '@/lib/db';
 import { nextReference } from '@/lib/file-number';
 import { getString, getOptionalString, getInt, getFloat } from '@/lib/utils';
 import { LOCALE_COOKIE, isLocale } from '@/lib/i18n';
+import { syncRequestFloors, pruneRequestFloors } from '@/lib/criteria-actions';
 
 
 // --------------------------------------------------------------------- audit
@@ -275,6 +276,12 @@ export async function updateRequest(
   });
 
   await logAction(user.id, 'UPDATE', 'InspectionRequest', id, existing.reference);
+
+  // Keep assigned criteria's per-floor measures in sync with the new floor set:
+  // add rows for newly-added floors, remove rows for floors that were dropped.
+  // (The client warns before removing floors that have filled-in data.)
+  await syncRequestFloors(id);
+  await pruneRequestFloors(id);
 
   revalidatePath('/requests');
   revalidatePath(`/requests/${id}`);

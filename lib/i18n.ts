@@ -138,6 +138,10 @@ const DICT: Dict = {
   },
   yes: { en: 'Yes', ar: 'نعم' },
   no: { en: 'No', ar: 'لا' },
+  floor_remove_warning: {
+    en: 'A criteria has measures filled in for a floor you are removing. Those entries will be lost. Are you sure?',
+    ar: 'يوجد معيار يحتوي على قياسات مُدخلة لطابق ستقوم بإزالته. سيتم فقدان تلك البيانات. هل أنت متأكد؟'
+  },
   eval_score: { en: 'Score', ar: 'الدرجة' },
   eval_criteria_score: { en: 'Criteria score', ar: 'درجة المعيار' },
   eval_overall_score: { en: 'Overall score', ar: 'الدرجة الإجمالية' },

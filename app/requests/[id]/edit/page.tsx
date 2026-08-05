@@ -28,6 +28,22 @@ export default async function EditRequestPage({
 
   if (!r) notFound();
 
+  // Floors that already have filled-in measure data (status, notes,
+  // recommendations, or images). Used to warn before removing such a floor.
+  const filledMeasures = await prisma.requestMeasure.findMany({
+    where: {
+      requestCriteria: { requestId: id },
+      OR: [
+        { statusId: { not: null } },
+        { notes: { not: null } },
+        { recommendations: { not: null } },
+        { images: { some: {} } }
+      ]
+    },
+    select: { floor: true }
+  });
+  const filledFloors = Array.from(new Set(filledMeasures.map((m) => m.floor)));
+
   return (
     <>
       <TopBar user={user} locale={locale} active="requests" />
@@ -39,6 +55,7 @@ export default async function EditRequestPage({
           <RequestForm
             locale={locale}
             lookups={lookups}
+            filledFloors={filledFloors}
             existing={{
               id: r.id,
               areaId: r.areaId,

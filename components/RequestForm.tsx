@@ -9,6 +9,8 @@ import {
 } from '@/lib/actions';
 import { t, localName, type Locale } from '@/lib/i18n';
 import type { FormLookups } from '@/lib/lookups';
+import { floorKeysFor, floorLabel } from '@/lib/floors';
+import { useConfirm } from './ConfirmDialog';
 import { MapPicker } from './MapPicker';
 import { MapErrorBoundary } from './MapErrorBoundary';
 import { CollapsibleSection } from './CollapsibleSection';
@@ -50,14 +52,17 @@ function fieldError(state: RequestFormState, field: string, locale: Locale): str
 export function RequestForm({
   locale,
   lookups,
-  existing
+  existing,
+  filledFloors = []
 }: {
   locale: Locale;
   lookups: FormLookups;
   existing?: ExistingRequest;
+  filledFloors?: string[];
 }) {
   const isEdit = Boolean(existing);
   const router = useRouter();
+  const confirm = useConfirm();
   const [state, setState] = useState<RequestFormState>(initial);
   const [pending, startTransition] = useTransition();
   const [uploading, setUploading] = useState(false);
@@ -70,9 +75,32 @@ export function RequestForm({
 
   const busy = pending || uploading;
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+
+    // If editing and the new floor set drops a floor that already has filled-in
+    // measure data, warn before proceeding (that data will be deleted).
+    if (isEdit && filledFloors.length > 0) {
+      const newFloors = new Set(
+        floorKeysFor({
+          floors: Number(formData.get('floors') ?? 0),
+          hasBasement: formData.get('hasBasement') === 'on',
+          hasMezzanine: formData.get('hasMezzanine') === 'on'
+        })
+      );
+      const droppedWithData = filledFloors.filter((f) => !newFloors.has(f));
+      if (droppedWithData.length > 0) {
+        const names = droppedWithData.map((f) => floorLabel(f, locale)).join('، ');
+        const ok = await confirm({
+          message: `${t('floor_remove_warning', locale)} (${names})`,
+          danger: true,
+          confirmLabel: t('btn_confirm', locale)
+        });
+        if (!ok) return;
+      }
+    }
+
     const queued = filesRef.current.slice();
 
     startTransition(async () => {

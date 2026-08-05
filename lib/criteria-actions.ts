@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireSuperAdmin, requireUser } from '@/lib/auth';
 import { getString, getInt, getOptionalString } from '@/lib/utils';
+import { floorKeysFor } from '@/lib/floors';
 
 async function audit(actorUserId: string, action: string, entityType: string, entityId: string, entityName?: string) {
   await prisma.auditLog.create({ data: { actorUserId, action, entityType, entityId, entityName } });
@@ -144,13 +145,7 @@ export async function assignCriteria(formData: FormData) {
   });
   if (!request) return;
 
-  const floorKeys: string[] = [];
-  if (request.hasBasement) floorKeys.push('basement');
-  const count = Math.max(1, Math.min(3, request.floors));
-  for (let i = 0; i < count; i++) {
-    floorKeys.push(i === 0 ? 'ground' : String(i));
-    if (i === 0 && request.hasMezzanine) floorKeys.push('mezzanine');
-  }
+  const floorKeys = floorKeysFor(request);
 
   const templateMeasures = template.measures ?? [];
   const measureRows = floorKeys.flatMap((floor) =>
@@ -223,4 +218,72 @@ export async function deleteMeasureImage(imageId: string, requestId: string) {
   await prisma.requestMeasureImage.delete({ where: { id: imageId } });
   await audit(user.id, 'DELETE_IMAGE', 'RequestMeasureImage', imageId);
   if (requestId) revalidatePath(`/requests/${requestId}`);
+}
+
+/**
+ * Keeps assigned criteria in sync when a request's floors change. For every
+ * criteria already assigned to the request, adds RequestMeasure rows for any
+ * floor that now exists but had no rows yet (e.g. the user increased the floor
+ * count or ticked basement/mezzanine after assigning). Existing floors and
+ * their filled-in values are left untouched. Does NOT remove measures for
+ * floors that were dropped — that removal is handled explicitly on request
+ * update after the user confirms, so filled data isn't silently lost.
+ */
+export async function syncRequestFloors(requestId: string): Promise<void> {
+  const request = await prisma.inspectionRequest.findUnique({
+    where: { id: requestId },
+    select: { floors: true, hasBasement: true, hasMezzanine: true }
+  });
+  if (!request) return;
+
+  const floorKeys = floorKeysFor(request);
+
+  const assigned = await prisma.requestCriteria.findMany({
+    where: { requestId },
+    include: {
+      criteria: { include: { measures: { orderBy: { displayOrder: 'asc' } } } },
+      measures: { select: { floor: true } }
+    }
+  });
+
+  for (const rc of assigned) {
+    const presentFloors = new Set(rc.measures.map((m) => m.floor));
+    const missingFloors = floorKeys.filter((f) => !presentFloors.has(f));
+    if (missingFloors.length === 0) continue;
+
+    const templateMeasures = rc.criteria.measures ?? [];
+    const rows = missingFloors.flatMap((floor) =>
+      templateMeasures.map((m) => ({
+        requestCriteriaId: rc.id,
+        floor,
+        nameEn: m.nameEn,
+        nameAr: m.nameAr,
+        displayOrder: m.displayOrder
+      }))
+    );
+    if (rows.length > 0) {
+      await prisma.requestMeasure.createMany({ data: rows });
+    }
+  }
+}
+
+/**
+ * Removes RequestMeasure rows for floors that no longer exist on the request.
+ * Called on request update after the user has confirmed losing any filled data.
+ */
+export async function pruneRequestFloors(requestId: string): Promise<void> {
+  const request = await prisma.inspectionRequest.findUnique({
+    where: { id: requestId },
+    select: { floors: true, hasBasement: true, hasMezzanine: true }
+  });
+  if (!request) return;
+
+  const floorKeys = floorKeysFor(request);
+
+  await prisma.requestMeasure.deleteMany({
+    where: {
+      requestCriteria: { requestId },
+      floor: { notIn: floorKeys }
+    }
+  });
 }
