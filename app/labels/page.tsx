@@ -2,6 +2,7 @@ import { requireSuperAdmin } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { t, allLabels } from '@/lib/i18n';
+import { loadLabelOverrides } from '@/lib/label-overrides';
 import { TopBar } from '@/components/TopBar';
 import { LabelsManager, type LabelRow } from '@/components/LabelsManager';
 
@@ -9,6 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function LabelsPage() {
   const user = await requireSuperAdmin();
+  await loadLabelOverrides(); // ensure server t() sees overrides in this scope
   const locale = await getLocale();
 
   const [labels, overrides] = await Promise.all([

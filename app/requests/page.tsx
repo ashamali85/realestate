@@ -3,6 +3,7 @@ import { requireUser } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { t, localName } from '@/lib/i18n';
+import { loadLabelOverrides } from '@/lib/label-overrides';
 import { formatDateTime } from '@/lib/utils';
 import { TopBar } from '@/components/TopBar';
 import { RequestsTable, type RequestRow } from '@/components/RequestsTable';
@@ -11,6 +12,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function RequestsPage() {
   const user = await requireUser();
+  await loadLabelOverrides();
   const locale = await getLocale();
 
   const requests = await prisma.inspectionRequest.findMany({

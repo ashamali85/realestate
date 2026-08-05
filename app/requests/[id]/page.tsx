@@ -4,6 +4,7 @@ import { requireUser } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { t, localName } from '@/lib/i18n';
+import { loadLabelOverrides } from '@/lib/label-overrides';
 import { formatDate } from '@/lib/utils';
 import { TopBar } from '@/components/TopBar';
 import { DeleteRequestButton } from '@/components/DeleteRequestButton';
@@ -22,6 +23,7 @@ export default async function RequestDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const user = await requireUser();
+  await loadLabelOverrides();
   const locale = await getLocale();
   const { id } = await params;
 

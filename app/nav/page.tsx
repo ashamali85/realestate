@@ -2,6 +2,7 @@ import { requireSuperAdmin } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { t } from '@/lib/i18n';
+import { loadLabelOverrides } from '@/lib/label-overrides';
 import { TopBar } from '@/components/TopBar';
 import { NavManager, type NavRow } from '@/components/NavManager';
 import { NAV_META } from '@/lib/nav';
@@ -10,6 +11,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function NavPage() {
   const user = await requireSuperAdmin();
+  await loadLabelOverrides();
   const locale = await getLocale();
 
   const rows = await prisma.navLink.findMany({ orderBy: { displayOrder: 'asc' } });

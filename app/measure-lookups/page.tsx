@@ -2,6 +2,7 @@ import { requireSuperAdmin } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { t } from '@/lib/i18n';
+import { loadLabelOverrides } from '@/lib/label-overrides';
 import { TopBar } from '@/components/TopBar';
 import { OptionListEditor } from '@/components/OptionListEditor';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
@@ -10,6 +11,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function MeasureLookupsPage() {
   const user = await requireSuperAdmin();
+  await loadLabelOverrides();
   const locale = await getLocale();
 
   const measureStatuses = await prisma.measureStatusOption.findMany({

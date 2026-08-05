@@ -4,6 +4,7 @@ import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { loadFormLookups } from '@/lib/lookups';
 import { t } from '@/lib/i18n';
+import { loadLabelOverrides } from '@/lib/label-overrides';
 import { TopBar } from '@/components/TopBar';
 import { RequestForm } from '@/components/RequestForm';
 
@@ -15,6 +16,7 @@ export default async function EditRequestPage({
   params: Promise<{ id: string }>;
 }) {
   const user = await requireUser();
+  await loadLabelOverrides();
   const locale = await getLocale();
   const { id } = await params;
 

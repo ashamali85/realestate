@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { t } from '@/lib/i18n';
+import { loadLabelOverrides } from '@/lib/label-overrides';
 import { setLocale } from '@/lib/actions';
 import { LoginForm } from '@/components/LoginForm';
 
@@ -9,6 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function LoginPage() {
   if (await getSessionUser()) redirect('/requests');
+  await loadLabelOverrides();
   const locale = await getLocale();
   const other = locale === 'ar' ? 'en' : 'ar';
 

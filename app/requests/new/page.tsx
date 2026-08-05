@@ -2,6 +2,7 @@ import { requireUser } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { loadFormLookups } from '@/lib/lookups';
 import { t } from '@/lib/i18n';
+import { loadLabelOverrides } from '@/lib/label-overrides';
 import { TopBar } from '@/components/TopBar';
 import { RequestForm } from '@/components/RequestForm';
 
@@ -9,6 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function NewRequestPage() {
   const user = await requireUser();
+  await loadLabelOverrides();
   const locale = await getLocale();
   const lookups = await loadFormLookups();
 

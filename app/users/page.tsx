@@ -2,6 +2,7 @@ import { requireSuperAdmin } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { t } from '@/lib/i18n';
+import { loadLabelOverrides } from '@/lib/label-overrides';
 import { TopBar } from '@/components/TopBar';
 import { UsersManager, type UserRow } from '@/components/UsersManager';
 
@@ -9,6 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function UsersPage() {
   const me = await requireSuperAdmin();
+  await loadLabelOverrides();
   const locale = await getLocale();
 
   const users = await prisma.user.findMany({ orderBy: { createdAt: 'asc' } });

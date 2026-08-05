@@ -2,6 +2,7 @@ import { requireSuperAdmin } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { t } from '@/lib/i18n';
+import { loadLabelOverrides } from '@/lib/label-overrides';
 import { TopBar } from '@/components/TopBar';
 import { OptionListEditor } from '@/components/OptionListEditor';
 import { GeographyEditor } from '@/components/GeographyEditor';
@@ -11,6 +12,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function LookupsPage() {
   const user = await requireSuperAdmin();
+  await loadLabelOverrides();
   const locale = await getLocale();
 
   const [purposes, statuses, exteriors, elevators, acs, governorates, areas] = await Promise.all([
