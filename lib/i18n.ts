@@ -142,6 +142,27 @@ const DICT: Dict = {
     en: 'A criteria has measures filled in for a floor you are removing. Those entries will be lost. Are you sure?',
     ar: 'يوجد معيار يحتوي على قياسات مُدخلة لطابق ستقوم بإزالته. سيتم فقدان تلك البيانات. هل أنت متأكد؟'
   },
+
+  // Labels admin
+  nav_labels: { en: 'Labels', ar: 'النصوص' },
+  not_found: { en: 'Page not found.', ar: 'الصفحة غير موجودة.' },
+  labels_title: { en: 'Edit labels', ar: 'تعديل النصوص' },
+  labels_intro: {
+    en: 'Customize any text in the app. Changes apply everywhere the label is used.',
+    ar: 'خصّص أي نص في التطبيق. تُطبّق التغييرات في كل مكان يُستخدم فيه النص.'
+  },
+  label_key: { en: 'Key', ar: 'المفتاح' },
+  label_search: { en: 'Search labels…', ar: 'ابحث في النصوص…' },
+  label_status: { en: 'Status', ar: 'الحالة' },
+  label_custom: { en: 'Custom', ar: 'مخصّص' },
+  label_default: { en: 'Default', ar: 'افتراضي' },
+  label_none: { en: 'No labels match your search.', ar: 'لا توجد نصوص مطابقة لبحثك.' },
+  label_edit_title: { en: 'Edit label', ar: 'تعديل النص' },
+  label_reset: { en: 'Reset to default', ar: 'إعادة للافتراضي' },
+  label_reset_confirm: {
+    en: 'Reset this label to its default text?',
+    ar: 'إعادة هذا النص إلى قيمته الافتراضية؟'
+  },
   eval_score: { en: 'Score', ar: 'الدرجة' },
   eval_criteria_score: { en: 'Criteria score', ar: 'درجة المعيار' },
   eval_overall_score: { en: 'Overall score', ar: 'الدرجة الإجمالية' },
@@ -250,7 +271,33 @@ const DICT: Dict = {
   section_toggle: { en: 'Toggle section', ar: 'طيّ/فتح القسم' }
 };
 
+// Admin overrides loaded from the database. When present for a key/locale they
+// replace the built-in default. Populated per-request by loadLabelOverrides()
+// (called from the root layout) so every t() call reflects admin edits.
+let OVERRIDES: Record<string, { en?: string | null; ar?: string | null }> = {};
+
+export function setLabelOverrides(
+  overrides: Record<string, { en?: string | null; ar?: string | null }>
+): void {
+  OVERRIDES = overrides ?? {};
+}
+
+/** The built-in default text for a key (ignores overrides). */
+export function defaultText(key: string, locale: Locale): string | undefined {
+  return DICT[key]?.[locale];
+}
+
+/** All dictionary keys with their default en/ar, for the admin editor. */
+export function allLabels(): Array<{ key: string; en: string; ar: string }> {
+  return Object.entries(DICT).map(([key, v]) => ({ key, en: v.en, ar: v.ar }));
+}
+
 export function t(key: keyof typeof DICT | string, locale: Locale): string {
+  const override = OVERRIDES[key as string];
+  if (override) {
+    const val = override[locale];
+    if (val != null && val !== '') return val;
+  }
   const entry = DICT[key];
   if (!entry) return key;
   return entry[locale];

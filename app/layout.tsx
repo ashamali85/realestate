@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getLocale } from '@/lib/locale';
 import { dir, t } from '@/lib/i18n';
+import { loadLabelOverrides } from '@/lib/label-overrides';
 import { ConfirmProvider } from '@/components/ConfirmDialog';
 import { LoadingProvider } from '@/components/LoadingOverlay';
 import './globals.css';
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  await loadLabelOverrides();
   const locale = await getLocale();
 
   return (

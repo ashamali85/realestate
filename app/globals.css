@@ -354,3 +354,9 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 
 /* Align a toggle card with sibling inputs that have a label above them. */
 .toggle-aligned { margin-top: 26px; }
+
+/* Labels admin */
+.hint { display: block; font-size: 0.78rem; color: var(--ink-soft); margin-top: 4px; }
+.table-scroll { max-height: 65vh; overflow-y: auto; border: 1px solid var(--line); border-radius: 12px; }
+.table-scroll table { margin: 0; }
+.table-scroll thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }

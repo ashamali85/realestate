@@ -12,6 +12,7 @@ export const NAV_META: Record<string, { href: string; active: string; superOnly:
   lookups: { href: '/lookups', active: 'lookups', superOnly: true, fallbackKey: 'nav_lookups' },
   criteria: { href: '/criteria', active: 'criteria', superOnly: true, fallbackKey: 'nav_criteria' },
   'measure-lookups': { href: '/measure-lookups', active: 'measure-lookups', superOnly: true, fallbackKey: 'nav_measure_lookups' },
+  labels: { href: '/labels', active: 'labels', superOnly: true, fallbackKey: 'nav_labels' },
   users: { href: '/users', active: 'users', superOnly: true, fallbackKey: 'nav_users' }
 };
 

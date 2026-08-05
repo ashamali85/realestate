@@ -230,6 +230,7 @@ async function main() {
     ['lookups', 'Request Lookups', 'قوائم الطلبات'],
     ['criteria', 'Criteria', 'المعايير'],
     ['measure-lookups', 'Measure Lookups', 'قوائم القياسات'],
+    ['labels', 'Labels', 'النصوص'],
     ['users', 'Users', 'المستخدمون']
   ];
   for (let i = 0; i < NAV_LINKS.length; i++) {
