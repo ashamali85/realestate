@@ -56,7 +56,7 @@ export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Loca
     const terms = nq.split(/\s+/).filter(Boolean);
     const nqNoSpace = nq.replace(/\s+/g, '');
     return rows.filter((r) => {
-      const hay = `${normalizeText(r.key)} ${normalizeText(r.en)} ${normalizeText(r.ar)} ${normalizeText(r.defaultEn)} ${normalizeText(r.defaultAr)}`;
+      const hay = `${normalizeText(r.key)} ${normalizeText(r.en)} ${normalizeText(r.ar)}`;
       // Every typed word appears somewhere, OR the whole query (spaces removed)
       // is a substring of the label text (spaces removed) — covers odd spacing.
       if (terms.every((term) => hay.includes(term))) return true;

@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   description: 'Real estate inspection system'
 };
 
+// The layout loads admin label overrides on every request; it must not be
+// statically cached or the overrides (and thus edited labels) would go stale.
+export const dynamic = 'force-dynamic';
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const overrides = await loadLabelOverrides();
   const locale = await getLocale();
