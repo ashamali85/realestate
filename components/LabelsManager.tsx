@@ -18,6 +18,22 @@ export type LabelRow = {
   overridden: boolean;
 };
 
+/**
+ * Normalizes text for forgiving search. Lowercases, trims, and for Arabic it
+ * strips diacritics (tashkeel) and unifies common letter variants (alef, ya,
+ * ta-marbuta) so a search without diacritics still matches stored text that has
+ * them (and vice-versa).
+ */
+function normalizeText(s: string): string {
+  return s
+    .replace(/[\u0617-\u061A\u064B-\u0652\u0670\u0640]/g, '') // tashkeel + tatweel
+    .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627') // أ إ آ ٱ -> ا
+    .replace(/\u0649/g, '\u064A') // ى -> ي
+    .replace(/\u0629/g, '\u0647') // ة -> ه
+    .toLowerCase()
+    .trim();
+}
+
 export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Locale }) {
   const router = useRouter();
   const confirm = useConfirm();
@@ -27,13 +43,13 @@ export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Loca
   const [editing, setEditing] = useState<LabelRow | null>(null);
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = normalizeText(search);
     if (!q) return rows;
     return rows.filter(
       (r) =>
-        r.key.toLowerCase().includes(q) ||
-        r.en.toLowerCase().includes(q) ||
-        r.ar.toLowerCase().includes(q)
+        normalizeText(r.key).includes(q) ||
+        normalizeText(r.en).includes(q) ||
+        normalizeText(r.ar).includes(q)
     );
   }, [rows, search]);
 
