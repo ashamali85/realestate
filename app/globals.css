@@ -351,3 +351,6 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .toggle-card input:focus-visible ~ .toggle-box {
   box-shadow: 0 0 0 3px rgba(27, 103, 213, 0.35);
 }
+
+/* Align a toggle card with sibling inputs that have a label above them. */
+.toggle-aligned { margin-top: 26px; }

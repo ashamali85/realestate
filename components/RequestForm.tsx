@@ -223,26 +223,17 @@ export function RequestForm({
           <div className="grid-3">
             <LookupSelect name="elevatorId" labelKey="f_elevator" options={lookups.elevators} locale={locale} state={state} value={existing?.elevatorId} />
             <LookupSelect name="acId" labelKey="f_ac" options={lookups.acs} locale={locale} state={state} value={existing?.acId} />
-            <div className="field" aria-hidden="true" />
-          </div>
-          <div className="grid-3">
             <div className="field">
-              <label className="toggle-card">
+              <label className="toggle-card toggle-aligned">
                 <input type="checkbox" name="hasBasement" defaultChecked={existing?.hasBasement ?? false} />
                 <span className="toggle-box" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                 </span>
                 <span className="toggle-label">{t('f_has_basement', locale)}</span>
               </label>
-              <label className="toggle-card" style={{ marginTop: 10 }}>
-                <input type="checkbox" name="hasMezzanine" defaultChecked={existing?.hasMezzanine ?? false} />
-                <span className="toggle-box" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                </span>
-                <span className="toggle-label">{t('f_has_mezzanine', locale)}</span>
-              </label>
-              <span className="field-error">{fieldError(state, 'hasMezzanine', locale)}</span>
             </div>
+          </div>
+          <div className="grid-3">
             <div className="field">
               <label htmlFor="yearsOld">{t('f_years', locale)}</label>
               <input id="yearsOld" name="yearsOld" type="number" min={0} max={500} required defaultValue={existing?.yearsOld ?? ''} />
@@ -255,6 +246,16 @@ export function RequestForm({
                 <option value="2">2</option>
                 <option value="3">3</option>
               </select>
+            </div>
+            <div className="field">
+              <label className="toggle-card toggle-aligned">
+                <input type="checkbox" name="hasMezzanine" defaultChecked={existing?.hasMezzanine ?? false} />
+                <span className="toggle-box" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                </span>
+                <span className="toggle-label">{t('f_has_mezzanine', locale)}</span>
+              </label>
+              <span className="field-error">{fieldError(state, 'hasMezzanine', locale)}</span>
             </div>
           </div>
         </CollapsibleSection>
