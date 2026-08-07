@@ -183,6 +183,7 @@ const DICT: Dict = {
   col_status: { en: 'Status', ar: 'الحالة' },
   col_measures_count: { en: 'Measures', ar: 'القياسات' },
   status_active: { en: 'Active', ar: 'مفعّل' },
+  lookup_items: { en: 'items', ar: 'عناصر' },
 
   // Assignment / fill on a request
   sec_evaluation: { en: 'Evaluation', ar: 'التقييم' },

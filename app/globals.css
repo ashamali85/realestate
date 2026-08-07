@@ -368,3 +368,16 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 
 /* Section heading for lookup category tables. */
 .lookup-section-title { font-size: 1.15rem; font-weight: 800; color: var(--brand); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--brand-tint); }
+
+/* Lookup category tiles (grid of clickable cards). */
+.lookup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.lookup-tile {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+  padding: 22px 20px; border: 1.5px solid var(--line); border-radius: 14px;
+  background: var(--surface); cursor: pointer; text-align: start; font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+.lookup-tile:hover { border-color: var(--brand); box-shadow: 0 8px 22px rgba(10,61,145,0.1); transform: translateY(-2px); }
+.lookup-tile-icon { font-size: 1.8rem; line-height: 1; }
+.lookup-tile-name { font-size: 1.1rem; font-weight: 800; color: var(--ink); }
+.lookup-tile-count { font-size: 0.82rem; color: var(--ink-soft); font-weight: 600; }
