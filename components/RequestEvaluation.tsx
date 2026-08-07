@@ -15,6 +15,7 @@ import { Modal } from './Modal';
 import { ImageDropzone } from './ImageDropzone';
 import { StarRating } from './StarRating';
 import { IconTrash } from './Icons';
+import { criteriaIcon } from '@/lib/criteria-icons';
 import { t, localName, type Locale } from '@/lib/i18n';
 
 type StatusOpt = { id: string; nameEn: string; nameAr: string };
@@ -109,6 +110,7 @@ export function RequestEvaluation({
         <div className="lookup-grid">
           {assigned.map((a) => (
             <button key={a.id} type="button" className="lookup-tile" onClick={() => setOpenId(a.id)}>
+              <span className="lookup-tile-icon" aria-hidden="true">{criteriaIcon(a.criteriaName)}</span>
               <span className="lookup-tile-name">{a.criteriaName}</span>
               {a.score !== null && <StarRating score={a.score} size={16} />}
               <span className="lookup-tile-count">{a.measures.length} · {t('criteria_measures', locale)}</span>
