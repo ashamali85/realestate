@@ -11,6 +11,7 @@ import {
 import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
 import { CollapsibleSection } from './CollapsibleSection';
+import { Modal } from './Modal';
 import { ImageDropzone } from './ImageDropzone';
 import { StarRating } from './StarRating';
 import { IconTrash } from './Icons';
@@ -57,6 +58,7 @@ export function RequestEvaluation({
   const loading = useLoading();
   const [, startTransition] = useTransition();
   const [pick, setPick] = useState('');
+  const [openId, setOpenId] = useState<string | null>(null);
 
   function assign() {
     if (!pick) return;
@@ -104,23 +106,36 @@ export function RequestEvaluation({
       {assigned.length === 0 ? (
         <p className="muted small">{t('eval_none', locale)}</p>
       ) : (
-        assigned.map((a) => (
-          <CollapsibleSection
-            key={a.id}
-            title={a.criteriaName}
-            titleExtra={a.score !== null ? <StarRating score={a.score} size={16} /> : undefined}
-          >
+        <div className="lookup-grid">
+          {assigned.map((a) => (
+            <button key={a.id} type="button" className="lookup-tile" onClick={() => setOpenId(a.id)}>
+              <span className="lookup-tile-name">{a.criteriaName}</span>
+              {a.score !== null && <StarRating score={a.score} size={16} />}
+              <span className="lookup-tile-count">{a.measures.length} · {t('criteria_measures', locale)}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {openId && (() => {
+        const a = assigned.find((x) => x.id === openId);
+        if (!a) return null;
+        return (
+          <Modal title={a.criteriaName} onClose={() => setOpenId(null)} wide>
             <CriteriaBlock
               assigned={a}
               floorTabs={floorTabs}
               requestId={requestId}
               statuses={statuses}
               locale={locale}
-              onUnassign={() => unassign(a.id)}
+              onUnassign={() => {
+                setOpenId(null);
+                unassign(a.id);
+              }}
             />
-          </CollapsibleSection>
-        ))
-      )}
+          </Modal>
+        );
+      })()}
     </div>
   );
 }
