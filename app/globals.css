@@ -365,3 +365,6 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 
 /* Wider modal for content with tables (e.g. criteria + its measures). */
 .modal-card-wide { max-width: 760px; max-height: 88vh; overflow-y: auto; }
+
+/* Section heading for lookup category tables. */
+.lookup-section-title { font-size: 1.15rem; font-weight: 800; color: var(--brand); margin: 0 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--brand-tint); }

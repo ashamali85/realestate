@@ -5,7 +5,6 @@ import { t } from '@/lib/i18n';
 import { loadLabelOverrides } from '@/lib/label-overrides';
 import { TopBar } from '@/components/TopBar';
 import { OptionListEditor } from '@/components/OptionListEditor';
-import { CollapsibleSection } from '@/components/CollapsibleSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,17 +26,16 @@ export default async function MeasureLookupsPage() {
           {t('measure_lookups_intro', locale)}
         </p>
 
-        <div className="stack" style={{ gap: 14 }}>
-          <CollapsibleSection title={t('measure_status_title', locale)} defaultOpen>
-            <OptionListEditor
-              kind="measureStatus"
-              title={t('measure_status_title', locale)}
-              rows={measureStatuses}
-              locale={locale}
-              showScore
-            />
-          </CollapsibleSection>
-        </div>
+        <section>
+          <h2 className="lookup-section-title">{t('measure_status_title', locale)}</h2>
+          <OptionListEditor
+            kind="measureStatus"
+            title={t('measure_status_title', locale)}
+            rows={measureStatuses}
+            locale={locale}
+            showScore
+          />
+        </section>
       </main>
     </>
   );

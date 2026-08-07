@@ -6,7 +6,6 @@ import { loadLabelOverrides } from '@/lib/label-overrides';
 import { TopBar } from '@/components/TopBar';
 import { OptionListEditor } from '@/components/OptionListEditor';
 import { GeographyEditor } from '@/components/GeographyEditor';
-import { CollapsibleSection } from '@/components/CollapsibleSection';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,25 +31,31 @@ export default async function LookupsPage() {
         <h1>{t('lookups_title', locale)}</h1>
         <p className="muted small mt-2" style={{ marginBottom: 20 }}>{t('lookups_intro', locale)}</p>
 
-        <div className="stack" style={{ gap: 14 }}>
-          <CollapsibleSection title={t('lookup_areas', locale)} defaultOpen={false}>
+        <div className="stack" style={{ gap: 28 }}>
+          <section>
+            <h2 className="lookup-section-title">{t('lookup_areas', locale)}</h2>
             <GeographyEditor governorates={governorates} areas={areas} locale={locale} />
-          </CollapsibleSection>
-          <CollapsibleSection title={t('lookup_purpose', locale)} defaultOpen={false}>
+          </section>
+          <section>
+            <h2 className="lookup-section-title">{t('lookup_purpose', locale)}</h2>
             <OptionListEditor kind="purpose" title={t('lookup_purpose', locale)} rows={purposes} locale={locale} />
-          </CollapsibleSection>
-          <CollapsibleSection title={t('lookup_status', locale)} defaultOpen={false}>
+          </section>
+          <section>
+            <h2 className="lookup-section-title">{t('lookup_status', locale)}</h2>
             <OptionListEditor kind="status" title={t('lookup_status', locale)} rows={statuses} locale={locale} />
-          </CollapsibleSection>
-          <CollapsibleSection title={t('lookup_exterior', locale)} defaultOpen={false}>
+          </section>
+          <section>
+            <h2 className="lookup-section-title">{t('lookup_exterior', locale)}</h2>
             <OptionListEditor kind="exterior" title={t('lookup_exterior', locale)} rows={exteriors} locale={locale} />
-          </CollapsibleSection>
-          <CollapsibleSection title={t('lookup_elevator', locale)} defaultOpen={false}>
+          </section>
+          <section>
+            <h2 className="lookup-section-title">{t('lookup_elevator', locale)}</h2>
             <OptionListEditor kind="elevator" title={t('lookup_elevator', locale)} rows={elevators} locale={locale} />
-          </CollapsibleSection>
-          <CollapsibleSection title={t('lookup_ac', locale)} defaultOpen={false}>
+          </section>
+          <section>
+            <h2 className="lookup-section-title">{t('lookup_ac', locale)}</h2>
             <OptionListEditor kind="ac" title={t('lookup_ac', locale)} rows={acs} locale={locale} />
-          </CollapsibleSection>
+          </section>
         </div>
       </main>
     </>

@@ -77,7 +77,7 @@ export function OptionListEditor({
   return (
     <div>
       <div className="row-between" style={{ marginBottom: 12 }}>
-        <span className="muted small">{title}</span>
+        <span className="muted small">{rows.length}</span>
         <button
           type="button"
           className="btn btn-ghost btn-sm"
