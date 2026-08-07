@@ -10,11 +10,13 @@ import { useEffect, type ReactNode } from 'react';
 export function Modal({
   title,
   onClose,
-  children
+  children,
+  wide = false
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  wide?: boolean;
 }) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -26,7 +28,7 @@ export function Modal({
 
   return (
     <div className="modal-backdrop" role="presentation" onClick={onClose}>
-      <div className="modal-card" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+      <div className={`modal-card${wide ? ' modal-card-wide' : ''}`} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <h3 style={{ color: 'var(--brand)', marginBottom: 16 }}>{title}</h3>
         {children}
       </div>

@@ -179,6 +179,10 @@ const DICT: Dict = {
   measure_add: { en: 'Add measure', ar: 'إضافة قياس' },
   measure_none: { en: 'No measures yet. Add the first one.', ar: 'لا توجد قياسات بعد. أضف الأول.' },
   criteria_none: { en: 'No criteria yet.', ar: 'لا توجد معايير بعد.' },
+  col_criteria_name: { en: 'Criteria', ar: 'المعيار' },
+  col_status: { en: 'Status', ar: 'الحالة' },
+  col_measures_count: { en: 'Measures', ar: 'القياسات' },
+  status_active: { en: 'Active', ar: 'مفعّل' },
 
   // Assignment / fill on a request
   sec_evaluation: { en: 'Evaluation', ar: 'التقييم' },

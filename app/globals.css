@@ -362,3 +362,6 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .table-scroll { max-height: 65vh; overflow-y: auto; border: 1px solid var(--line); border-radius: 12px; }
 .table-scroll table { margin: 0; }
 .table-scroll thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
+
+/* Wider modal for content with tables (e.g. criteria + its measures). */
+.modal-card-wide { max-width: 760px; max-height: 88vh; overflow-y: auto; }
