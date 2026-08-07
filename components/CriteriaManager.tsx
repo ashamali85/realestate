@@ -90,7 +90,12 @@ export function CriteriaManager({ criteria, locale }: { criteria: CriteriaRow[];
         criteria.map((c) => (
           <CollapsibleSection
             key={c.id}
-            title={`${localName(c, locale)}${c.isActive ? '' : ' •'}`}
+            title={localName(c, locale)}
+            titleExtra={
+              c.isActive ? undefined : (
+                <span className="badge badge-off">{t('user_inactive', locale)}</span>
+              )
+            }
             defaultOpen={false}
           >
             <div className="row wrap" style={{ gap: 6, marginBottom: 12 }}>
