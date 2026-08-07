@@ -230,6 +230,7 @@ export async function deleteMeasureImage(imageId: string, requestId: string) {
  * update after the user confirms, so filled data isn't silently lost.
  */
 export async function syncRequestFloors(requestId: string): Promise<void> {
+  await requireUser(); // guard: this is exported from a 'use server' module
   const request = await prisma.inspectionRequest.findUnique({
     where: { id: requestId },
     select: { floors: true, hasBasement: true, hasMezzanine: true }
@@ -272,6 +273,7 @@ export async function syncRequestFloors(requestId: string): Promise<void> {
  * Called on request update after the user has confirmed losing any filled data.
  */
 export async function pruneRequestFloors(requestId: string): Promise<void> {
+  await requireUser(); // guard: this is exported from a 'use server' module
   const request = await prisma.inspectionRequest.findUnique({
     where: { id: requestId },
     select: { floors: true, hasBasement: true, hasMezzanine: true }
