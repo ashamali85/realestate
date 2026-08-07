@@ -2,8 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { saveLabelOverride, resetLabelOverride } from '@/lib/label-actions';
-import { useConfirm } from './ConfirmDialog';
+import { saveLabelOverride } from '@/lib/label-actions';
 import { useLoading } from './LoadingOverlay';
 import { Modal } from './Modal';
 import { IconPencil } from './Icons';
@@ -40,7 +39,6 @@ function normalizeText(s: string): string {
 
 export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Locale }) {
   const router = useRouter();
-  const confirm = useConfirm();
   const loading = useLoading();
   const [, startTransition] = useTransition();
   const [search, setSearch] = useState('');
@@ -69,24 +67,6 @@ export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Loca
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
       await loading.run(() => saveLabelOverride(fd), t('saving', locale));
-      setEditing(null);
-      router.refresh();
-    });
-  }
-
-  async function onReset(row: LabelRow) {
-    const ok = await confirm({
-      message: t('label_reset_confirm', locale),
-      danger: true,
-      confirmLabel: t('label_reset', locale)
-    });
-    if (!ok) return;
-    startTransition(async () => {
-      await loading.run(async () => {
-        const fd = new FormData();
-        fd.append('key', row.key);
-        await resetLabelOverride(fd);
-      }, t('saving', locale));
       setEditing(null);
       router.refresh();
     });
@@ -147,21 +127,15 @@ export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Loca
         <Modal title={t('label_edit_title', locale)} onClose={() => setEditing(null)}>
           <form onSubmit={submitEdit}>
             <input type="hidden" name="key" value={editing.key} />
-            <p className="mono small muted" style={{ marginBottom: 12 }}>{editing.key}</p>
             <div className="field">
               <label>English</label>
               <input name="en" defaultValue={editing.en} dir="ltr" autoFocus />
-              <span className="hint">{t('label_default', locale)}: {editing.defaultEn}</span>
             </div>
             <div className="field">
               <label>العربية</label>
               <input name="ar" defaultValue={editing.ar} dir="rtl" />
-              <span className="hint">{t('label_default', locale)}: {editing.defaultAr}</span>
             </div>
             <div className="modal-actions" style={{ marginTop: 20 }}>
-              <button type="button" className="btn btn-danger" onClick={() => onReset(editing)} style={{ marginInlineEnd: 'auto' }}>
-                {t('label_reset', locale)}
-              </button>
               <button type="button" className="btn btn-ghost" onClick={() => setEditing(null)}>
                 {t('btn_cancel', locale)}
               </button>
