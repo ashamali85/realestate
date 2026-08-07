@@ -4,6 +4,7 @@ import { t, type Locale } from '@/lib/i18n';
 import type { SessionUser } from '@/lib/auth';
 import { loadNav } from '@/lib/nav';
 import { NavLinkItem } from './NavLinkItem';
+import { IconLogout } from './Icons';
 
 export async function TopBar({
   user,
@@ -55,7 +56,9 @@ export async function TopBar({
             <button type="submit">{t('nav_language', locale)}</button>
           </form>
           <form action={logout} style={{ display: 'inline' }}>
-            <button type="submit">{t('nav_signout', locale)}</button>
+            <button type="submit" className="nav-icon-link" aria-label={t('nav_signout', locale)} title={t('nav_signout', locale)}>
+              <IconLogout />
+            </button>
           </form>
         </nav>
       </div>
