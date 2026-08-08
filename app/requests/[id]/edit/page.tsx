@@ -23,7 +23,7 @@ export default async function EditRequestPage({
   const [r, lookups] = await Promise.all([
     prisma.inspectionRequest.findUnique({
       where: { id },
-      include: { images: { orderBy: { sortOrder: 'asc' }, select: { id: true } } }
+      include: { images: { orderBy: { sortOrder: 'asc' }, select: { id: true, category: true } } }
     }),
     loadFormLookups()
   ]);

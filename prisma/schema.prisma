@@ -207,6 +207,7 @@ model RequestImage {
   requestId String
   request   InspectionRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
 
+  category  String @default("property") // "property" | "kuwaitFinder"
   data      Bytes
   mimeType  String
   byteSize  Int
@@ -216,7 +217,7 @@ model RequestImage {
 
   createdAt DateTime @default(now())
 
-  @@index([requestId, sortOrder])
+  @@index([requestId, category, sortOrder])
 }
 
 // Sequential per-year counter for reference numbers, incremented atomically.

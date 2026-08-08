@@ -35,6 +35,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'missing_request' }, { status: 400 });
   }
 
+  // Which image set this upload belongs to. Two categories share the table:
+  // "property" (main property photos) and "kuwaitFinder" (Kuwait Finder).
+  const rawCategory = String(form.get('category') ?? 'property');
+  const category = rawCategory === 'kuwaitFinder' ? 'kuwaitFinder' : 'property';
+
   const target = await prisma.inspectionRequest.findUnique({
     where: { id: requestId },
     select: { id: true }
@@ -48,7 +53,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ saved: 0 });
   }
 
-  const currentCount = await prisma.requestImage.count({ where: { requestId } });
+  const currentCount = await prisma.requestImage.count({ where: { requestId, category } });
   let order = currentCount;
   let saved = 0;
   const rejected: string[] = [];
@@ -67,6 +72,7 @@ export async function POST(request: Request) {
     await prisma.requestImage.create({
       data: {
         requestId,
+        category,
         data: Buffer.from(bytes),
         mimeType: result.detected.mimeType,
         byteSize: bytes.byteLength,

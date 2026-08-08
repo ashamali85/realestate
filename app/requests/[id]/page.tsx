@@ -36,7 +36,7 @@ export default async function RequestDetailPage({
       exterior: true,
       elevator: true,
       ac: true,
-      images: { orderBy: { sortOrder: 'asc' }, select: { id: true } },
+      images: { orderBy: { sortOrder: 'asc' }, select: { id: true, category: true } },
       createdBy: { select: { name: true } }
     }
   });
@@ -172,24 +172,35 @@ export default async function RequestDetailPage({
             </div>
           </CollapsibleSection>
 
-          {r.images.length > 0 && (
-            <CollapsibleSection title={t('sec_images', locale)}>
-              <div className="thumb-grid">
-                {r.images.map((img: { id: string }) => (
-                  <a
-                    key={img.id}
-                    href={`/api/request-image/${img.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="thumb"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/api/request-image/${img.id}`} alt="" loading="lazy" />
-                  </a>
-                ))}
-              </div>
-            </CollapsibleSection>
-          )}
+          {(() => {
+            const propertyImgs = r.images.filter((i: { category?: string }) => (i.category ?? 'property') !== 'kuwaitFinder');
+            const kuwaitImgs = r.images.filter((i: { category?: string }) => i.category === 'kuwaitFinder');
+            const gallery = (title: string, imgs: { id: string }[]) =>
+              imgs.length > 0 && (
+                <CollapsibleSection title={title}>
+                  <div className="thumb-grid">
+                    {imgs.map((img) => (
+                      <a
+                        key={img.id}
+                        href={`/api/request-image/${img.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="thumb"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={`/api/request-image/${img.id}`} alt="" loading="lazy" />
+                      </a>
+                    ))}
+                  </div>
+                </CollapsibleSection>
+              );
+            return (
+              <>
+                {gallery(t('sec_images', locale), propertyImgs)}
+                {gallery(t('sec_kuwait_finder', locale), kuwaitImgs)}
+              </>
+            );
+          })()}
 
           {r.notes && (
             <CollapsibleSection title={t('sec_notes', locale)}>

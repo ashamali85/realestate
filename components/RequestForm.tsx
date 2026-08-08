@@ -44,7 +44,7 @@ export type ExistingRequest = {
   constructionPct: number | null;
   constructionArea: number | null;
   notes: string | null;
-  images: { id: string }[];
+  images: { id: string; category?: string }[];
 };
 
 function fieldError(state: RequestFormState, field: string, locale: Locale): string | null {
@@ -64,6 +64,10 @@ export function RequestForm({
   filledFloors?: string[];
 }) {
   const isEdit = Boolean(existing);
+  // Existing images (edit mode) are split by category. Older images saved before
+  // categories existed default to "property".
+  const propertyImages = (existing?.images ?? []).filter((i) => (i.category ?? 'property') !== 'kuwaitFinder');
+  const kuwaitImages = (existing?.images ?? []).filter((i) => i.category === 'kuwaitFinder');
   const router = useRouter();
   const confirm = useConfirm();
   const [state, setState] = useState<RequestFormState>(initial);
@@ -74,6 +78,7 @@ export function RequestForm({
   // new request is created. In edit mode the dropzone uploads immediately and
   // this stays empty, so re-saving never re-uploads anything.
   const filesRef = useRef<File[]>([]);
+  const kuwaitFilesRef = useRef<File[]>([]);
   const loading = useLoading();
 
   const busy = pending || uploading;
@@ -105,6 +110,7 @@ export function RequestForm({
     }
 
     const queued = filesRef.current.slice();
+    const queuedKuwait = kuwaitFilesRef.current.slice();
 
     startTransition(async () => {
       loading.show(t('saving', locale));
@@ -123,15 +129,20 @@ export function RequestForm({
           return;
         }
 
-        if (queued.length > 0) {
+        if (queued.length > 0 || queuedKuwait.length > 0) {
           try {
             setUploading(true);
-            for (const f of queued) {
-              const fd = new FormData();
-              fd.append('requestId', targetId);
-              fd.append('images', f);
-              await fetch('/api/request-image/upload', { method: 'POST', body: fd });
-            }
+            const uploadBatch = async (files: File[], category: string) => {
+              for (const f of files) {
+                const fd = new FormData();
+                fd.append('requestId', targetId);
+                fd.append('category', category);
+                fd.append('images', f);
+                await fetch('/api/request-image/upload', { method: 'POST', body: fd });
+              }
+            };
+            await uploadBatch(queued, 'property');
+            await uploadBatch(queuedKuwait, 'kuwaitFinder');
           } catch {
             setState({ error: 'upload_partial' });
           } finally {
@@ -219,11 +230,16 @@ export function RequestForm({
           </div>
         </CollapsibleSection>
 
+        {/* Google Maps location picker — hidden for now per request.
+            To re-enable, uncomment this section. All supporting code
+            (MapPicker, MapErrorBoundary, lat/lng fields) is intact. */}
+        {/*
         <CollapsibleSection title={t('sec_location', locale)}>
           <MapErrorBoundary locale={locale} initialLat={existing?.latitude} initialLng={existing?.longitude}>
             <MapPicker locale={locale} initialLat={existing?.latitude} initialLng={existing?.longitude} />
           </MapErrorBoundary>
         </CollapsibleSection>
+        */}
 
         <CollapsibleSection title={t('sec_client', locale)}>
           <div className="grid-3">
@@ -309,22 +325,48 @@ export function RequestForm({
         </CollapsibleSection>
 
         <CollapsibleSection title={t('sec_images', locale)}>
-          {isEdit && existing!.images.length > 0 && (
-            <ExistingImages images={existing!.images} requestId={existing!.id} locale={locale} />
+          {isEdit && propertyImages.length > 0 && (
+            <ExistingImages images={propertyImages} requestId={existing!.id} locale={locale} />
           )}
           {isEdit ? (
             <ImageDropzone
               locale={locale}
               requestId={existing!.id}
-              existingCount={existing!.images.length}
+              existingCount={propertyImages.length}
               max={4}
+              category="property"
             />
           ) : (
             <ImageDropzone
               locale={locale}
               max={4}
+              category="property"
               onFilesChange={(f) => {
                 filesRef.current = f;
+              }}
+            />
+          )}
+        </CollapsibleSection>
+
+        <CollapsibleSection title={t('sec_kuwait_finder', locale)}>
+          {isEdit && kuwaitImages.length > 0 && (
+            <ExistingImages images={kuwaitImages} requestId={existing!.id} locale={locale} />
+          )}
+          {isEdit ? (
+            <ImageDropzone
+              locale={locale}
+              requestId={existing!.id}
+              existingCount={kuwaitImages.length}
+              max={4}
+              category="kuwaitFinder"
+            />
+          ) : (
+            <ImageDropzone
+              locale={locale}
+              max={4}
+              category="kuwaitFinder"
+              onFilesChange={(f) => {
+                kuwaitFilesRef.current = f;
               }}
             />
           )}

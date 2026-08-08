@@ -55,6 +55,7 @@ const DICT: Dict = {
   sec_client: { en: 'Client', ar: 'العميل' },
   sec_property: { en: 'Property details', ar: 'تفاصيل العقار' },
   sec_images: { en: 'Property pictures', ar: 'صور العقار' },
+  sec_kuwait_finder: { en: 'Kuwait Finder Picture', ar: 'صورة كويت فايندر' },
   sec_notes: { en: 'Other notes', ar: 'ملاحظات أخرى' },
 
   f_area: { en: 'Area', ar: 'المنطقة' },
