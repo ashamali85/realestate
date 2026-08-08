@@ -383,6 +383,6 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .lookup-tile-name { font-size: 1.1rem; font-weight: 800; color: var(--ink); }
 .lookup-tile-count { font-size: 0.82rem; color: var(--ink-soft); font-weight: 600; }
 
-/* Login button uses the logo's navy background color. */
-.btn-login { background: #0f2a44; border-color: #0f2a44; }
-.btn-login:hover:not(:disabled) { background: #0b2035; border-color: #0b2035; }
+/* Login button uses a gradient built from the logo's navy background color. */
+.btn-login { background: linear-gradient(135deg, #0f2a44 0%, #1c4a73 100%); border-color: #0f2a44; }
+.btn-login:hover:not(:disabled) { background: linear-gradient(135deg, #0b2035 0%, #163c5e 100%); border-color: #0b2035; opacity: 1; }
