@@ -19,8 +19,8 @@ export default async function LoginPage() {
       <div className="login-card">
         <div className="card card-pad-lg">
           <div className="login-logo">
-            <span className="brand-dot" />
-            <strong style={{ fontSize: '1.15rem' }}>{t('app_name', locale)}</strong>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt={t('app_name', locale)} className="login-logo-img" />
           </div>
           <p className="muted small center" style={{ marginBottom: 20 }}>
             {t('login_subtitle', locale)}
