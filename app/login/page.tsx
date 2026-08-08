@@ -22,9 +22,6 @@ export default async function LoginPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt={t('app_name', locale)} className="login-logo-img" />
           </div>
-          <p className="muted small center" style={{ marginBottom: 20 }}>
-            {t('login_subtitle', locale)}
-          </p>
           <LoginForm locale={locale} />
           <div className="center mt-4">
             <form action={setLocale} style={{ display: 'inline' }}>

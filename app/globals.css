@@ -121,7 +121,7 @@ tr:last-child td { border-bottom: none; }
 
 .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .login-card { width: 100%; max-width: 400px; }
-.login-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; }
+.login-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 22px; }
 .login-logo .brand-dot { background: var(--brand); box-shadow: 0 0 0 4px var(--brand-tint); }
 .login-logo-img { width: 100%; max-width: 320px; height: auto; border-radius: 14px; display: block; }
 
