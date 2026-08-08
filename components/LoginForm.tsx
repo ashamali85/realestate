@@ -24,7 +24,7 @@ export function LoginForm({ locale }: { locale: Locale }) {
         <label htmlFor="password">{t('login_password', locale)}</label>
         <input id="password" name="password" type="password" required autoComplete="current-password" />
       </div>
-      <button type="submit" className="btn btn-primary btn-block" disabled={pending}>
+      <button type="submit" className="btn btn-primary btn-block btn-login" disabled={pending}>
         {pending ? (
           <>
             <span className="spinner" /> {t('login_signing_in', locale)}
