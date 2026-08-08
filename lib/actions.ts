@@ -91,6 +91,9 @@ const requestSchema = z.object({
   floors: z.number().int().min(1, 'f_floors').max(3, 'f_floors'),
   hasBasement: z.boolean(),
   hasMezzanine: z.boolean(),
+  landArea: z.number().min(0, 'f_land_area').max(1_000_000, 'f_land_area').nullable(),
+  constructionPct: z.number().min(0, 'f_construction_pct').max(100, 'f_construction_pct').nullable(),
+  constructionArea: z.number().min(0, 'f_construction_area').max(1_000_000, 'f_construction_area').nullable(),
   notes: z.string().trim().max(2000).optional()
 }).refine(
   // A mezzanine sits between two levels, so it's only valid when there's a
@@ -140,6 +143,9 @@ export async function createRequest(
     floors: getInt(formData, 'floors') ?? -1,
     hasBasement: formData.get('hasBasement') === 'on',
     hasMezzanine: formData.get('hasMezzanine') === 'on',
+    landArea: getFloat(formData, 'landArea'),
+    constructionPct: getFloat(formData, 'constructionPct'),
+    constructionArea: getFloat(formData, 'constructionArea'),
     notes: getOptionalString(formData, 'notes')
   });
 
@@ -176,6 +182,9 @@ export async function createRequest(
         floors: d.floors,
         hasBasement: d.hasBasement,
         hasMezzanine: d.hasMezzanine,
+        landArea: d.landArea,
+        constructionPct: d.constructionPct,
+        constructionArea: d.constructionArea,
         notes: d.notes ?? null,
         createdById: user.id
       }
@@ -236,6 +245,9 @@ export async function updateRequest(
     floors: getInt(formData, 'floors') ?? -1,
     hasBasement: formData.get('hasBasement') === 'on',
     hasMezzanine: formData.get('hasMezzanine') === 'on',
+    landArea: getFloat(formData, 'landArea'),
+    constructionPct: getFloat(formData, 'constructionPct'),
+    constructionArea: getFloat(formData, 'constructionArea'),
     notes: getOptionalString(formData, 'notes')
   });
 
@@ -271,6 +283,9 @@ export async function updateRequest(
       floors: d.floors,
       hasBasement: d.hasBasement,
       hasMezzanine: d.hasMezzanine,
+      landArea: d.landArea,
+      constructionPct: d.constructionPct,
+      constructionArea: d.constructionArea,
       notes: d.notes ?? null
     }
   });

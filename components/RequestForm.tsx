@@ -40,6 +40,9 @@ export type ExistingRequest = {
   floors: number;
   hasBasement: boolean;
   hasMezzanine: boolean;
+  landArea: number | null;
+  constructionPct: number | null;
+  constructionArea: number | null;
   notes: string | null;
   images: { id: string }[];
 };
@@ -284,6 +287,23 @@ export function RequestForm({
                 <span className="toggle-label">{t('f_has_mezzanine', locale)}</span>
               </label>
               <span className="field-error">{fieldError(state, 'hasMezzanine', locale)}</span>
+            </div>
+          </div>
+          <div className="grid-3">
+            <div className="field">
+              <label htmlFor="landArea">{t('land_area', locale)}</label>
+              <input id="landArea" name="landArea" type="number" step="any" min={0} inputMode="decimal" defaultValue={existing?.landArea ?? ''} />
+              <span className="field-error">{fieldError(state, 'landArea', locale)}</span>
+            </div>
+            <div className="field">
+              <label htmlFor="constructionPct">{t('construction_pct', locale)}</label>
+              <input id="constructionPct" name="constructionPct" type="number" step="any" min={0} max={100} inputMode="decimal" defaultValue={existing?.constructionPct ?? ''} />
+              <span className="field-error">{fieldError(state, 'constructionPct', locale)}</span>
+            </div>
+            <div className="field">
+              <label htmlFor="constructionArea">{t('construction_area', locale)}</label>
+              <input id="constructionArea" name="constructionArea" type="number" step="any" min={0} inputMode="decimal" defaultValue={existing?.constructionArea ?? ''} />
+              <span className="field-error">{fieldError(state, 'constructionArea', locale)}</span>
             </div>
           </div>
         </CollapsibleSection>

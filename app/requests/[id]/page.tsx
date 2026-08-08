@@ -166,6 +166,9 @@ export default async function RequestDetailPage({
               {item('f_exterior', localName(r.exterior, locale))}
               {item('f_elevator', localName(r.elevator, locale))}
               {item('f_ac', localName(r.ac, locale))}
+              {item('land_area', r.landArea != null ? r.landArea : '—')}
+              {item('construction_pct', r.constructionPct != null ? r.constructionPct : '—')}
+              {item('construction_area', r.constructionArea != null ? r.constructionArea : '—')}
             </div>
           </CollapsibleSection>
 

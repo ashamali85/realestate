@@ -78,6 +78,9 @@ export default async function EditRequestPage({
               floors: r.floors,
               hasBasement: r.hasBasement,
               hasMezzanine: r.hasMezzanine,
+              landArea: r.landArea,
+              constructionPct: r.constructionPct,
+              constructionArea: r.constructionArea,
               notes: r.notes,
               images: r.images
             }}

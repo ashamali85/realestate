@@ -180,6 +180,10 @@ model InspectionRequest {
   hasBasement  Boolean @default(false)
   hasMezzanine Boolean @default(false)
 
+  landArea         Float?
+  constructionPct  Float?
+  constructionArea Float?
+
   notes String?
 
   images RequestImage[]
