@@ -9,6 +9,7 @@
   --brand-dark: #0b2035;
   --brand-2: #1c4a73;
   --brand-tint: #eef2f7;
+  --gold: #c9b79c;
   --danger: #c73a3a;
   --danger-tint: #fdecec;
   --ok: #12805c;
@@ -65,9 +66,9 @@ body.is-rtl h1, body.is-rtl h2, body.is-rtl h3 { letter-spacing: 0; }
 .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,0.25); }
 .nav { display: flex; gap: 4px; align-items: center; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
-.nav a, .nav button { color: #e4ecf8; padding: 7px 11px; border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; flex: 0 0 auto; }
+.nav a, .nav button { color: var(--gold); padding: 7px 11px; border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; flex: 0 0 auto; }
 .nav a:hover, .nav button:hover { background: rgba(255,255,255,0.14); text-decoration: none; }
-.nav a.active { background: rgba(255,255,255,0.2); color: #fff; }
+.nav a.active { background: rgba(255,255,255,0.2); color: var(--gold); }
 
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 22px; }
 .card-pad-lg { padding: 28px; }
@@ -75,7 +76,7 @@ body.is-rtl h1, body.is-rtl h2, body.is-rtl h3 { letter-spacing: 0; }
 
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; font-size: 0.95rem; font-weight: 700; padding: 11px 18px; border-radius: var(--radius-sm); border: 1px solid transparent; cursor: pointer; transition: transform 0.04s ease, opacity 0.15s ease, background 0.15s ease; text-decoration: none; }
 .btn:active { transform: translateY(1px); }
-.btn-primary { background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%); color: #fff; box-shadow: 0 12px 28px rgba(15, 42, 68, 0.18); }
+.btn-primary { background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%); color: var(--gold); box-shadow: 0 12px 28px rgba(15, 42, 68, 0.18); }
 .btn-primary:hover { opacity: 0.94; text-decoration: none; }
 .btn-ghost { background: var(--surface); color: var(--ink); border-color: var(--line); }
 .btn-ghost:hover { background: var(--surface-2); text-decoration: none; }
