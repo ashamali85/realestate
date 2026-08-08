@@ -297,19 +297,6 @@ export function RequestForm({
           </div>
           <div className="grid-3">
             <div className="field">
-              <label htmlFor="inspectionDate">{t('inspection_date', locale)}</label>
-              <input
-                id="inspectionDate"
-                name="inspectionDate"
-                type="date"
-                required
-                defaultValue={toDateInputValue(existing?.inspectionDate)}
-              />
-              <span className="field-error">{fieldError(state, 'inspectionDate', locale)}</span>
-            </div>
-          </div>
-          <div className="grid-3">
-            <div className="field">
               <label htmlFor="yearsOld">{t('f_years', locale)}</label>
               <input id="yearsOld" name="yearsOld" type="number" min={0} max={500} required defaultValue={existing?.yearsOld ?? ''} />
             </div>
@@ -348,6 +335,19 @@ export function RequestForm({
               <label htmlFor="constructionArea">{t('construction_area', locale)}</label>
               <input id="constructionArea" name="constructionArea" type="number" step="any" min={0} inputMode="decimal" defaultValue={existing?.constructionArea ?? ''} />
               <span className="field-error">{fieldError(state, 'constructionArea', locale)}</span>
+            </div>
+          </div>
+          <div className="grid-3">
+            <div className="field">
+              <label htmlFor="inspectionDate">{t('inspection_date', locale)}</label>
+              <input
+                id="inspectionDate"
+                name="inspectionDate"
+                type="date"
+                required
+                defaultValue={toDateInputValue(existing?.inspectionDate)}
+              />
+              <span className="field-error">{fieldError(state, 'inspectionDate', locale)}</span>
             </div>
           </div>
         </CollapsibleSection>
