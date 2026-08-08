@@ -40,12 +40,27 @@ export type ExistingRequest = {
   floors: number;
   hasBasement: boolean;
   hasMezzanine: boolean;
+  inspectionDate: Date | string;
   landArea: number | null;
   constructionPct: number | null;
   constructionArea: number | null;
   notes: string | null;
   images: { id: string; category?: string }[];
 };
+
+function toDateInputValue(value: Date | string | undefined): string {
+  if (!value) return '';
+  const d = typeof value === 'string' ? new Date(value) : value;
+  if (Number.isNaN(d.getTime())) return '';
+  // Format as YYYY-MM-DD in Kuwait time so the date shown matches what was saved.
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kuwait',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(d);
+  return parts; // en-CA yields YYYY-MM-DD
+}
 
 function fieldError(state: RequestFormState, field: string, locale: Locale): string | null {
   const key = state.fieldErrors?.[field];
@@ -278,6 +293,19 @@ export function RequestForm({
                 </span>
                 <span className="toggle-label">{t('f_has_basement', locale)}</span>
               </label>
+            </div>
+          </div>
+          <div className="grid-3">
+            <div className="field">
+              <label htmlFor="inspectionDate">{t('inspection_date', locale)}</label>
+              <input
+                id="inspectionDate"
+                name="inspectionDate"
+                type="date"
+                required
+                defaultValue={toDateInputValue(existing?.inspectionDate)}
+              />
+              <span className="field-error">{fieldError(state, 'inspectionDate', locale)}</span>
             </div>
           </div>
           <div className="grid-3">

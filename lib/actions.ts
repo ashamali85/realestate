@@ -12,7 +12,7 @@ import {
 } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { nextReference } from '@/lib/file-number';
-import { getString, getOptionalString, getInt, getFloat } from '@/lib/utils';
+import { getString, getOptionalString, getInt, getFloat, getDate } from '@/lib/utils';
 import { LOCALE_COOKIE, isLocale } from '@/lib/i18n';
 import { syncRequestFloors, pruneRequestFloors } from '@/lib/criteria-actions';
 
@@ -91,6 +91,7 @@ const requestSchema = z.object({
   floors: z.number().int().min(1, 'f_floors').max(3, 'f_floors'),
   hasBasement: z.boolean(),
   hasMezzanine: z.boolean(),
+  inspectionDate: z.date({ required_error: 'f_inspection_date', invalid_type_error: 'f_inspection_date' }),
   landArea: z.number().min(0, 'f_land_area').max(1_000_000, 'f_land_area').nullable(),
   constructionPct: z.number().min(0, 'f_construction_pct').max(100, 'f_construction_pct').nullable(),
   constructionArea: z.number().min(0, 'f_construction_area').max(1_000_000, 'f_construction_area').nullable(),
@@ -143,6 +144,7 @@ export async function createRequest(
     floors: getInt(formData, 'floors') ?? -1,
     hasBasement: formData.get('hasBasement') === 'on',
     hasMezzanine: formData.get('hasMezzanine') === 'on',
+    inspectionDate: getDate(formData, 'inspectionDate'),
     landArea: getFloat(formData, 'landArea'),
     constructionPct: getFloat(formData, 'constructionPct'),
     constructionArea: getFloat(formData, 'constructionArea'),
@@ -182,6 +184,7 @@ export async function createRequest(
         floors: d.floors,
         hasBasement: d.hasBasement,
         hasMezzanine: d.hasMezzanine,
+        inspectionDate: d.inspectionDate,
         landArea: d.landArea,
         constructionPct: d.constructionPct,
         constructionArea: d.constructionArea,
@@ -245,6 +248,7 @@ export async function updateRequest(
     floors: getInt(formData, 'floors') ?? -1,
     hasBasement: formData.get('hasBasement') === 'on',
     hasMezzanine: formData.get('hasMezzanine') === 'on',
+    inspectionDate: getDate(formData, 'inspectionDate'),
     landArea: getFloat(formData, 'landArea'),
     constructionPct: getFloat(formData, 'constructionPct'),
     constructionArea: getFloat(formData, 'constructionArea'),
@@ -283,6 +287,7 @@ export async function updateRequest(
       floors: d.floors,
       hasBasement: d.hasBasement,
       hasMezzanine: d.hasMezzanine,
+      inspectionDate: d.inspectionDate,
       landArea: d.landArea,
       constructionPct: d.constructionPct,
       constructionArea: d.constructionArea,

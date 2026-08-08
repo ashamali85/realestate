@@ -24,6 +24,15 @@ export function getFloat(form: FormData, key: string): number | null {
   return Number(v);
 }
 
+export function getDate(form: FormData, key: string): Date | null {
+  const v = getString(form, key);
+  if (v === '') return null;
+  // A date input yields "YYYY-MM-DD". Parse as local noon to avoid timezone
+  // rollover (midnight UTC could land on the previous day in +03:00).
+  const d = new Date(`${v}T12:00:00`);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
 export function formatDate(d: Date, _locale?: string): string {
   // Dates are always shown in English, even in the Arabic view, per requirement.
   // Pinned to Kuwait time (GMT+3) so it's correct regardless of server timezone

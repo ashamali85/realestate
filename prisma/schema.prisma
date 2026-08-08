@@ -180,6 +180,7 @@ model InspectionRequest {
   hasBasement  Boolean @default(false)
   hasMezzanine Boolean @default(false)
 
+  inspectionDate   DateTime @default(now())
   landArea         Float?
   constructionPct  Float?
   constructionArea Float?

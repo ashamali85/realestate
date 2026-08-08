@@ -159,6 +159,7 @@ export default async function RequestDetailPage({
             <div className="detail-grid">
               {item('f_purpose', localName(r.purpose, locale))}
               {item('f_status', localName(r.status, locale))}
+              {item('inspection_date', formatDate(r.inspectionDate, locale))}
               {item('f_years', r.yearsOld)}
               {item('f_floors', r.floors)}
               {item('f_has_basement', r.hasBasement ? t('yes', locale) : t('no', locale))}

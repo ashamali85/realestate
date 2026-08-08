@@ -71,6 +71,8 @@ const DICT: Dict = {
   f_status: { en: 'Real estate status', ar: 'حالة العقار' },
   f_years: { en: 'Age (years)', ar: 'العمر (سنوات)' },
   f_floors: { en: 'Number of floors', ar: 'عدد الطوابق' },
+  inspection_date: { en: 'Inspection date', ar: 'تاريخ الفحص' },
+  f_inspection_date: { en: 'Select an inspection date', ar: 'اختر تاريخ الفحص' },
   land_area: { en: 'Land area (m²)', ar: 'مساحة الأرض (م²)' },
   construction_pct: { en: 'Construction percentage (%)', ar: 'نسبة البناء (%)' },
   construction_area: { en: 'Construction area (m²)', ar: 'مساحة البناء (م²)' },
