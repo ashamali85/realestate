@@ -424,11 +424,11 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .report-head-logo { height: 54px; width: auto; border-radius: 8px; }
 .report-head-title { font-size: 1.4rem; font-weight: 800; color: #0f2a44; }
 .report-section-title { font-size: 1.05rem; font-weight: 800; color: #0f2a44; margin: 0 0 10px; }
-.report-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 18px; }
-.report-table-col { break-inside: avoid; }
+.report-tables { display: block; margin-bottom: 16px; }
+.report-table-col { break-inside: avoid; margin-bottom: 16px; }
 .report-table { width: 100%; border-collapse: collapse; }
 .report-table th, .report-table td { border: 1px solid #d7dee8; padding: 6px 10px; font-size: 0.82rem; text-align: start; }
-.report-table th { background: #eef2f7; font-weight: 700; color: #0f2a44; width: 45%; }
+.report-table th { background: #eef2f7; font-weight: 700; color: #0f2a44; width: 38%; }
 .report-images { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px; break-inside: avoid; page-break-inside: avoid; }
 .report-figure { margin: 0; border: 1px solid #d7dee8; border-radius: 10px; overflow: hidden; break-inside: avoid; page-break-inside: avoid; }
 .report-figure figcaption { background: #eef2f7; padding: 5px 12px; font-size: 0.8rem; font-weight: 700; color: #0f2a44; }
