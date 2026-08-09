@@ -80,6 +80,7 @@ const DICT: Dict = {
   report_detailed_desc: { en: 'Full breakdown of every criteria and measure.', ar: 'تفصيل كامل لكل معيار وقياس.' },
   report_overall_rating: { en: 'Overall property rating', ar: 'التقييم العام للعقار' },
   report_client_info: { en: 'Client information', ar: 'بيانات العميل' },
+  report_property_info: { en: 'Property details', ar: 'تفاصيل العقار' },
   report_property_image: { en: 'Property picture', ar: 'صورة العقار' },
   report_kuwait_finder: { en: 'Kuwait Finder picture', ar: 'صورة كويت فايندر' },
   report_no_image: { en: 'No image provided', ar: 'لا توجد صورة' },

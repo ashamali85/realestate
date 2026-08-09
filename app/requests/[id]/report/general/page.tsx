@@ -46,10 +46,11 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
   const propertyImg = r.images.find((i: { category?: string }) => (i.category ?? 'property') !== 'kuwaitFinder');
   const kuwaitImg = r.images.find((i: { category?: string }) => i.category === 'kuwaitFinder');
 
-  // Each row: [label, value, isLtr]. isLtr marks values whose characters read
-  // left-to-right (codes, numbers, email, dates) so they display correctly even
-  // in the RTL Arabic view — while still aligning to the page side.
-  const rows: Array<[string, string, boolean]> = [
+  const yn = (v: boolean) => (v ? t('yes', locale) : t('no', locale));
+  const dash = (v: number | null, suffix = '') => (v != null ? `${v}${suffix}` : '—');
+
+  // Client & location info.
+  const clientRows: Array<[string, string, boolean]> = [
     [t('report_ref', locale), r.reference, true],
     [t('f_client_name', locale), r.clientName, false],
     [t('f_client_phone', locale), r.clientPhone, true],
@@ -59,9 +60,23 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
     [t('f_block', locale), r.block, true],
     [t('f_street', locale), r.street, true],
     [t('f_house', locale), r.houseNumber, true],
+    [t('inspection_date', locale), formatDate(r.inspectionDate, locale), true]
+  ];
+
+  // Property specifications.
+  const propertyRows: Array<[string, string, boolean]> = [
     [t('f_purpose', locale), localName(r.purpose, locale), false],
     [t('f_status', locale), localName(r.status, locale), false],
-    [t('inspection_date', locale), formatDate(r.inspectionDate, locale), true]
+    [t('f_exterior', locale), localName(r.exterior, locale), false],
+    [t('f_elevator', locale), localName(r.elevator, locale), false],
+    [t('f_ac', locale), localName(r.ac, locale), false],
+    [t('f_years', locale), String(r.yearsOld), true],
+    [t('f_floors', locale), String(r.floors), true],
+    [t('f_has_basement', locale), yn(r.hasBasement), false],
+    [t('f_has_mezzanine', locale), yn(r.hasMezzanine), false],
+    [t('land_area', locale), dash(r.landArea), true],
+    [t('construction_pct', locale), dash(r.constructionPct, '%'), true],
+    [t('construction_area', locale), dash(r.constructionArea), true]
   ];
 
   return (
@@ -85,17 +100,34 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
           <div className="report-head-title">{t('report_general', locale)}</div>
         </header>
 
-        <h2 className="report-section-title">{t('report_client_info', locale)}</h2>
-        <table className="report-table">
-          <tbody>
-            {rows.map(([label, value, isLtr]) => (
-              <tr key={label}>
-                <th>{label}</th>
-                <td>{isLtr ? <span dir="ltr" style={{ unicodeBidi: 'embed' }}>{value}</span> : value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="report-tables">
+          <div className="report-table-col">
+            <h2 className="report-section-title">{t('report_client_info', locale)}</h2>
+            <table className="report-table">
+              <tbody>
+                {clientRows.map(([label, value, isLtr]) => (
+                  <tr key={label}>
+                    <th>{label}</th>
+                    <td>{isLtr ? <span dir="ltr" style={{ unicodeBidi: 'embed' }}>{value}</span> : value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="report-table-col">
+            <h2 className="report-section-title">{t('report_property_info', locale)}</h2>
+            <table className="report-table">
+              <tbody>
+                {propertyRows.map(([label, value, isLtr]) => (
+                  <tr key={label}>
+                    <th>{label}</th>
+                    <td>{isLtr ? <span dir="ltr" style={{ unicodeBidi: 'embed' }}>{value}</span> : value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         <div className="report-images">
           <figure className="report-figure">
