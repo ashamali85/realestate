@@ -430,7 +430,11 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .report-table th, .report-table td { border: 1px solid #d7dee8; padding: 8px 12px; font-size: 0.9rem; text-align: start; }
 .report-table th { background: #eef2f7; font-weight: 700; color: #0f2a44; width: 42%; }
 .report-table td { color: #10284f; }
-.report-table th.report-pad { background: transparent; }
+.report-table th.report-pad { background: transparent; font-weight: 400; }
+/* Padding cells must still show full borders so the shorter table closes at the
+   same bottom line as the taller one. */
+.report-table tr td, .report-table tr th { border: 1px solid #d7dee8 !important; }
+.report-table td:empty::after, .report-table th:empty::after { content: '\00A0'; }
 .report-images { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px; break-inside: avoid; page-break-inside: avoid; }
 .report-figure { margin: 0; border: 1px solid #d7dee8; border-radius: 10px; overflow: hidden; break-inside: avoid; page-break-inside: avoid; }
 .report-figure figcaption { background: #eef2f7; padding: 5px 12px; font-size: 0.8rem; font-weight: 700; color: #0f2a44; }
