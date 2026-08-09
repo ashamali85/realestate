@@ -7,6 +7,7 @@ import { deleteRequest } from '@/lib/actions';
 import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
 import { IconEye, IconPencil, IconTrash } from './Icons';
+import { ReportButton } from './ReportButton';
 import { t, type Locale } from '@/lib/i18n';
 
 export type RequestRow = {
@@ -169,6 +170,7 @@ export function RequestsTable({
                       >
                         <IconPencil />
                       </Link>
+                      <ReportButton requestId={r.id} locale={locale} />
                       {canDelete && (
                         <button
                           type="button"
