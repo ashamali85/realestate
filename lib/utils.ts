@@ -35,11 +35,11 @@ export function getDate(form: FormData, key: string): Date | null {
 
 export function formatDate(d: Date, _locale?: string): string {
   // Dates are always shown in English, even in the Arabic view, per requirement.
-  // Pinned to Kuwait time (GMT+3) so it's correct regardless of server timezone
-  // (Vercel runs in UTC).
+  // Day-Month-Year order (e.g. "8 August 2026"). Pinned to Kuwait time (GMT+3)
+  // so it's correct regardless of server timezone (Vercel runs in UTC).
   return new Intl.DateTimeFormat('en-GB', {
     year: 'numeric',
-    month: 'short',
+    month: 'long',
     day: 'numeric',
     timeZone: 'Asia/Kuwait'
   }).format(d);

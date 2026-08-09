@@ -46,19 +46,22 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
   const propertyImg = r.images.find((i: { category?: string }) => (i.category ?? 'property') !== 'kuwaitFinder');
   const kuwaitImg = r.images.find((i: { category?: string }) => i.category === 'kuwaitFinder');
 
-  const rows: Array<[string, string]> = [
-    [t('report_ref', locale), r.reference],
-    [t('f_client_name', locale), r.clientName],
-    [t('f_client_phone', locale), r.clientPhone],
-    [t('f_client_email', locale), r.clientEmail || '—'],
-    [t('f_governorate', locale), localName(r.area.governorate, locale)],
-    [t('f_area', locale), localName(r.area, locale)],
-    [t('f_block', locale), r.block],
-    [t('f_street', locale), r.street],
-    [t('f_house', locale), r.houseNumber],
-    [t('f_purpose', locale), localName(r.purpose, locale)],
-    [t('f_status', locale), localName(r.status, locale)],
-    [t('inspection_date', locale), formatDate(r.inspectionDate, locale)]
+  // Each row: [label, value, isLtr]. isLtr marks values whose characters read
+  // left-to-right (codes, numbers, email, dates) so they display correctly even
+  // in the RTL Arabic view — while still aligning to the page side.
+  const rows: Array<[string, string, boolean]> = [
+    [t('report_ref', locale), r.reference, true],
+    [t('f_client_name', locale), r.clientName, false],
+    [t('f_client_phone', locale), r.clientPhone, true],
+    [t('f_client_email', locale), r.clientEmail || '—', true],
+    [t('f_governorate', locale), localName(r.area.governorate, locale), false],
+    [t('f_area', locale), localName(r.area, locale), false],
+    [t('f_block', locale), r.block, true],
+    [t('f_street', locale), r.street, true],
+    [t('f_house', locale), r.houseNumber, true],
+    [t('f_purpose', locale), localName(r.purpose, locale), false],
+    [t('f_status', locale), localName(r.status, locale), false],
+    [t('inspection_date', locale), formatDate(r.inspectionDate, locale), true]
   ];
 
   return (
@@ -68,10 +71,10 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
       {/* Cover page */}
       <section className="report-cover">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt={t('app_name', locale)} className="report-cover-logo" />
+        <img src="/logo-transparent.png" alt={t('app_name', locale)} className="report-cover-logo" />
         <div className="report-cover-title">{t('report_general', locale)}</div>
-        <div className="report-cover-ref">{r.reference}</div>
-        <div className="report-cover-date">{formatDate(r.inspectionDate, locale)}</div>
+        <div className="report-cover-ref" dir="ltr">{r.reference}</div>
+        <div className="report-cover-date" dir="ltr">{formatDate(r.inspectionDate, locale)}</div>
       </section>
 
       {/* Content page — single page */}
@@ -85,10 +88,10 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
         <h2 className="report-section-title">{t('report_client_info', locale)}</h2>
         <table className="report-table">
           <tbody>
-            {rows.map(([label, value]) => (
+            {rows.map(([label, value, isLtr]) => (
               <tr key={label}>
                 <th>{label}</th>
-                <td dir="auto">{value}</td>
+                <td>{isLtr ? <span dir="ltr" style={{ unicodeBidi: 'embed' }}>{value}</span> : value}</td>
               </tr>
             ))}
           </tbody>
