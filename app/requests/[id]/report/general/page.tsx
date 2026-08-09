@@ -43,6 +43,8 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
   );
   const overall = overallScore(critScores);
 
+  // Pad the shorter table with blank rows so both tables have the same number
+  // of rows and their bottom borders line up exactly.
   const propertyImg = r.images.find((i: { category?: string }) => (i.category ?? 'property') !== 'kuwaitFinder');
   const kuwaitImg = r.images.find((i: { category?: string }) => i.category === 'kuwaitFinder');
 
@@ -79,6 +81,18 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
     [t('construction_area', locale), dash(r.constructionArea), true]
   ];
 
+  // Pad the shorter table with blank rows so both tables have the same row count
+  // and their bottom borders line up exactly.
+  const maxRows = Math.max(clientRows.length, propertyRows.length);
+  const padRows = (arr: Array<[string, string, boolean]>): Array<[string, string, boolean]> => {
+    const out = arr.slice();
+    let i = 0;
+    while (out.length < maxRows) out.push([`__pad_${i++}`, '', false]);
+    return out;
+  };
+  const clientRowsP = padRows(clientRows);
+  const propertyRowsP = padRows(propertyRows);
+
   return (
     <div className="report-root">
       <ReportPrintTrigger />
@@ -105,12 +119,15 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
             <h2 className="report-section-title">{t('report_client_info', locale)}</h2>
             <table className="report-table">
               <tbody>
-                {clientRows.map(([label, value, isLtr]) => (
-                  <tr key={label}>
-                    <th>{label}</th>
-                    <td>{isLtr ? <span dir="ltr" style={{ unicodeBidi: 'embed' }}>{value}</span> : value}</td>
-                  </tr>
-                ))}
+                {clientRowsP.map(([label, value, isLtr]) => {
+                  const isPad = label.startsWith('__pad_');
+                  return (
+                    <tr key={label}>
+                      <th className={isPad ? 'report-pad' : undefined}>{isPad ? '\u00A0' : label}</th>
+                      <td>{isPad ? '\u00A0' : isLtr ? <span dir="ltr" style={{ unicodeBidi: 'embed' }}>{value}</span> : value}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -118,12 +135,15 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
             <h2 className="report-section-title">{t('report_property_info', locale)}</h2>
             <table className="report-table">
               <tbody>
-                {propertyRows.map(([label, value, isLtr]) => (
-                  <tr key={label}>
-                    <th>{label}</th>
-                    <td>{isLtr ? <span dir="ltr" style={{ unicodeBidi: 'embed' }}>{value}</span> : value}</td>
-                  </tr>
-                ))}
+                {propertyRowsP.map(([label, value, isLtr]) => {
+                  const isPad = label.startsWith('__pad_');
+                  return (
+                    <tr key={label}>
+                      <th className={isPad ? 'report-pad' : undefined}>{isPad ? '\u00A0' : label}</th>
+                      <td>{isPad ? '\u00A0' : isLtr ? <span dir="ltr" style={{ unicodeBidi: 'embed' }}>{value}</span> : value}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
