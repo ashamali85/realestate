@@ -40,15 +40,11 @@ export function ReportButton({ requestId, locale }: { requestId: string; locale:
       {open && (
         <Modal title={t('report_choose_title', locale)} onClose={() => setOpen(false)}>
           <div className="report-choices">
-            <button type="button" className="report-choice" onClick={() => go('general')}>
-              <span className="report-choice-icon" aria-hidden="true">📄</span>
-              <span className="report-choice-name">{t('report_general', locale)}</span>
-              <span className="report-choice-desc">{t('report_general_desc', locale)}</span>
+            <button type="button" className="btn btn-primary btn-block btn-login" onClick={() => go('general')}>
+              {t('report_general', locale)}
             </button>
-            <button type="button" className="report-choice" onClick={() => go('detailed')}>
-              <span className="report-choice-icon" aria-hidden="true">📑</span>
-              <span className="report-choice-name">{t('report_detailed', locale)}</span>
-              <span className="report-choice-desc">{t('report_detailed_desc', locale)}</span>
+            <button type="button" className="btn btn-primary btn-block btn-login" onClick={() => go('detailed')}>
+              {t('report_detailed', locale)}
             </button>
           </div>
         </Modal>
