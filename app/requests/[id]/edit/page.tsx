@@ -3,10 +3,13 @@ import { requireUser } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { loadFormLookups } from '@/lib/lookups';
-import { t } from '@/lib/i18n';
+import { t, localName } from '@/lib/i18n';
 import { loadLabelOverrides } from '@/lib/label-overrides';
+import { criteriaScore } from '@/lib/scoring';
+import { floorsFor } from '@/lib/floors';
 import { TopBar } from '@/components/TopBar';
 import { RequestForm } from '@/components/RequestForm';
+import { RequestEvaluation } from '@/components/RequestEvaluation';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +48,53 @@ export default async function EditRequestPage({
     select: { floor: true }
   });
   const filledFloors = Array.from(new Set(filledMeasures.map((m) => m.floor)));
+
+  // Evaluation data (same as the view page) so criteria/measures can be managed
+  // from the edit page too.
+  const [assignedRaw, allCriteria, statuses] = await Promise.all([
+    prisma.requestCriteria.findMany({
+      where: { requestId: id },
+      include: {
+        criteria: true,
+        measures: {
+          orderBy: { displayOrder: 'asc' },
+          include: {
+            images: { orderBy: { sortOrder: 'asc' }, select: { id: true } },
+            status: { select: { score: true } }
+          }
+        }
+      }
+    }),
+    prisma.criteria.findMany({ where: { isActive: true }, orderBy: { nameEn: 'asc' } }),
+    prisma.measureStatusOption.findMany({ where: { isActive: true }, orderBy: { displayOrder: 'asc' } })
+  ]);
+
+  const assignedIds = new Set(assignedRaw.map((a: (typeof assignedRaw)[number]) => a.criteriaId));
+  const available = allCriteria
+    .filter((c: (typeof allCriteria)[number]) => !assignedIds.has(c.id))
+    .map((c: (typeof allCriteria)[number]) => ({ id: c.id, nameEn: c.nameEn, nameAr: c.nameAr }));
+
+  const assigned = assignedRaw.map((a: (typeof assignedRaw)[number]) => ({
+    id: a.id,
+    criteriaName: localName(a.criteria, locale),
+    score: criteriaScore(a.measures.map((m) => ({ score: m.statusId && m.status ? m.status.score : null }))),
+    measures: a.measures.map((m) => ({
+      id: m.id,
+      floor: m.floor,
+      nameEn: m.nameEn,
+      nameAr: m.nameAr,
+      statusId: m.statusId,
+      score: m.statusId && m.status ? m.status.score : null,
+      notes: m.notes,
+      recommendations: m.recommendations,
+      images: m.images.map((img) => ({ id: img.id }))
+    }))
+  }));
+
+  const floorTabs = floorsFor(
+    { floors: r.floors, hasBasement: r.hasBasement, hasMezzanine: r.hasMezzanine },
+    locale
+  );
 
   return (
     <>
@@ -87,6 +137,19 @@ export default async function EditRequestPage({
             }}
           />
         </div>
+
+        <section className="card card-pad-lg" style={{ marginTop: 24 }}>
+          <h2 style={{ marginBottom: 4 }}>{t('sec_evaluation', locale)}</h2>
+          <p className="muted small" style={{ marginBottom: 16 }}>{t('criteria_intro', locale)}</p>
+          <RequestEvaluation
+            requestId={r.id}
+            assigned={assigned}
+            available={available}
+            floorTabs={floorTabs}
+            statuses={statuses.map((s: (typeof statuses)[number]) => ({ id: s.id, nameEn: s.nameEn, nameAr: s.nameAr }))}
+            locale={locale}
+          />
+        </section>
       </main>
     </>
   );
