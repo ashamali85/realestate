@@ -116,7 +116,7 @@ export function ReportSummary({
       </section>
 
       {/* Summary page */}
-      <section className="report-page report-page-break">
+      <section className="report-page report-summary-page">
         <header className="report-head">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="" className="report-head-logo" />

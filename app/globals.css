@@ -419,7 +419,14 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .report-cover-date { font-size: 1rem; opacity: 0.7; }
 
 /* Content page */
-.report-page { max-width: 800px; margin: 0 auto; padding: 32px 36px; }
+.report-page { max-width: 800px; margin: 0 auto; padding: 28px 36px; }
+/* The summary page (page 2) must fit on exactly one page with the rating at the
+   bottom. It's a flex column filling one A4 page; the rating is pushed to the
+   end and the images share one row to save vertical space. */
+.report-summary-page { display: flex; flex-direction: column; min-height: 100vh; box-sizing: border-box; }
+.report-summary-page .report-tables { margin-bottom: 14px; }
+.report-summary-page .report-images { margin-bottom: 14px; }
+.report-summary-page .report-rating { margin-top: auto; }
 .report-head { display: flex; align-items: center; justify-content: space-between; flex-direction: row-reverse; border-bottom: 3px solid #0f2a44; padding-bottom: 16px; margin-bottom: 22px; }
 .report-head-logo { height: 72px; width: auto; border-radius: 10px; }
 .report-head-title { font-size: 2rem; font-weight: 800; color: #0f2a44; }
@@ -435,11 +442,11 @@ body.is-rtl .star-clip { left: auto; right: 0; }
    same bottom line as the taller one. */
 .report-table tr td, .report-table tr th { border: 1px solid #d7dee8 !important; }
 .report-table td:empty::after, .report-table th:empty::after { content: '\00A0'; }
-.report-images { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px; break-inside: avoid; page-break-inside: avoid; }
+.report-images { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; break-inside: avoid; page-break-inside: avoid; }
 .report-figure { margin: 0; border: 1px solid #d7dee8; border-radius: 10px; overflow: hidden; break-inside: avoid; page-break-inside: avoid; }
 .report-figure figcaption { background: #eef2f7; padding: 5px 12px; font-size: 0.8rem; font-weight: 700; color: #0f2a44; }
-.report-figure img { width: 100%; height: 175px; object-fit: contain; display: block; background: #f7f9fc; }
-.report-noimg { height: 175px; display: flex; align-items: center; justify-content: center; text-align: center; color: #94a3b8; font-size: 0.9rem; background: #f7f9fc; }
+.report-figure img { width: 100%; height: 210px; object-fit: contain; display: block; background: #f7f9fc; }
+.report-noimg { height: 210px; display: flex; align-items: center; justify-content: center; text-align: center; color: #94a3b8; font-size: 0.9rem; background: #f7f9fc; }
 .report-rating { text-align: center; padding: 18px; border: 2px solid #0f2a44; border-radius: 14px; background: #f7f9fc; }
 .report-rating-label { font-size: 1.05rem; font-weight: 800; color: #0f2a44; margin-bottom: 10px; }
 .report-rating-stars { display: flex; justify-content: center; transform: scale(1.2); }
@@ -451,6 +458,8 @@ body.is-rtl .star-clip { left: auto; right: 0; }
   .topbar, .loading-overlay { display: none !important; }
   .report-cover { page-break-after: always; break-after: page; }
   .report-page { page-break-before: avoid; }
+  /* The summary page fills exactly one printed page and never spills over. */
+  .report-summary-page { height: 100vh; min-height: 0; overflow: hidden; page-break-after: always; break-after: page; }
   @page { size: A4; margin: 0; }
   body { background: #fff; }
 }
