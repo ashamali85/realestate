@@ -215,6 +215,7 @@ const DICT: Dict = {
   assign_criteria: { en: 'Assign criteria', ar: 'تعيين معيار' },
   assign_choose: { en: 'Choose a criteria to assign…', ar: 'اختر معيارًا لتعيينه…' },
   assign_btn: { en: 'Assign', ar: 'تعيين' },
+  assign_select_all: { en: 'Select all', ar: 'تحديد الكل' },
   unassign_confirm: { en: 'Remove this criteria and all its filled values from the request?', ar: 'إزالة هذا المعيار وكل قيمه من الطلب؟' },
   m_status: { en: 'Status', ar: 'الحالة' },
   m_notes: { en: 'Notes', ar: 'ملاحظات' },

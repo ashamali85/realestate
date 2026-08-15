@@ -479,3 +479,14 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .report-measure-label { font-weight: 700; color: #0f2a44; }
 .report-measure-imgs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .report-measure-imgs img { width: 130px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #d7dee8; }
+
+/* Multi-select criteria assignment panel */
+.assign-panel { border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 16px; background: var(--surface); }
+.assign-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--line); }
+.assign-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.assign-check { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--ink); background: var(--surface); transition: border-color 0.12s, background 0.12s; }
+.assign-check:hover { border-color: var(--brand); }
+.assign-check input { width: 17px; height: 17px; accent-color: var(--brand); cursor: pointer; flex: 0 0 auto; }
+.assign-check:has(input:checked) { border-color: var(--brand); background: var(--brand-tint); }
+.assign-selectall { border: none; padding: 0; font-weight: 700; background: none; }
+.assign-selectall:hover { border: none; }

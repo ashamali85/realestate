@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  assignCriteria,
+  assignCriteriaMany,
   unassignCriteria,
   saveMeasureValues,
   deleteMeasureImage
@@ -58,17 +58,30 @@ export function RequestEvaluation({
   const confirm = useConfirm();
   const loading = useLoading();
   const [, startTransition] = useTransition();
-  const [pick, setPick] = useState('');
+  const [picked, setPicked] = useState<Set<string>>(new Set());
   const [openId, setOpenId] = useState<string | null>(null);
 
+  function togglePick(id: string) {
+    setPicked((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setPicked((prev) => (prev.size === available.length ? new Set() : new Set(available.map((c) => c.id))));
+  }
+
   function assign() {
-    if (!pick) return;
+    if (picked.size === 0) return;
     startTransition(async () => {
       const fd = new FormData();
       fd.append('requestId', requestId);
-      fd.append('criteriaId', pick);
-      await loading.run(() => assignCriteria(fd), t('saving', locale));
-      setPick('');
+      fd.append('criteriaIds', [...picked].join(','));
+      await loading.run(() => assignCriteriaMany(fd), t('saving', locale));
+      setPicked(new Set());
       router.refresh();
     });
   }
@@ -87,22 +100,37 @@ export function RequestEvaluation({
 
   return (
     <div className="stack" style={{ gap: 16 }}>
-      {/* Assign a criteria */}
-      <div className="row wrap" style={{ gap: 8 }}>
-        <select value={pick} onChange={(e) => setPick(e.target.value)} style={{ maxWidth: 320 }}>
-          <option value="">
-            {available.length === 0 ? t('all_assigned', locale) : t('assign_choose', locale)}
-          </option>
-          {available.map((c) => (
-            <option key={c.id} value={c.id}>
-              {localName(c, locale)}
-            </option>
-          ))}
-        </select>
-        <button type="button" className="btn btn-primary btn-sm" disabled={!pick} onClick={assign}>
-          {t('assign_btn', locale)}
-        </button>
-      </div>
+      {/* Assign criteria (multi-select) */}
+      {available.length === 0 ? (
+        <p className="muted small">{t('all_assigned', locale)}</p>
+      ) : (
+        <div className="assign-panel">
+          <div className="assign-panel-head">
+            <label className="assign-check assign-selectall">
+              <input
+                type="checkbox"
+                checked={picked.size === available.length && available.length > 0}
+                ref={(el) => {
+                  if (el) el.indeterminate = picked.size > 0 && picked.size < available.length;
+                }}
+                onChange={toggleAll}
+              />
+              <span>{t('assign_select_all', locale)}</span>
+            </label>
+            <button type="button" className="btn btn-primary btn-sm" disabled={picked.size === 0} onClick={assign}>
+              {picked.size > 0 ? `${t('assign_btn', locale)} (${picked.size})` : t('assign_btn', locale)}
+            </button>
+          </div>
+          <div className="assign-grid">
+            {available.map((c) => (
+              <label key={c.id} className="assign-check">
+                <input type="checkbox" checked={picked.has(c.id)} onChange={() => togglePick(c.id)} />
+                <span>{localName(c, locale)}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
 
       {assigned.length === 0 ? (
         <p className="muted small">{t('eval_none', locale)}</p>

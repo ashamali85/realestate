@@ -122,14 +122,30 @@ export async function assignCriteria(formData: FormData) {
   const requestId = getString(formData, 'requestId');
   const criteriaId = getString(formData, 'criteriaId');
   if (!requestId || !criteriaId) return;
+  await assignOne(user.id, requestId, criteriaId);
+  revalidatePath(`/requests/${requestId}`);
+}
 
+/** Assigns several criteria to a request in one call (multi-select). */
+export async function assignCriteriaMany(formData: FormData) {
+  const user = await requireUser();
+  const requestId = getString(formData, 'requestId');
+  const idsRaw = getString(formData, 'criteriaIds');
+  if (!requestId || !idsRaw) return;
+  const ids = idsRaw.split(',').map((s) => s.trim()).filter(Boolean);
+  for (const criteriaId of ids) {
+    await assignOne(user.id, requestId, criteriaId);
+  }
+  revalidatePath(`/requests/${requestId}`);
+}
+
+/** Core assignment: snapshots a criteria's measures per floor onto the request.
+ *  No-op if already assigned or the template/request is missing. */
+async function assignOne(userId: string, requestId: string, criteriaId: string): Promise<void> {
   const existing = await prisma.requestCriteria.findFirst({
     where: { requestId, criteriaId }
   });
-  if (existing) {
-    revalidatePath(`/requests/${requestId}`);
-    return;
-  }
+  if (existing) return;
 
   const template = await prisma.criteria.findUnique({
     where: { id: criteriaId },
@@ -137,8 +153,6 @@ export async function assignCriteria(formData: FormData) {
   });
   if (!template) return;
 
-  // Determine the request's floors so we snapshot each template measure once
-  // per floor. Floor keys: "basement", "ground", "mezzanine", then "1", "2"...
   const request = await prisma.inspectionRequest.findUnique({
     where: { id: requestId },
     select: { floors: true, hasBasement: true, hasMezzanine: true }
@@ -146,7 +160,6 @@ export async function assignCriteria(formData: FormData) {
   if (!request) return;
 
   const floorKeys = floorKeysFor(request);
-
   const templateMeasures = template.measures ?? [];
   const measureRows = floorKeys.flatMap((floor) =>
     templateMeasures.map((m) => ({
@@ -165,8 +178,7 @@ export async function assignCriteria(formData: FormData) {
     }
   });
 
-  await audit(user.id, 'ASSIGN', 'RequestCriteria', requestId, template.nameEn);
-  revalidatePath(`/requests/${requestId}`);
+  await audit(userId, 'ASSIGN', 'RequestCriteria', requestId, template.nameEn);
 }
 
 export async function unassignCriteria(formData: FormData) {
