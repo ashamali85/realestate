@@ -6,16 +6,18 @@ export function CollapsibleSection({
   title,
   titleExtra,
   children,
-  defaultOpen = true
+  defaultOpen = true,
+  allowOverflow = false
 }: {
   title: string;
   titleExtra?: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
+  allowOverflow?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="collapse">
+    <div className={`collapse${allowOverflow ? ' collapse-overflow' : ''}`}>
       <button
         type="button"
         className="collapse-head"

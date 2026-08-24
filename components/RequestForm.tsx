@@ -192,7 +192,7 @@ export function RequestForm({
       )}
 
       <div className="stack" style={{ gap: 14 }}>
-        <CollapsibleSection title={t('sec_address', locale)}>
+        <CollapsibleSection title={t('sec_address', locale)} allowOverflow>
           <AreaSelect
             governorates={lookups.governorates}
             areas={lookups.areas}

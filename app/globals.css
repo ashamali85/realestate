@@ -155,6 +155,8 @@ td[dir="ltr"] { text-align: left; }
 
 /* Collapsible sections ---------------------------------------------------- */
 .collapse { border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); }
+.collapse.collapse-overflow { overflow: visible; }
+.collapse.collapse-overflow .collapse-body { overflow: visible; }
 .collapse-head { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--surface-2); border: none; cursor: pointer; font-family: inherit; font-size: 1rem; font-weight: 800; color: var(--brand); }
 .collapse-head:hover { background: var(--brand-tint); }
 .collapse-chevron { transition: transform 0.18s ease; font-size: 0.9rem; }
@@ -492,7 +494,7 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .assign-selectall:hover { border: none; }
 
 /* Area autocomplete combobox */
-.combo-list { position: absolute; top: 100%; inset-inline-start: 0; inset-inline-end: 0; z-index: 40; margin-top: 4px; max-height: 260px; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 28px rgba(15,42,68,0.14); padding: 6px; }
+.combo-list { position: absolute; top: 100%; inset-inline-start: 0; inset-inline-end: 0; z-index: 60; margin-top: 4px; max-height: 260px; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 28px rgba(15,42,68,0.14); padding: 6px; }
 .combo-item { display: block; width: 100%; text-align: start; padding: 9px 12px; border: none; background: none; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.92rem; color: var(--ink); }
 .combo-item:hover { background: var(--brand-tint); }
 .combo-item.is-selected { background: var(--brand-tint); font-weight: 700; color: var(--brand); }
