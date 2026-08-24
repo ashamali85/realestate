@@ -23,6 +23,7 @@ export default async function CriteriaPage() {
     nameEn: c.nameEn,
     nameAr: c.nameAr,
     isActive: c.isActive,
+    wholeBuilding: c.wholeBuilding,
     measures: (c.measures ?? []).map((m) => ({
       id: m.id,
       nameEn: m.nameEn,

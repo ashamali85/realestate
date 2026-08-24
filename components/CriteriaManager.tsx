@@ -22,6 +22,7 @@ export type CriteriaRow = {
   nameEn: string;
   nameAr: string;
   isActive: boolean;
+  wholeBuilding: boolean;
   measures: MeasureRow[];
 };
 
@@ -80,6 +81,9 @@ export function CriteriaManager({ criteria, locale }: { criteria: CriteriaRow[];
             <input name="nameEn" placeholder={`${t('criteria_name', locale)} (EN)`} dir="ltr" required />
             <input name="nameAr" placeholder={`${t('criteria_name', locale)} (AR)`} dir="rtl" required />
           </div>
+          <label className="check" style={{ marginTop: 8 }}>
+            <input type="checkbox" name="wholeBuilding" /> {t('criteria_whole_building', locale)}
+          </label>
           <div className="mt-2">
             <button type="submit" className="btn btn-primary btn-sm">{t('btn_add', locale)}</button>
           </div>
@@ -141,6 +145,10 @@ export function CriteriaManager({ criteria, locale }: { criteria: CriteriaRow[];
             <label className="check" style={{ marginTop: 4 }}>
               <input type="checkbox" name="isActive" defaultChecked={editingLive.isActive} /> {t('lookup_active', locale)}
             </label>
+            <label className="check" style={{ marginTop: 4 }}>
+              <input type="checkbox" name="wholeBuilding" defaultChecked={editingLive.wholeBuilding} /> {t('criteria_whole_building', locale)}
+            </label>
+            <p className="muted small" style={{ marginTop: 2 }}>{t('criteria_whole_building_hint', locale)}</p>
             <div className="modal-actions" style={{ marginTop: 16 }}>
               <button type="button" className="btn btn-ghost" onClick={() => setEditing(null)}>{t('btn_cancel', locale)}</button>
               <button type="submit" className="btn btn-primary">{t('btn_save', locale)}</button>

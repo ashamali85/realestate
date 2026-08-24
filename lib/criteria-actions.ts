@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireSuperAdmin, requireUser } from '@/lib/auth';
 import { getString, getInt, getOptionalString } from '@/lib/utils';
-import { floorKeysFor } from '@/lib/floors';
+import { floorKeysFor, BUILDING_FLOOR } from '@/lib/floors';
 
 async function audit(actorUserId: string, action: string, entityType: string, entityId: string, entityName?: string) {
   await prisma.auditLog.create({ data: { actorUserId, action, entityType, entityId, entityName } });
@@ -24,7 +24,9 @@ export async function createCriteria(formData: FormData) {
     nameAr: getString(formData, 'nameAr')
   });
   if (!parsed.success) return;
-  const c = await prisma.criteria.create({ data: parsed.data });
+  const c = await prisma.criteria.create({
+    data: { ...parsed.data, wholeBuilding: getString(formData, 'wholeBuilding') === 'on' }
+  });
   await audit(user.id, 'CREATE', 'Criteria', c.id, parsed.data.nameEn);
   revalidatePath('/criteria');
 }
@@ -33,10 +35,11 @@ export async function updateCriteria(formData: FormData) {
   const user = await requireSuperAdmin();
   const id = getString(formData, 'id');
   if (!id) return;
-  const parsed = criteriaSchema.extend({ isActive: z.boolean() }).safeParse({
+  const parsed = criteriaSchema.extend({ isActive: z.boolean(), wholeBuilding: z.boolean() }).safeParse({
     nameEn: getString(formData, 'nameEn'),
     nameAr: getString(formData, 'nameAr'),
-    isActive: getString(formData, 'isActive') === 'on'
+    isActive: getString(formData, 'isActive') === 'on',
+    wholeBuilding: getString(formData, 'wholeBuilding') === 'on'
   });
   if (!parsed.success) return;
   await prisma.criteria.update({ where: { id }, data: parsed.data });
@@ -159,8 +162,10 @@ async function assignOne(userId: string, requestId: string, criteriaId: string):
   });
   if (!request) return;
 
-  const floorKeys = floorKeysFor(request);
   const templateMeasures = template.measures ?? [];
+  // Whole-building criteria (e.g. elevator, landscape) get their measures once,
+  // on a single "building" floor, instead of repeated per floor.
+  const floorKeys = template.wholeBuilding ? [BUILDING_FLOOR] : floorKeysFor(request);
   const measureRows = floorKeys.flatMap((floor) =>
     templateMeasures.map((m) => ({
       floor,
@@ -260,6 +265,8 @@ export async function syncRequestFloors(requestId: string): Promise<void> {
   });
 
   for (const rc of assigned) {
+    // Whole-building criteria don't have per-floor measures — never add floors.
+    if (rc.criteria.wholeBuilding) continue;
     const presentFloors = new Set(rc.measures.map((m) => m.floor));
     const missingFloors = floorKeys.filter((f) => !presentFloors.has(f));
     if (missingFloors.length === 0) continue;
@@ -297,7 +304,8 @@ export async function pruneRequestFloors(requestId: string): Promise<void> {
   await prisma.requestMeasure.deleteMany({
     where: {
       requestCriteria: { requestId },
-      floor: { notIn: floorKeys }
+      // Keep whole-building rows (BUILDING_FLOOR) — they aren't tied to floors.
+      floor: { notIn: [...floorKeys, BUILDING_FLOOR] }
     }
   });
 }

@@ -274,6 +274,7 @@ model Criteria {
   nameEn    String
   nameAr    String
   isActive  Boolean           @default(true)
+  wholeBuilding Boolean       @default(false) // measures applied once for the whole property, not per floor
   measures  CriteriaMeasure[]
   assigned  RequestCriteria[]
   createdAt DateTime          @default(now())

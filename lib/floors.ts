@@ -4,6 +4,9 @@ export type FloorKey = string; // "basement" | "ground" | "mezzanine" | "1" | "2
 
 export type FloorTab = { key: FloorKey; label: string };
 
+/** Sentinel floor key for whole-building criteria (measures not per-floor). */
+export const BUILDING_FLOOR: FloorKey = 'building';
+
 /**
  * The stable floor keys for a request (no labels). Shared by the server (when
  * snapshotting measures) and the client. Keys: "basement", "ground",
@@ -33,6 +36,8 @@ export function floorLabel(key: FloorKey, locale: Locale): string {
       return t('floor_ground', locale);
     case 'mezzanine':
       return t('floor_mezzanine', locale);
+    case 'building':
+      return t('floor_building', locale);
     case '1':
       return t('floor_first', locale);
     case '2':
