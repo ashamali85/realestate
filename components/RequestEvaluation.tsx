@@ -191,6 +191,8 @@ function CriteriaBlock({
   const tabs = floorTabs.filter((f) => presentFloors.has(f.key));
   const effectiveTabs = tabs.length > 0 ? tabs : floorTabs;
   const [floor, setFloor] = useState<string>(effectiveTabs[0]?.key ?? 'ground');
+  // Only one measure accordion open at a time within this criteria.
+  const [openMeasureId, setOpenMeasureId] = useState<string | null>(null);
 
   const floorMeasures = assigned.measures.filter((m) => m.floor === floor);
 
@@ -222,7 +224,15 @@ function CriteriaBlock({
 
       <div className="stack" style={{ gap: 14 }}>
         {floorMeasures.map((m) => (
-          <MeasureCard key={m.id} measure={m} requestId={requestId} statuses={statuses} locale={locale} />
+          <MeasureCard
+            key={m.id}
+            measure={m}
+            requestId={requestId}
+            statuses={statuses}
+            locale={locale}
+            open={openMeasureId === m.id}
+            onToggle={() => setOpenMeasureId((cur) => (cur === m.id ? null : m.id))}
+          />
         ))}
       </div>
     </div>
@@ -233,12 +243,16 @@ function MeasureCard({
   measure,
   requestId,
   statuses,
-  locale
+  locale,
+  open,
+  onToggle
 }: {
   measure: Measure;
   requestId: string;
   statuses: StatusOpt[];
   locale: Locale;
+  open: boolean;
+  onToggle: () => void;
 }) {
   const router = useRouter();
   const confirm = useConfirm();
@@ -269,7 +283,8 @@ function MeasureCard({
   return (
     <CollapsibleSection
       title={localName(measure, locale)}
-      defaultOpen={false}
+      open={open}
+      onToggle={onToggle}
       titleExtra={
         measure.score !== null ? (
           <StarRating score={measure.score} size={16} />

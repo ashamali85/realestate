@@ -7,21 +7,35 @@ export function CollapsibleSection({
   titleExtra,
   children,
   defaultOpen = true,
-  allowOverflow = false
+  allowOverflow = false,
+  open: controlledOpen,
+  onToggle
 }: {
   title: string;
   titleExtra?: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
   allowOverflow?: boolean;
+  /** When provided, the section is controlled by the parent (for exclusive
+   *  accordion groups where only one can be open at a time). */
+  open?: boolean;
+  onToggle?: () => void;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
+
+  function toggle() {
+    if (isControlled) onToggle?.();
+    else setUncontrolledOpen((v) => !v);
+  }
+
   return (
     <div className={`collapse${allowOverflow ? ' collapse-overflow' : ''}`}>
       <button
         type="button"
         className="collapse-head"
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggle}
         aria-expanded={open}
       >
         <span className="collapse-title">
