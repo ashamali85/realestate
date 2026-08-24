@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { t, type Locale } from '@/lib/i18n';
 
 const MAX_BYTES = 4 * 1024 * 1024; // per file
@@ -51,6 +52,7 @@ export function ImageDropzone({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const router = useRouter();
 
   const totalUsed = existingCount + savedCount + (requestId ? 0 : local.length);
   const remaining = Math.max(0, max - totalUsed);
@@ -110,8 +112,10 @@ export function ImageDropzone({
           uploaded++;
         }
         setSavedCount((n) => n + uploaded);
-        // Refresh the server component so the saved thumbnails appear.
-        window.location.reload();
+        // Soft-refresh the server data so saved thumbnails appear WITHOUT a full
+        // page reload — a hard reload would close the open measure modal and
+        // send the user back to the criteria list.
+        router.refresh();
       } catch (err) {
         const reason = err instanceof Error ? err.message : '';
         setError(
@@ -120,8 +124,8 @@ export function ImageDropzone({
             : `${t('dz_upload_failed', locale)}${reason ? ` (${reason})` : ''}`
         );
         if (uploaded > 0) {
-          // Some succeeded — reload so at least those show, after a beat.
-          setTimeout(() => window.location.reload(), 1500);
+          // Some succeeded — soft refresh so at least those show.
+          setTimeout(() => router.refresh(), 800);
         }
       } finally {
         setBusy(false);
