@@ -40,40 +40,50 @@ export async function POST(request: Request) {
   let saved = 0;
   const rejected: string[] = [];
 
-  for (const file of files) {
-    if (order >= MAX_IMAGES_PER_MEASURE) {
-      rejected.push(`${file.name}: too many images`);
-      continue;
-    }
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const result = validateImageBytes(bytes);
-    if (!result.ok) {
-      rejected.push(`${file.name}: ${result.error}`);
-      continue;
-    }
-    await prisma.requestMeasureImage.create({
-      data: {
-        measureId,
-        data: Buffer.from(bytes),
-        mimeType: result.detected.mimeType,
-        byteSize: bytes.byteLength,
-        width: result.detected.width,
-        height: result.detected.height,
-        sortOrder: order++
+  try {
+    for (const file of files) {
+      if (order >= MAX_IMAGES_PER_MEASURE) {
+        rejected.push(`${file.name}: too many images`);
+        continue;
       }
-    });
-    saved++;
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const result = validateImageBytes(bytes);
+      if (!result.ok) {
+        rejected.push(`${file.name}: ${result.error}`);
+        continue;
+      }
+      await prisma.requestMeasureImage.create({
+        data: {
+          measureId,
+          data: Buffer.from(bytes),
+          mimeType: result.detected.mimeType,
+          byteSize: bytes.byteLength,
+          width: result.detected.width,
+          height: result.detected.height,
+          sortOrder: order++
+        }
+      });
+      saved++;
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'unknown error';
+    console.error('measure image upload failed:', err);
+    return NextResponse.json({ error: `db_error: ${message}` }, { status: 500 });
   }
 
-  await prisma.auditLog.create({
-    data: {
-      actorUserId: user.id,
-      action: 'UPLOAD_MEASURE_IMAGES',
-      entityType: 'RequestMeasure',
-      entityId: measureId,
-      details: `saved ${saved}${rejected.length ? `, rejected ${rejected.length}` : ''}`
-    }
-  });
+  try {
+    await prisma.auditLog.create({
+      data: {
+        actorUserId: user.id,
+        action: 'UPLOAD_MEASURE_IMAGES',
+        entityType: 'RequestMeasure',
+        entityId: measureId,
+        details: `saved ${saved}${rejected.length ? `, rejected ${rejected.length}` : ''}`
+      }
+    });
+  } catch {
+    // Audit logging is best-effort; don't fail the upload if it errors.
+  }
 
   return NextResponse.json({ saved, rejected });
 }
