@@ -97,17 +97,27 @@ export function ImageDropzone({
           fd.append('category', category);
           fd.append('images', files[i]!);
           const res = await fetch(uploadUrl, { method: 'POST', body: fd });
-          if (!res.ok) throw new Error(String(res.status));
+          if (!res.ok) {
+            let detail = String(res.status);
+            try {
+              const body = await res.json();
+              if (body?.error) detail = `${res.status}: ${body.error}`;
+            } catch {
+              /* non-JSON response */
+            }
+            throw new Error(detail);
+          }
           uploaded++;
         }
         setSavedCount((n) => n + uploaded);
         // Refresh the server component so the saved thumbnails appear.
         window.location.reload();
-      } catch {
+      } catch (err) {
+        const reason = err instanceof Error ? err.message : '';
         setError(
           uploaded > 0
             ? t('dz_upload_partial', locale).replace('{n}', String(uploaded))
-            : t('dz_upload_failed', locale)
+            : `${t('dz_upload_failed', locale)}${reason ? ` (${reason})` : ''}`
         );
         if (uploaded > 0) {
           // Some succeeded — reload so at least those show, after a beat.
