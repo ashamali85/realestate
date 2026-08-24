@@ -93,7 +93,7 @@ const requestSchema = z.object({
   hasMezzanine: z.boolean(),
   inspectionDate: z.date({ required_error: 'f_inspection_date', invalid_type_error: 'f_inspection_date' }),
   landArea: z.number().min(0, 'f_land_area').max(1_000_000, 'f_land_area').nullable(),
-  constructionPct: z.number().min(0, 'f_construction_pct').max(100, 'f_construction_pct').nullable(),
+  constructionPct: z.number().min(0, 'f_construction_pct').nullable(),
   constructionArea: z.number().min(0, 'f_construction_area').max(1_000_000, 'f_construction_area').nullable(),
   notes: z.string().trim().max(2000).optional()
 }).refine(

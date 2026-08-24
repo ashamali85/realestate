@@ -14,6 +14,7 @@ import { useConfirm } from './ConfirmDialog';
 import { MapPicker } from './MapPicker';
 import { MapErrorBoundary } from './MapErrorBoundary';
 import { CollapsibleSection } from './CollapsibleSection';
+import { AreaSelect } from './AreaSelect';
 import { ImageDropzone } from './ImageDropzone';
 import { ExistingImages } from './ExistingImages';
 import { useLoading } from './LoadingOverlay';
@@ -88,7 +89,6 @@ export function RequestForm({
   const [state, setState] = useState<RequestFormState>(initial);
   const [pending, startTransition] = useTransition();
   const [uploading, setUploading] = useState(false);
-  const [areaId, setAreaId] = useState(existing?.areaId ?? '');
   // Create-mode only: files queued in the dropzone, uploaded once after the
   // new request is created. In edit mode the dropzone uploads immediately and
   // this stays empty, so re-saving never re-uploads anything.
@@ -174,20 +174,6 @@ export function RequestForm({
   }
 
 
-  const govById = useMemo(
-    () => new Map(lookups.governorates.map((g) => [g.id, g] as const)),
-    [lookups.governorates]
-  );
-  const selectedArea = lookups.areas.find((a) => a.id === areaId);
-  const selectedGov = selectedArea ? govById.get(selectedArea.governorateId) : undefined;
-
-  const sortedAreas = useMemo(
-    () =>
-      [...lookups.areas].sort((a, b) =>
-        localName(a, locale).localeCompare(localName(b, locale), locale === 'ar' ? 'ar' : 'en')
-      ),
-    [lookups.areas, locale]
-  );
 
   return (
     <form onSubmit={onSubmit}>
@@ -207,37 +193,13 @@ export function RequestForm({
 
       <div className="stack" style={{ gap: 14 }}>
         <CollapsibleSection title={t('sec_address', locale)}>
-          <div className="grid-2">
-            <div className="field">
-              <label htmlFor="areaId">{t('f_area', locale)}</label>
-              <select
-                id="areaId"
-                name="areaId"
-                required
-                value={areaId}
-                onChange={(e) => setAreaId(e.target.value)}
-              >
-                <option value="">{t('f_choose', locale)}</option>
-                {sortedAreas.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {localName(a, locale)}
-                  </option>
-                ))}
-              </select>
-              {fieldError(state, 'areaId', locale) && (
-                <span className="field-error">{fieldError(state, 'areaId', locale)}</span>
-              )}
-            </div>
-            <div className="field">
-              <label>{t('f_governorate', locale)}</label>
-              <input
-                readOnly
-                value={selectedGov ? localName(selectedGov, locale) : ''}
-                placeholder={t('f_governorate_auto', locale)}
-                style={{ background: 'var(--surface-2)' }}
-              />
-            </div>
-          </div>
+          <AreaSelect
+            governorates={lookups.governorates}
+            areas={lookups.areas}
+            locale={locale}
+            initialAreaId={existing?.areaId ?? ''}
+            error={fieldError(state, 'areaId', locale)}
+          />
           <div className="grid-3">
             <FieldText id="block" labelKey="f_block" locale={locale} state={state} defaultValue={existing?.block} maxLength={30} />
             <FieldText id="street" labelKey="f_street" locale={locale} state={state} defaultValue={existing?.street} maxLength={60} />
@@ -328,7 +290,7 @@ export function RequestForm({
             </div>
             <div className="field">
               <label htmlFor="constructionPct">{t('construction_pct', locale)}</label>
-              <input id="constructionPct" name="constructionPct" type="number" step="any" min={0} max={100} inputMode="decimal" defaultValue={existing?.constructionPct ?? ''} />
+              <input id="constructionPct" name="constructionPct" type="number" step="any" min={0} inputMode="decimal" defaultValue={existing?.constructionPct ?? ''} />
               <span className="field-error">{fieldError(state, 'constructionPct', locale)}</span>
             </div>
             <div className="field">

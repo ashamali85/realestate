@@ -490,3 +490,10 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .assign-check:has(input:checked) { border-color: var(--brand); background: var(--brand-tint); }
 .assign-selectall { border: none; padding: 0; font-weight: 700; background: none; }
 .assign-selectall:hover { border: none; }
+
+/* Area autocomplete combobox */
+.combo-list { position: absolute; top: 100%; inset-inline-start: 0; inset-inline-end: 0; z-index: 40; margin-top: 4px; max-height: 260px; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 28px rgba(15,42,68,0.14); padding: 6px; }
+.combo-item { display: block; width: 100%; text-align: start; padding: 9px 12px; border: none; background: none; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.92rem; color: var(--ink); }
+.combo-item:hover { background: var(--brand-tint); }
+.combo-item.is-selected { background: var(--brand-tint); font-weight: 700; color: var(--brand); }
+.combo-empty { padding: 12px; text-align: center; color: var(--ink-soft); font-size: 0.9rem; }
