@@ -106,7 +106,14 @@ export function CriteriaManager({ criteria, locale }: { criteria: CriteriaRow[];
             <tbody>
               {criteria.map((c) => (
                 <tr key={c.id} className={c.isActive ? '' : 'row-inactive'}>
-                  <td>{localName(c, locale)}</td>
+                  <td>
+                    {localName(c, locale)}
+                    {c.wholeBuilding && (
+                      <span className="badge badge-super" style={{ marginInlineStart: 8 }}>
+                        {t('floor_building', locale)}
+                      </span>
+                    )}
+                  </td>
                   <td>
                     {c.isActive ? (
                       <span className="badge badge-super">{t('status_active', locale)}</span>

@@ -78,7 +78,7 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
 
   // Group by floor -> criteria -> measures (only measures with data).
   // Collect the set of floors that actually have filled measures, in a stable order.
-  const floorOrder = ['basement', 'ground', 'mezzanine', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+  const floorOrder = ['building', 'basement', 'ground', 'mezzanine', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
   const floorsPresent = new Set<string>();
   for (const a of assigned) for (const m of a.measures) if (hasData(m)) floorsPresent.add(m.floor);
   const floors = floorOrder.filter((f) => floorsPresent.has(f)).concat(

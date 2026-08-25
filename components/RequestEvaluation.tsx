@@ -16,6 +16,7 @@ import { ImageDropzone } from './ImageDropzone';
 import { StarRating } from './StarRating';
 import { IconTrash } from './Icons';
 import { criteriaIcon } from '@/lib/criteria-icons';
+import { floorLabel } from '@/lib/floors';
 import { t, localName, type Locale } from '@/lib/i18n';
 
 type StatusOpt = { id: string; nameEn: string; nameAr: string };
@@ -185,12 +186,17 @@ function CriteriaBlock({
   locale: Locale;
   onUnassign: () => void;
 }) {
-  // Only show tabs for floors that actually have measures (guards against a
-  // request whose floor count changed after assignment).
+  // Build tabs from the floors the measures are ACTUALLY on. This handles
+  // whole-building criteria (measures on the "building" floor) and requests
+  // whose floor count changed after assignment. Order follows the request's
+  // floor tabs, with any extra floors (e.g. "building") appended.
   const presentFloors = new Set(assigned.measures.map((m) => m.floor));
-  const tabs = floorTabs.filter((f) => presentFloors.has(f.key));
-  const effectiveTabs = tabs.length > 0 ? tabs : floorTabs;
-  const [floor, setFloor] = useState<string>(effectiveTabs[0]?.key ?? 'ground');
+  const orderedFromRequest = floorTabs.filter((f) => presentFloors.has(f.key));
+  const extraKeys = [...presentFloors].filter((k) => !floorTabs.some((f) => f.key === k));
+  const extraTabs = extraKeys.map((key) => ({ key, label: floorLabel(key, locale) }));
+  const effectiveTabs = [...orderedFromRequest, ...extraTabs];
+  const finalTabs = effectiveTabs.length > 0 ? effectiveTabs : floorTabs;
+  const [floor, setFloor] = useState<string>(finalTabs[0]?.key ?? 'ground');
   // Only one measure accordion open at a time within this criteria.
   const [openMeasureId, setOpenMeasureId] = useState<string | null>(null);
 
@@ -205,9 +211,9 @@ function CriteriaBlock({
         </button>
       </div>
 
-      {effectiveTabs.length > 1 && (
+      {finalTabs.length > 1 && (
         <div className="floor-tabs" role="tablist">
-          {effectiveTabs.map((f) => (
+          {finalTabs.map((f) => (
             <button
               key={f.key}
               type="button"
