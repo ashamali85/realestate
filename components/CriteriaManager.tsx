@@ -36,9 +36,8 @@ export function CriteriaManager({ criteria, locale }: { criteria: CriteriaRow[];
 
   function run(action: () => Promise<unknown>, after?: () => void) {
     startTransition(async () => {
-      await loading.run(action, t('saving', locale));
+      await loading.runWithRefresh(action, () => router.refresh(), t('saving', locale));
       after?.();
-      router.refresh();
     });
   }
 

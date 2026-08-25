@@ -49,13 +49,16 @@ export function RequestsTable({
     });
     if (!ok) return;
     startTransition(async () => {
-      await loading.run(async () => {
-        const fd = new FormData();
-        fd.append('id', id);
-        fd.append('stay', '1'); // stay on the list instead of redirecting
-        await deleteRequest(fd);
-      }, t('loading', locale));
-      router.refresh();
+      await loading.runWithRefresh(
+        async () => {
+          const fd = new FormData();
+          fd.append('id', id);
+          fd.append('stay', '1'); // stay on the list instead of redirecting
+          await deleteRequest(fd);
+        },
+        () => router.refresh(),
+        t('loading', locale)
+      );
     });
   }
 

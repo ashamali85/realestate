@@ -12,6 +12,7 @@ type LoadingContextValue = {
   showForNavigation: (message?: string) => void;
   /** Wrap an async task so the overlay shows for its duration. */
   run: <T>(task: () => Promise<T>, message?: string) => Promise<T>;
+  runWithRefresh: <T>(task: () => Promise<T>, refresh: () => void, message?: string) => Promise<T>;
 };
 
 const LoadingContext = createContext<LoadingContextValue | null>(null);
@@ -85,10 +86,45 @@ export function LoadingProvider({ locale, children }: { locale: Locale; children
     []
   );
 
+  // Runs a server action, then refreshes server data, keeping the overlay up
+  // until BOTH finish. This prevents the "gap" where the overlay hides but the
+  // UI hasn't updated yet (router.refresh re-fetches server components, which
+  // takes a moment). The task should include the mutation; refresh() is called
+  // after it succeeds, then we hold the overlay briefly so the refreshed data
+  // is on screen before it disappears.
+  const runWithRefresh = useCallback(
+    async <T,>(task: () => Promise<T>, refresh: () => void, msg?: string): Promise<T> => {
+      flushSync(() => {
+        setMessage(msg ?? null);
+        setCount((c) => c + 1);
+      });
+      const startedAt = Date.now();
+      try {
+        const result = await task();
+        // Trigger the server-data refresh while the overlay is still up.
+        refresh();
+        // router.refresh() has no completion promise; hold the overlay a beat so
+        // the re-fetched server components can paint before it disappears.
+        await new Promise((r) => setTimeout(r, 600));
+        return result;
+      } finally {
+        const elapsed = Date.now() - startedAt;
+        const minVisibleMs = 450;
+        if (elapsed < minVisibleMs) {
+          await new Promise((r) => setTimeout(r, minVisibleMs - elapsed));
+        }
+        flushSync(() => {
+          setCount((c) => Math.max(0, c - 1));
+        });
+      }
+    },
+    []
+  );
+
   const visible = count > 0 || navLoading;
 
   return (
-    <LoadingContext.Provider value={{ show, hide, showForNavigation, run }}>
+    <LoadingContext.Provider value={{ show, hide, showForNavigation, run, runWithRefresh }}>
       {children}
       {visible && (
         <div className="loading-overlay" role="status" aria-live="polite">
@@ -112,7 +148,12 @@ export function useLoading(): LoadingContextValue {
       show: () => {},
       hide: () => {},
       showForNavigation: () => {},
-      run: async (task) => task()
+      run: async (task) => task(),
+      runWithRefresh: async (task, refresh) => {
+        const r = await task();
+        refresh();
+        return r;
+      }
     };
   }
   return ctx;

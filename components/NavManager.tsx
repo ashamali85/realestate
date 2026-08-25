@@ -18,8 +18,7 @@ export function NavManager({ rows, locale }: { rows: NavRow[]; locale: Locale })
       const fd = new FormData();
       fd.append('key', key);
       fd.append('direction', direction);
-      await loading.run(() => moveNavLink(fd), t('saving', locale));
-      router.refresh();
+      await loading.runWithRefresh(() => moveNavLink(fd), () => router.refresh(), t('saving', locale));
     });
   }
 
@@ -27,8 +26,7 @@ export function NavManager({ rows, locale }: { rows: NavRow[]; locale: Locale })
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      await loading.run(() => renameNavLink(fd), t('saving', locale));
-      router.refresh();
+      await loading.runWithRefresh(() => renameNavLink(fd), () => router.refresh(), t('saving', locale));
     });
   }
 

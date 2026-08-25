@@ -167,6 +167,9 @@ export function RequestForm({
 
         router.push(`/requests/${targetId}`);
         router.refresh();
+        // Hold the overlay through the navigation + refresh so there's no gap
+        // where the spinner is gone but the destination page hasn't painted yet.
+        await new Promise((r) => setTimeout(r, 700));
       } finally {
         loading.hide();
       }

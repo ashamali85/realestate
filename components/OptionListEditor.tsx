@@ -42,9 +42,8 @@ export function OptionListEditor({
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      await loading.run(() => createOption(fd), t('saving', locale));
+      await loading.runWithRefresh(() => createOption(fd), () => router.refresh(), t('saving', locale));
       setAdding(false); // close the form → back to list view
-      router.refresh();
     });
   }
 
@@ -52,9 +51,8 @@ export function OptionListEditor({
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      await loading.run(() => updateOption(fd), t('saving', locale));
+      await loading.runWithRefresh(() => updateOption(fd), () => router.refresh(), t('saving', locale));
       setEditing(null); // close the modal
-      router.refresh();
     });
   }
 
@@ -69,8 +67,7 @@ export function OptionListEditor({
       const fd = new FormData();
       fd.append('kind', kind);
       fd.append('id', id);
-      await loading.run(() => deleteOption(fd), t('loading', locale));
-      router.refresh();
+      await loading.runWithRefresh(() => deleteOption(fd), () => router.refresh(), t('loading', locale));
     });
   }
 

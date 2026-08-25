@@ -54,9 +54,8 @@ export function GeographyEditor({
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      await loading.run(() => action(fd), t('saving', locale));
+      await loading.runWithRefresh(() => action(fd), () => router.refresh(), t('saving', locale));
       close();
-      router.refresh();
     });
   }
 
@@ -70,8 +69,7 @@ export function GeographyEditor({
     startTransition(async () => {
       const fd = new FormData();
       fd.append('id', id);
-      await loading.run(() => action(fd), t('loading', locale));
-      router.refresh();
+      await loading.runWithRefresh(() => action(fd), () => router.refresh(), t('loading', locale));
     });
   }
 

@@ -77,6 +77,7 @@ export default async function EditRequestPage({
   const assigned = assignedRaw.map((a: (typeof assignedRaw)[number]) => ({
     id: a.id,
     criteriaName: localName(a.criteria, locale),
+    wholeBuilding: a.criteria.wholeBuilding,
     score: criteriaScore(a.measures.map((m) => ({ score: m.statusId && m.status ? m.status.score : null }))),
     measures: a.measures.map((m) => ({
       id: m.id,

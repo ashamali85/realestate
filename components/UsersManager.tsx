@@ -50,8 +50,7 @@ export function UsersManager({ rows, locale }: { rows: UserRow[]; locale: Locale
       const fd = new FormData();
       fd.append('id', id);
       fd.append('active', String(active));
-      await loading.run(() => setUserActive(fd), t('saving', locale));
-      router.refresh();
+      await loading.runWithRefresh(() => setUserActive(fd), () => router.refresh(), t('saving', locale));
     });
   }
 
@@ -59,9 +58,8 @@ export function UsersManager({ rows, locale }: { rows: UserRow[]; locale: Locale
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      await loading.run(() => resetUserPassword(fd), t('saving', locale));
+      await loading.runWithRefresh(() => resetUserPassword(fd), () => router.refresh(), t('saving', locale));
       setResetId(null);
-      router.refresh();
     });
   }
 

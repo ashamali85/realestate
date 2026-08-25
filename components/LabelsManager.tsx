@@ -66,9 +66,8 @@ export function LabelsManager({ rows, locale }: { rows: LabelRow[]; locale: Loca
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      await loading.run(() => saveLabelOverride(fd), t('saving', locale));
+      await loading.runWithRefresh(() => saveLabelOverride(fd), () => router.refresh(), t('saving', locale));
       setEditing(null);
-      router.refresh();
     });
   }
 

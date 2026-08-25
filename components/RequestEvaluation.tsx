@@ -16,7 +16,7 @@ import { ImageDropzone } from './ImageDropzone';
 import { StarRating } from './StarRating';
 import { IconTrash } from './Icons';
 import { criteriaIcon } from '@/lib/criteria-icons';
-import { floorLabel } from '@/lib/floors';
+import { floorLabel, BUILDING_FLOOR } from '@/lib/floors';
 import { t, localName, type Locale } from '@/lib/i18n';
 
 type StatusOpt = { id: string; nameEn: string; nameAr: string };
@@ -36,6 +36,7 @@ type Measure = {
 type Assigned = {
   id: string;
   criteriaName: string;
+  wholeBuilding: boolean;
   score: number | null;
   measures: Measure[];
 };
@@ -81,9 +82,8 @@ export function RequestEvaluation({
       const fd = new FormData();
       fd.append('requestId', requestId);
       fd.append('criteriaIds', [...picked].join(','));
-      await loading.run(() => assignCriteriaMany(fd), t('saving', locale));
+      await loading.runWithRefresh(() => assignCriteriaMany(fd), () => router.refresh(), t('saving', locale));
       setPicked(new Set());
-      router.refresh();
     });
   }
 
@@ -94,8 +94,7 @@ export function RequestEvaluation({
       const fd = new FormData();
       fd.append('id', id);
       fd.append('requestId', requestId);
-      await loading.run(() => unassignCriteria(fd), t('loading', locale));
-      router.refresh();
+      await loading.runWithRefresh(() => unassignCriteria(fd), () => router.refresh(), t('loading', locale));
     });
   }
 
@@ -191,11 +190,22 @@ function CriteriaBlock({
   // whose floor count changed after assignment. Order follows the request's
   // floor tabs, with any extra floors (e.g. "building") appended.
   const presentFloors = new Set(assigned.measures.map((m) => m.floor));
-  const orderedFromRequest = floorTabs.filter((f) => presentFloors.has(f.key));
+  // Whole-building criteria always use the single "building" grouping — even if
+  // the criteria has no measures yet (otherwise the display would wrongly fall
+  // back to showing every floor).
+  if (assigned.wholeBuilding) presentFloors.add(BUILDING_FLOOR);
+  const orderedFromRequest = assigned.wholeBuilding
+    ? []
+    : floorTabs.filter((f) => presentFloors.has(f.key));
   const extraKeys = [...presentFloors].filter((k) => !floorTabs.some((f) => f.key === k));
   const extraTabs = extraKeys.map((key) => ({ key, label: floorLabel(key, locale) }));
   const effectiveTabs = [...orderedFromRequest, ...extraTabs];
-  const finalTabs = effectiveTabs.length > 0 ? effectiveTabs : floorTabs;
+  // For whole-building criteria the fallback is the building tab, never floors.
+  const finalTabs = effectiveTabs.length > 0
+    ? effectiveTabs
+    : assigned.wholeBuilding
+      ? [{ key: BUILDING_FLOOR, label: floorLabel(BUILDING_FLOOR, locale) }]
+      : floorTabs;
   const [floor, setFloor] = useState<string>(finalTabs[0]?.key ?? 'ground');
   // Only one measure accordion open at a time within this criteria.
   const [openMeasureId, setOpenMeasureId] = useState<string | null>(null);
@@ -270,8 +280,7 @@ function MeasureCard({
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      await loading.run(() => saveMeasureValues(fd), t('saving', locale));
-      router.refresh();
+      await loading.runWithRefresh(() => saveMeasureValues(fd), () => router.refresh(), t('saving', locale));
     });
   }
 
@@ -280,7 +289,7 @@ function MeasureCard({
     if (!ok) return;
     setRemoved((prev) => new Set(prev).add(id));
     startTransition(async () => {
-      await loading.run(() => deleteMeasureImage(id, requestId), t('loading', locale));
+      await loading.runWithRefresh(() => deleteMeasureImage(id, requestId), () => router.refresh(), t('loading', locale));
     });
   }
 
