@@ -9,7 +9,8 @@ import {
   createMeasure,
   updateMeasure,
   deleteMeasure,
-  countWholeBuildingImpact
+  countWholeBuildingImpact,
+  countCriteriaDeletionImpact
 } from '@/lib/criteria-actions';
 import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
@@ -77,11 +78,24 @@ export function CriteriaManager({ criteria, locale }: { criteria: CriteriaRow[];
   }
 
   async function removeCriteria(id: string) {
-    const ok = await confirm({ message: t('confirm_delete', locale), danger: true, confirmLabel: t('btn_delete', locale) });
-    if (!ok) return;
-    const fd = new FormData();
-    fd.append('id', id);
-    run(() => deleteCriteria(fd));
+    startTransition(async () => {
+      const impact = await countCriteriaDeletionImpact(id);
+      const message =
+        impact.requests > 0
+          ? t('criteria_delete_warn', locale)
+              .replace('{requests}', String(impact.requests))
+              .replace('{measures}', String(impact.measures))
+          : t('confirm_delete', locale);
+      const ok = await confirm({
+        message,
+        danger: true,
+        confirmLabel: t('btn_delete', locale)
+      });
+      if (!ok) return;
+      const fd = new FormData();
+      fd.append('id', id);
+      run(() => deleteCriteria(fd));
+    });
   }
 
   // Keep the editing row in sync with fresh data after a refresh, so the

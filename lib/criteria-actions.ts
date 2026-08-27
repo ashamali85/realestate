@@ -130,19 +130,37 @@ async function convertAssignedToWholeBuilding(criteriaId: string): Promise<void>
   }
 }
 
+/** Counts the impact of deleting a criteria: how many requests it's assigned to
+ *  and how many measures (across all requests) would be removed. For the delete
+ *  confirmation warning. */
+export async function countCriteriaDeletionImpact(
+  criteriaId: string
+): Promise<{ requests: number; measures: number }> {
+  await requireSuperAdmin();
+  const assigned = await prisma.requestCriteria.findMany({
+    where: { criteriaId },
+    include: { measures: { select: { id: true } } }
+  });
+  const requests = assigned.length;
+  const measures = assigned.reduce((sum: number, rc: { measures: { id: string }[] }) => sum + rc.measures.length, 0);
+  return { requests, measures };
+}
+
 export async function deleteCriteria(formData: FormData) {
   const user = await requireSuperAdmin();
   const id = getString(formData, 'id');
   if (!id) return;
-  const assignedCount = await prisma.requestCriteria.count({ where: { criteriaId: id } });
-  if (assignedCount > 0) {
-    // In use by requests — deactivate rather than delete.
-    await prisma.criteria.update({ where: { id }, data: { isActive: false } });
-    await audit(user.id, 'DEACTIVATE', 'Criteria', id);
-  } else {
-    await prisma.criteria.delete({ where: { id } });
-    await audit(user.id, 'DELETE', 'Criteria', id);
-  }
+
+  // Hard delete. RequestCriteria.criteria uses onDelete: Restrict, so we must
+  // remove the assigned instances first (these cascade to RequestMeasure and
+  // their images). The template measures (CriteriaMeasure) cascade with the
+  // criteria automatically. This permanently removes the criteria and all
+  // inspection data captured under it across every request.
+  await prisma.$transaction(async (tx) => {
+    await tx.requestCriteria.deleteMany({ where: { criteriaId: id } });
+    await tx.criteria.delete({ where: { id } });
+  });
+  await audit(user.id, 'DELETE', 'Criteria', id);
   revalidatePath('/criteria');
 }
 
