@@ -222,6 +222,8 @@ const DICT: Dict = {
   floor_building: { en: 'Whole building', ar: 'كامل المبنى' },
   criteria_whole_building: { en: 'Whole building (not per floor)', ar: 'كامل المبنى (ليس لكل طابق)' },
   criteria_whole_building_hint: { en: 'Measures apply once to the whole property instead of repeating on every floor.', ar: 'تُطبَّق القياسات مرة واحدة على كامل العقار بدلاً من تكرارها في كل طابق.' },
+  whole_building_warn: { en: 'This criteria is already used on {requests} request(s) with per-floor entries. Turning on "whole building" will delete {measures} per-floor measure(s) (including any notes, ratings, and photos) and replace them with a single whole-building set. This cannot be undone. Continue?', ar: 'هذا المعيار مُستخدَم بالفعل في {requests} طلب/طلبات بإدخالات لكل طابق. تفعيل "كامل المبنى" سيحذف {measures} قياسًا موزّعة على الطوابق (بما في ذلك الملاحظات والتقييمات والصور) ويستبدلها بمجموعة واحدة لكامل المبنى. لا يمكن التراجع عن هذا الإجراء. هل تريد المتابعة؟' },
+  whole_building_confirm: { en: 'Convert and delete floor measures', ar: 'التحويل وحذف قياسات الطوابق' },
   unassign_confirm: { en: 'Remove this criteria and all its filled values from the request?', ar: 'إزالة هذا المعيار وكل قيمه من الطلب؟' },
   m_status: { en: 'Status', ar: 'الحالة' },
   m_notes: { en: 'Notes', ar: 'ملاحظات' },

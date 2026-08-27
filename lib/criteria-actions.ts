@@ -42,9 +42,92 @@ export async function updateCriteria(formData: FormData) {
     wholeBuilding: getString(formData, 'wholeBuilding') === 'on'
   });
   if (!parsed.success) return;
+
+  // Detect a false -> true transition on wholeBuilding so we can convert any
+  // already-assigned requests from per-floor measures to a single building set.
+  const before = await prisma.criteria.findUnique({ where: { id }, select: { wholeBuilding: true } });
+  const turningOn = parsed.data.wholeBuilding && before ? !before.wholeBuilding : false;
+
   await prisma.criteria.update({ where: { id }, data: parsed.data });
+
+  if (turningOn) {
+    await convertAssignedToWholeBuilding(id);
+  }
+
   await audit(user.id, 'UPDATE', 'Criteria', id, parsed.data.nameEn);
   revalidatePath('/criteria');
+}
+
+/**
+ * Counts how many assigned requests would be affected by converting a criteria
+ * to whole-building, and how many per-floor measures would be removed. Used to
+ * warn the admin before they confirm. "Affected" = an assigned request that has
+ * measures on real floors (not already just the building row).
+ */
+export async function countWholeBuildingImpact(
+  criteriaId: string
+): Promise<{ requests: number; measures: number }> {
+  await requireSuperAdmin();
+  const assigned = await prisma.requestCriteria.findMany({
+    where: { criteriaId },
+    include: { measures: { select: { floor: true } } }
+  });
+  let requests = 0;
+  let measures = 0;
+  for (const rc of assigned) {
+    const nonBuilding = rc.measures.filter((m: { floor: string }) => m.floor !== BUILDING_FLOOR);
+    if (nonBuilding.length > 0) {
+      requests += 1;
+      measures += nonBuilding.length;
+    }
+  }
+  return { requests, measures };
+}
+
+/**
+ * Converts every assigned instance of a criteria from per-floor measures to a
+ * single whole-building set. Existing per-floor RequestMeasure rows (and their
+ * filled values/images) are deleted and replaced with one set on the building
+ * floor, snapshotted from the current template. Destructive — only called after
+ * the admin confirms.
+ */
+async function convertAssignedToWholeBuilding(criteriaId: string): Promise<void> {
+  const template = await prisma.criteria.findUnique({
+    where: { id: criteriaId },
+    include: { measures: { orderBy: { displayOrder: 'asc' } } }
+  });
+  if (!template) return;
+  const templateMeasures = template.measures ?? [];
+
+  const assigned = await prisma.requestCriteria.findMany({
+    where: { criteriaId },
+    include: { measures: { select: { id: true, floor: true } } }
+  });
+
+  for (const rc of assigned) {
+    const hasBuildingRow = rc.measures.some((m: { floor: string }) => m.floor === BUILDING_FLOOR);
+    const hasFloorRows = rc.measures.some((m: { floor: string }) => m.floor !== BUILDING_FLOOR);
+    // Nothing to do if it's already just a building set.
+    if (!hasFloorRows && hasBuildingRow) continue;
+
+    await prisma.$transaction(async (tx: typeof prisma) => {
+      // Remove all existing measures for this assignment (cascade removes their
+      // images/values).
+      await tx.requestMeasure.deleteMany({ where: { requestCriteriaId: rc.id } });
+      // Recreate a single building set from the template.
+      if (templateMeasures.length > 0) {
+        await tx.requestMeasure.createMany({
+          data: templateMeasures.map((m) => ({
+            requestCriteriaId: rc.id,
+            floor: BUILDING_FLOOR,
+            nameEn: m.nameEn,
+            nameAr: m.nameAr,
+            displayOrder: m.displayOrder
+          }))
+        });
+      }
+    });
+  }
 }
 
 export async function deleteCriteria(formData: FormData) {

@@ -8,7 +8,8 @@ import {
   deleteCriteria,
   createMeasure,
   updateMeasure,
-  deleteMeasure
+  deleteMeasure,
+  countWholeBuildingImpact
 } from '@/lib/criteria-actions';
 import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
@@ -50,6 +51,28 @@ export function CriteriaManager({ criteria, locale }: { criteria: CriteriaRow[];
   function submitEdit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
+    const target = editingLive;
+    const turningOn = target ? !target.wholeBuilding && fd.get('wholeBuilding') === 'on' : false;
+
+    if (turningOn && target) {
+      // Check whether any assigned request has per-floor measures that would be
+      // deleted, and warn before proceeding.
+      startTransition(async () => {
+        const impact = await countWholeBuildingImpact(target.id);
+        if (impact.requests > 0) {
+          const ok = await confirm({
+            message: t('whole_building_warn', locale)
+              .replace('{requests}', String(impact.requests))
+              .replace('{measures}', String(impact.measures)),
+            danger: true,
+            confirmLabel: t('whole_building_confirm', locale)
+          });
+          if (!ok) return;
+        }
+        run(() => updateCriteria(fd), () => setEditing(null));
+      });
+      return;
+    }
     run(() => updateCriteria(fd), () => setEditing(null));
   }
 
