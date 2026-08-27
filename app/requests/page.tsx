@@ -20,7 +20,7 @@ export default async function RequestsPage() {
     orderBy: { createdAt: 'desc' },
     include: {
       area: { include: { governorate: true } },
-      requestCriteria: {
+      criteria: {
         include: { measures: { include: { status: { select: { score: true } } } } }
       }
     },
@@ -29,8 +29,8 @@ export default async function RequestsPage() {
 
   const rows: RequestRow[] = requests.map((r) => {
     const rc = (r as typeof r & {
-      requestCriteria: { measures: { status: { score: number } | null }[] }[];
-    }).requestCriteria;
+      criteria: { measures: { status: { score: number } | null }[] }[];
+    }).criteria;
     // Overall score = average of criteria scores (each = average of its rated
     // measures). Unrated criteria/measures are excluded — same as elsewhere.
     const critScores = rc.map((c) =>
