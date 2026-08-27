@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { t, localName } from '@/lib/i18n';
 import { loadLabelOverrides } from '@/lib/label-overrides';
 import { formatDateTime } from '@/lib/utils';
+import { criteriaScore, overallScore } from '@/lib/scoring';
 import { TopBar } from '@/components/TopBar';
 import { RequestsTable, type RequestRow } from '@/components/RequestsTable';
 
@@ -17,19 +18,36 @@ export default async function RequestsPage() {
 
   const requests = await prisma.inspectionRequest.findMany({
     orderBy: { createdAt: 'desc' },
-    include: { area: { include: { governorate: true } } },
+    include: {
+      area: { include: { governorate: true } },
+      requestCriteria: {
+        include: { measures: { include: { status: { select: { score: true } } } } }
+      }
+    },
     take: 500
   });
 
-  const rows: RequestRow[] = requests.map((r) => ({
-    id: r.id,
-    reference: r.reference,
-    clientName: r.clientName,
-    clientPhone: r.clientPhone,
-    area: localName(r.area, locale),
-    governorate: localName(r.area.governorate, locale),
-    created: formatDateTime(r.createdAt)
-  }));
+  const rows: RequestRow[] = requests.map((r) => {
+    const rc = (r as typeof r & {
+      requestCriteria: { measures: { status: { score: number } | null }[] }[];
+    }).requestCriteria;
+    // Overall score = average of criteria scores (each = average of its rated
+    // measures). Unrated criteria/measures are excluded — same as elsewhere.
+    const critScores = rc.map((c) =>
+      criteriaScore(c.measures.map((m) => ({ score: m.status ? m.status.score : null })))
+    );
+    const overall = overallScore(critScores);
+    return {
+      id: r.id,
+      reference: r.reference,
+      clientName: r.clientName,
+      clientPhone: r.clientPhone,
+      area: localName(r.area, locale),
+      governorate: localName(r.area.governorate, locale),
+      created: formatDateTime(r.createdAt),
+      score: overall
+    };
+  });
 
   const governorates = Array.from(new Set(rows.map((r) => r.governorate))).sort();
   const areas = Array.from(new Set(rows.map((r) => r.area))).sort();

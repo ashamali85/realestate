@@ -8,6 +8,7 @@ import { useConfirm } from './ConfirmDialog';
 import { useLoading } from './LoadingOverlay';
 import { IconEye, IconPencil, IconTrash } from './Icons';
 import { ReportButton } from './ReportButton';
+import { StarRating } from './StarRating';
 import { t, type Locale } from '@/lib/i18n';
 
 export type RequestRow = {
@@ -18,6 +19,7 @@ export type RequestRow = {
   area: string;
   governorate: string;
   created: string; // pre-formatted (English) date
+  score: number | null; // overall rating (0–3), or null if unrated
 };
 
 export function RequestsTable({
@@ -133,13 +135,14 @@ export function RequestsTable({
               <th>{t('col_area', locale)}</th>
               <th>{t('col_governorate', locale)}</th>
               <th>{t('col_created', locale)}</th>
+              <th>{t('col_rating', locale)}</th>
               <th>{t('col_actions', locale)}</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="center muted" style={{ padding: 32 }}>
+                <td colSpan={7} className="center muted" style={{ padding: 32 }}>
                   {t('requests_empty', locale)}
                 </td>
               </tr>
@@ -152,6 +155,9 @@ export function RequestsTable({
                   <td>{r.governorate}</td>
                   <td className="small muted" dir="ltr">
                     {r.created}
+                  </td>
+                  <td>
+                    <StarRating score={r.score} size={17} />
                   </td>
                   <td>
                     <div className="row" style={{ gap: 6 }}>

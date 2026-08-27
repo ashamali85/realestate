@@ -46,6 +46,7 @@ const DICT: Dict = {
   col_area: { en: 'Area', ar: 'المنطقة' },
   col_governorate: { en: 'Governorate', ar: 'المحافظة' },
   col_created: { en: 'Created', ar: 'تاريخ الإنشاء' },
+  col_rating: { en: 'Rating', ar: 'التقييم' },
   col_actions: { en: 'Actions', ar: 'إجراءات' },
 
   form_new_title: { en: 'New inspection request', ar: 'طلب فحص جديد' },
