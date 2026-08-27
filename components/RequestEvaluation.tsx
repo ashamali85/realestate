@@ -138,13 +138,17 @@ export function RequestEvaluation({
         <div className="lookup-grid">
           {assigned.map((a) => (
             <button key={a.id} type="button" className="lookup-tile" onClick={() => setOpenId(a.id)}>
-              <span className="lookup-tile-icon" aria-hidden="true">{criteriaIcon(a.criteriaName)}</span>
-              <span className="lookup-tile-name">{a.criteriaName}</span>
-              {a.wholeBuilding && (
-                <span className="badge badge-super" style={{ marginTop: 4 }}>{t('floor_building', locale)}</span>
-              )}
-              {a.score !== null && <StarRating score={a.score} size={16} />}
-              <span className="lookup-tile-count">{a.measures.length} · {t('criteria_measures', locale)}</span>
+              <span className="lookup-tile-gauge">
+                <StarRating score={a.score} size={30} />
+              </span>
+              <span className="lookup-tile-body">
+                <span className="lookup-tile-icon" aria-hidden="true">{criteriaIcon(a.criteriaName)}</span>
+                <span className="lookup-tile-name">{a.criteriaName}</span>
+                {a.wholeBuilding && (
+                  <span className="badge badge-super" style={{ marginTop: 2 }}>{t('floor_building', locale)}</span>
+                )}
+                <span className="lookup-tile-count">{a.measures.length} · {t('criteria_measures', locale)}</span>
+              </span>
             </button>
           ))}
         </div>

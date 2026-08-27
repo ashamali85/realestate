@@ -215,9 +215,9 @@ export default async function RequestDetailPage({
           <div className="section-title" style={{ marginBottom: 16 }}>
             <h2 style={{ color: 'var(--brand)' }}>{t('sec_criteria', locale)}</h2>
             {overall !== null && (
-              <span className="row" style={{ gap: 10 }}>
+              <span className="overall-gauge" style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ color: 'var(--brand)', fontWeight: 800 }}>{t('sec_evaluation', locale)}</span>
-                <StarRating score={overall} />
+                <StarRating score={overall} size={30} />
               </span>
             )}
           </div>

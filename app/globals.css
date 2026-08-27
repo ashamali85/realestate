@@ -376,12 +376,16 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 /* Lookup category tiles (grid of clickable cards). */
 .lookup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
 .lookup-tile {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
-  padding: 22px 20px; border: 1.5px solid var(--line); border-radius: 14px;
+  display: flex; flex-direction: row; align-items: center; gap: 16px;
+  padding: 20px; border: 1.5px solid var(--line); border-radius: 14px;
   background: var(--surface); cursor: pointer; text-align: start; font-family: inherit;
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 .lookup-tile:hover { border-color: var(--brand); box-shadow: 0 8px 22px rgba(15,42,68,0.1); transform: translateY(-2px); }
+/* Gauge sits on the visual left of the card (RTL: push it to the far edge). */
+.lookup-tile-gauge { flex: 0 0 auto; order: 2; margin-inline-start: auto; transition: transform 0.25s ease; }
+.lookup-tile:hover .lookup-tile-gauge { transform: scale(1.12); }
+.lookup-tile-body { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; order: 1; }
 .lookup-tile-icon { font-size: 1.8rem; line-height: 1; }
 .lookup-tile-name { font-size: 1.1rem; font-weight: 800; color: var(--ink); }
 .lookup-tile-count { font-size: 0.82rem; color: var(--ink-soft); font-weight: 600; }
@@ -501,3 +505,10 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .combo-item:hover { background: var(--brand-tint); }
 .combo-item.is-selected { background: var(--brand-tint); font-weight: 700; color: var(--brand); }
 .combo-empty { padding: 12px; text-align: center; color: var(--ink-soft); font-size: 0.9rem; }
+
+/* Overall building rating gauge — bigger, with a standout hover animation. */
+.overall-gauge .rating-gauge { transition: transform 0.3s ease, filter 0.3s ease; cursor: default; }
+.overall-gauge:hover .rating-gauge {
+  transform: scale(1.25);
+  filter: drop-shadow(0 6px 14px rgba(15, 42, 68, 0.35));
+}
