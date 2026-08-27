@@ -400,7 +400,7 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 
 /* ============ REPORT (print-ready) ============ */
 .report-root { background: #fff; color: #10284f; font-family: inherit; }
-.report-root, .report-cover, .report-figure figcaption, .report-table th, .report-rating, .star-fg {
+.report-root, .report-cover, .report-figure figcaption, .report-table th, .report-rating, .rating-gauge {
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
 .report-print-btn {
@@ -451,7 +451,9 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .report-noimg { height: 210px; display: flex; align-items: center; justify-content: center; text-align: center; color: #94a3b8; font-size: 0.9rem; background: #f7f9fc; }
 .report-rating { text-align: center; padding: 18px; border: 2px solid #0f2a44; border-radius: 14px; background: #f7f9fc; }
 .report-rating-label { font-size: 1.05rem; font-weight: 800; color: #0f2a44; margin-bottom: 10px; }
-.report-rating-stars { display: flex; justify-content: center; transform: scale(1.2); }
+.report-rating-stars { display: flex; justify-content: center; }
+.rating-gauge { line-height: 0; }
+.rating-gauge-text { font-variant-numeric: tabular-nums; }
 .report-rating-none { color: #94a3b8; font-weight: 600; }
 
 /* Print rules */

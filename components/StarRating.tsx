@@ -1,11 +1,11 @@
 'use client';
 
 /**
- * Displays a 0–3 score as `max` stars. Each star fills proportionally to the
- * score (e.g. 1.7 → first star full, second 70% full, third empty). The fill
- * works by overlaying a gold star on a dimmed one and clipping the gold layer
- * to a percentage width — the inner SVG is kept at full, fixed size so it is
- * CROPPED, never squished. The numeric score is shown beside the stars.
+ * Displays a 0–`max` score as a circular percentage gauge (percentage =
+ * score / max * 100). A gradient arc fills clockwise from the top, with the
+ * percentage in the middle — this replaced the old star rating everywhere, so
+ * the export name is kept as StarRating for compatibility with existing callers.
+ * A null score renders an empty ring with "—".
  */
 export function StarRating({
   score,
@@ -16,46 +16,59 @@ export function StarRating({
   score: number | null;
   max?: number;
   size?: number;
+  /** Kept for API compatibility with the old star component; ignored here. */
   showNumber?: boolean;
 }) {
-  const value = score ?? 0;
+  // The old callers pass star-ish sizes (16–34). Scale up to a ring diameter.
+  const diameter = Math.round(size * 2.4);
+  const pct = score === null ? 0 : Math.max(0, Math.min(100, (score / max) * 100));
+  const stroke = Math.max(4, Math.round(diameter * 0.12));
+  const r = (diameter - stroke) / 2;
+  const c = diameter / 2;
+  const circumference = 2 * Math.PI * r;
+  const dash = (pct / 100) * circumference;
+  const gid = `rg-${Math.round(diameter)}-${Math.round(pct)}`;
 
   return (
-    <span className="star-rating" role="img" aria-label={score === null ? 'not rated' : `${value} of ${max}`}>
-      {showNumber && (
-        <span className="star-number">{score === null ? '—' : value.toFixed(1)}</span>
-      )}
-      <span className="star-row">
-        {Array.from({ length: max }).map((_, i) => {
-          const fill = Math.max(0, Math.min(1, value - i)); // 0..1 for this star
-          return (
-            <span key={i} className="star" style={{ width: size, height: size }}>
-              {/* dimmed base star, full size */}
-              <Star size={size} className="star-bg" />
-              {/* gold overlay, clipped to `fill` width; inner star stays full size */}
-              <span className="star-clip" style={{ width: `${fill * 100}%` }}>
-                <Star size={size} className="star-fg" />
-              </span>
-            </span>
-          );
-        })}
-      </span>
-    </span>
-  );
-}
-
-function Star({ className, size = 20 }: { className?: string; size?: number }) {
-  return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-      style={{ display: 'block', minWidth: size }}
+    <span
+      className="rating-gauge"
+      role="img"
+      aria-label={score === null ? 'not rated' : `${Math.round(pct)}%`}
+      style={{ width: diameter, height: diameter, display: 'inline-block', verticalAlign: 'middle' }}
     >
-      <path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.9l-5.81 3.06L7.3 14.5 2.6 9.9l6.5-.95L12 2.5z" />
-    </svg>
+      <svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} style={{ display: 'block' }}>
+        <defs>
+          <linearGradient id={gid} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#4fd1e0" />
+            <stop offset="100%" stopColor="#0f2a44" />
+          </linearGradient>
+        </defs>
+        <circle cx={c} cy={c} r={r} fill="none" stroke="#e6ebf1" strokeWidth={stroke} />
+        {score !== null && pct > 0 && (
+          <circle
+            cx={c}
+            cy={c}
+            r={r}
+            fill="none"
+            stroke={`url(#${gid})`}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            strokeDasharray={`${dash} ${circumference - dash}`}
+            strokeDashoffset={circumference * 0.25}
+            transform={`rotate(-90 ${c} ${c})`}
+          />
+        )}
+        <text
+          x="50%"
+          y="50%"
+          dominantBaseline="central"
+          textAnchor="middle"
+          className="rating-gauge-text"
+          style={{ fontSize: Math.max(9, Math.round(diameter * 0.26)), fontWeight: 800, fill: '#0f2a44' }}
+        >
+          {score === null ? '\u2014' : `${Math.round(pct)}%`}
+        </text>
+      </svg>
+    </span>
   );
 }
