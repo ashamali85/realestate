@@ -110,7 +110,7 @@ async function convertAssignedToWholeBuilding(criteriaId: string): Promise<void>
     // Nothing to do if it's already just a building set.
     if (!hasFloorRows && hasBuildingRow) continue;
 
-    await prisma.$transaction(async (tx: typeof prisma) => {
+    await prisma.$transaction(async (tx) => {
       // Remove all existing measures for this assignment (cascade removes their
       // images/values).
       await tx.requestMeasure.deleteMany({ where: { requestCriteriaId: rc.id } });
