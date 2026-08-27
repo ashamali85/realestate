@@ -242,17 +242,23 @@ function CriteriaBlock({
       )}
 
       <div className="stack" style={{ gap: 14 }}>
-        {floorMeasures.map((m) => (
-          <MeasureCard
-            key={m.id}
-            measure={m}
-            requestId={requestId}
-            statuses={statuses}
-            locale={locale}
-            open={openMeasureId === m.id}
-            onToggle={() => setOpenMeasureId((cur) => (cur === m.id ? null : m.id))}
-          />
-        ))}
+        {floorMeasures.length === 0 ? (
+          <p className="muted small" style={{ textAlign: 'center', padding: '16px 0' }}>
+            {t('criteria_no_measures', locale)}
+          </p>
+        ) : (
+          floorMeasures.map((m) => (
+            <MeasureCard
+              key={m.id}
+              measure={m}
+              requestId={requestId}
+              statuses={statuses}
+              locale={locale}
+              open={openMeasureId === m.id}
+              onToggle={() => setOpenMeasureId((cur) => (cur === m.id ? null : m.id))}
+            />
+          ))
+        )}
       </div>
     </div>
   );

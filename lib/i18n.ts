@@ -202,6 +202,7 @@ const DICT: Dict = {
   criteria_name: { en: 'Criteria name', ar: 'اسم المعيار' },
   criteria_add: { en: 'Add criteria', ar: 'إضافة معيار' },
   criteria_measures: { en: 'Measures', ar: 'القياسات' },
+  criteria_no_measures: { en: 'This criteria has no measures. Add measures to it in the Criteria admin, then remove and re-add it here.', ar: 'لا توجد قياسات لهذا البند. أضِف القياسات من إدارة البنود، ثم احذفه وأعِد إضافته هنا.' },
   measure_name: { en: 'Measure name', ar: 'اسم القياس' },
   measure_add: { en: 'Add measure', ar: 'إضافة قياس' },
   measure_none: { en: 'No measures yet. Add the first one.', ar: 'لا توجد قياسات بعد. أضف الأول.' },
