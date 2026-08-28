@@ -31,5 +31,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/requests/:path*', '/lookups/:path*', '/users/:path*', '/criteria/:path*', '/measure-lookups/:path*', '/nav/:path*', '/labels/:path*']
+  matcher: ['/requests/:path*', '/lookups/:path*', '/users/:path*', '/criteria/:path*', '/measure-lookups/:path*', '/nav/:path*', '/labels/:path*', '/migrate-images/:path*']
 };
