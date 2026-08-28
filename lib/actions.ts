@@ -317,6 +317,20 @@ export async function updateRequest(
 export async function deleteRequestImageById(imageId: string, requestId: string) {
   const user = await requireUser();
   if (!imageId) return;
+  // Remove the file from Vercel Blob too (if it lives there), so we don't leave
+  // orphaned files accruing storage cost.
+  const img = await prisma.requestImage.findUnique({
+    where: { id: imageId },
+    select: { blobUrl: true }
+  });
+  if (img?.blobUrl) {
+    try {
+      const { del } = await import('@vercel/blob');
+      await del(img.blobUrl);
+    } catch {
+      /* best-effort; still remove the DB row */
+    }
+  }
   await prisma.requestImage.delete({ where: { id: imageId } });
   await logAction(user.id, 'DELETE_IMAGE', 'RequestImage', imageId);
   if (requestId) {

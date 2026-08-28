@@ -145,24 +145,7 @@ export function RequestForm({
         }
 
         if (queued.length > 0 || queuedKuwait.length > 0) {
-          try {
-            setUploading(true);
-            const uploadBatch = async (files: File[], category: string) => {
-              for (const f of files) {
-                const fd = new FormData();
-                fd.append('requestId', targetId);
-                fd.append('category', category);
-                fd.append('images', f);
-                await fetch('/api/request-image/upload', { method: 'POST', body: fd });
-              }
-            };
-            await uploadBatch(queued, 'property');
-            await uploadBatch(queuedKuwait, 'kuwaitFinder');
-          } catch {
-            setState({ error: 'upload_partial' });
-          } finally {
-            setUploading(false);
-          }
+
         }
 
         router.push(`/requests/${targetId}`);

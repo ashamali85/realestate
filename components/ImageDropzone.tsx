@@ -85,20 +85,35 @@ export function ImageDropzone({
     }
 
     if (requestId) {
-      // EDIT mode: upload each file as its OWN request, sequentially. This is
-      // exactly what "upload one by one" did manually — each request stays
-      // small, so it never hits the serverless body-size limit that made a
-      // single multi-file POST fail. We upload here and reload once at the end.
+      // EDIT mode: upload each file straight to Vercel Blob from the browser
+      // (bypasses the serverless body-size limit and is faster), then record the
+      // resulting URL in our database. Sequential so ordering stays stable.
       setBusy(true);
       let uploaded = 0;
       try {
+        const { upload } = await import('@vercel/blob/client');
         for (let i = 0; i < files.length; i++) {
           setProgress({ done: i, total: files.length });
-          const fd = new FormData();
-          fd.append(uploadKey, requestId);
-          fd.append('category', category);
-          fd.append('images', files[i]!);
-          const res = await fetch(uploadUrl, { method: 'POST', body: fd });
+          const file = files[i]!;
+          // 1) Browser -> Blob (token minted by /api/blob-upload after auth).
+          const blob = await upload(file.name, file, {
+            access: 'public',
+            handleUploadUrl: '/api/blob-upload',
+            contentType: file.type
+          });
+          // 2) Record the blob URL against the request/measure.
+          const recordBody: Record<string, unknown> = {
+            [uploadKey]: requestId,
+            blobUrl: blob.url,
+            mimeType: file.type,
+            byteSize: file.size
+          };
+          if (uploadKey === 'requestId') recordBody.category = category;
+          const res = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(recordBody)
+          });
           if (!res.ok) {
             let detail = String(res.status);
             try {
@@ -112,9 +127,8 @@ export function ImageDropzone({
           uploaded++;
         }
         setSavedCount((n) => n + uploaded);
-        // Soft-refresh the server data so saved thumbnails appear WITHOUT a full
-        // page reload — a hard reload would close the open measure modal and
-        // send the user back to the criteria list.
+        // Soft-refresh so saved thumbnails appear WITHOUT a full page reload
+        // (a hard reload would close the open measure modal).
         router.refresh();
       } catch (err) {
         const reason = err instanceof Error ? err.message : '';
@@ -124,7 +138,6 @@ export function ImageDropzone({
             : `${t('dz_upload_failed', locale)}${reason ? ` (${reason})` : ''}`
         );
         if (uploaded > 0) {
-          // Some succeeded — soft refresh so at least those show.
           setTimeout(() => router.refresh(), 800);
         }
       } finally {

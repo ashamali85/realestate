@@ -333,6 +333,18 @@ export async function saveMeasureValues(formData: FormData) {
 export async function deleteMeasureImage(imageId: string, requestId: string) {
   const user = await requireUser();
   if (!imageId) return;
+  const img = await prisma.requestMeasureImage.findUnique({
+    where: { id: imageId },
+    select: { blobUrl: true }
+  });
+  if (img?.blobUrl) {
+    try {
+      const { del } = await import('@vercel/blob');
+      await del(img.blobUrl);
+    } catch {
+      /* best-effort; still remove the DB row */
+    }
+  }
   await prisma.requestMeasureImage.delete({ where: { id: imageId } });
   await audit(user.id, 'DELETE_IMAGE', 'RequestMeasureImage', imageId);
   if (requestId) revalidatePath(`/requests/${requestId}`);

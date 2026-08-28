@@ -209,7 +209,8 @@ model RequestImage {
   request   InspectionRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
 
   category  String @default("property") // "property" | "kuwaitFinder"
-  data      Bytes
+  blobUrl   String? // Vercel Blob URL for new images; null for legacy DB-stored images
+  data      Bytes?  // legacy: image bytes stored in Postgres (kept for old images)
   mimeType  String
   byteSize  Int
   width     Int?
@@ -340,7 +341,8 @@ model RequestMeasureImage {
   measureId String
   measure   RequestMeasure @relation(fields: [measureId], references: [id], onDelete: Cascade)
 
-  data      Bytes
+  blobUrl   String? // Vercel Blob URL for new images; null for legacy DB-stored images
+  data      Bytes?  // legacy: image bytes stored in Postgres (kept for old images)
   mimeType  String
   byteSize  Int
   width     Int?

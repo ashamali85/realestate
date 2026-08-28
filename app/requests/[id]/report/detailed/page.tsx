@@ -149,7 +149,7 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
                           <div className="report-measure-imgs">
                             {m.images.map((img) => (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img key={img.id} src={`/api/measure-image/${img.id}`} alt="" />
+                              <img key={img.id} src={`/api/measure-image/${img.id}`} alt="" loading="eager" decoding="sync" />
                             ))}
                           </div>
                         )}
