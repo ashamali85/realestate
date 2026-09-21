@@ -152,7 +152,7 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
                       {scoreLabelKey(fl.score) && (
                         <span className="report-head-score-name">{t(scoreLabelKey(fl.score)!, locale)}</span>
                       )}
-                      <StarRating score={fl.score} size={14} />
+                      <StarRating score={fl.score} size={15} />
                     </span>
                   </h3>
                   {fl.measures.map((m) => (

@@ -475,9 +475,9 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 /* Detailed report breakdown */
 .report-page-break { page-break-before: always; break-before: page; }
 .report-floor { margin-bottom: 20px; break-inside: auto; }
-.report-floor-title { font-size: 1.25rem; font-weight: 800; color: #fff; background: #0f2a44; padding: 8px 14px; border-radius: 8px; margin: 0 0 12px; }
+.report-floor-title { font-size: 1.25rem; font-weight: 800; color: #fff; background: #0f2a44; border: 1px solid #0f2a44; padding: 8px 12px; border-radius: 8px; margin: 0 0 12px; }
 .report-crit { margin-bottom: 14px; break-inside: avoid; }
-.report-crit-title { font-size: 1.05rem; font-weight: 800; color: #3a4654; background: #eef0f2; border: 1px solid #dde1e6; padding: 8px 14px; border-radius: 6px; margin: 0 0 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.report-crit-title { font-size: 1.05rem; font-weight: 800; color: #3a4654; background: #eef0f2; border: 1px solid #dde1e6; padding: 8px 12px; border-radius: 6px; margin: 0 0 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .report-measure { border: 1px solid #d7dee8; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; break-inside: avoid; page-break-inside: avoid; }
 .report-measure-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
 .report-measure-name { font-weight: 700; color: #10284f; font-size: 0.95rem; }
@@ -516,8 +516,9 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 
 /* Criteria/floor heading with an aggregate score (gauge + label on the far edge). */
 .report-head-score { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.report-head-score-val { display: flex; align-items: center; gap: 8px; }
-.report-head-score-name { font-size: 0.8rem; font-weight: 600; opacity: 0.9; }
+.report-head-score-val { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.report-head-score-name { font-size: 0.82rem; font-weight: 600; text-align: start; min-width: 64px; }
+.report-head-score-val .rating-gauge { flex: 0 0 auto; }
 /* On the navy criteria bar the gauge track/text sit on dark — keep the label light. */
 .report-floor-title .report-head-score-name { color: rgba(255,255,255,0.9); }
 .report-crit-title .report-head-score-name { color: #5f6b78; }
