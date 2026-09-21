@@ -76,14 +76,28 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
   const propertyImg = r.images.find((i: { category?: string }) => (i.category ?? 'property') !== 'kuwaitFinder');
   const kuwaitImg = r.images.find((i: { category?: string }) => i.category === 'kuwaitFinder');
 
-  // Group by floor -> criteria -> measures (only measures with data).
-  // Collect the set of floors that actually have filled measures, in a stable order.
+  // Group by criteria -> floor -> measures (only measures with data).
   const floorOrder = ['building', 'basement', 'ground', 'mezzanine', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-  const floorsPresent = new Set<string>();
-  for (const a of assigned) for (const m of a.measures) if (hasData(m)) floorsPresent.add(m.floor);
-  const floors = floorOrder.filter((f) => floorsPresent.has(f)).concat(
-    [...floorsPresent].filter((f) => !floorOrder.includes(f))
-  );
+  function orderFloors(keys: string[]): string[] {
+    return floorOrder.filter((f) => keys.includes(f)).concat(keys.filter((f) => !floorOrder.includes(f)));
+  }
+
+  // Build the criteria list, each with its floors (that have filled measures)
+  // and the measures grouped under each floor. Criteria with no data anywhere
+  // are dropped.
+  const criteriaGroups = assigned
+    .map((a) => {
+      const withData = a.measures.filter((m) => hasData(m));
+      const floorKeys = orderFloors([...new Set(withData.map((m) => m.floor))]);
+      const floors = floorKeys
+        .map((floor) => ({
+          floor,
+          measures: withData.filter((m) => m.floor === floor)
+        }))
+        .filter((f) => f.measures.length > 0);
+      return { name: localName(a.criteria, locale), floors, count: withData.length };
+    })
+    .filter((c) => c.count > 0);
 
   return (
     <div className="report-root">
@@ -97,7 +111,7 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
         kuwaitImgId={kuwaitImg?.id ?? null}
       />
 
-      {/* Detailed breakdown: floor -> criteria -> measures */}
+      {/* Detailed breakdown: criteria -> floor -> measures */}
       <section className="report-page report-page-break">
         <header className="report-head">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -105,61 +119,50 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
           <div className="report-head-title">{t('report_detailed', locale)}</div>
         </header>
 
-        {floors.length === 0 ? (
+        {criteriaGroups.length === 0 ? (
           <p className="muted">{t('report_not_rated', locale)}</p>
         ) : (
-          floors.map((floor) => {
-            // Criteria that have data on this floor.
-            const critOnFloor = assigned
-              .map((a) => ({
-                name: localName(a.criteria, locale),
-                measures: a.measures.filter((m) => m.floor === floor && hasData(m))
-              }))
-              .filter((c) => c.measures.length > 0);
-            if (critOnFloor.length === 0) return null;
-
-            return (
-              <div key={floor} className="report-floor">
-                <h2 className="report-floor-title">{floorLabel(floor, locale)}</h2>
-                {critOnFloor.map((c, ci) => (
-                  <div key={ci} className="report-crit">
-                    <h3 className="report-crit-title">{c.name}</h3>
-                    {c.measures.map((m) => (
-                      <div key={m.id} className="report-measure">
-                        <div className="report-measure-head">
-                          <span className="report-measure-name">{localName(m, locale)}</span>
-                          {m.status && (
-                            <span className="report-measure-status">
-                              <span className="report-measure-status-name">{localName(m.status, locale)}</span>
-                              <StarRating score={m.status.score} size={15} />
-                            </span>
-                          )}
-                        </div>
-                        {m.notes && m.notes.trim() && (
-                          <div className="report-measure-row">
-                            <span className="report-measure-label">{t('m_notes', locale)}:</span> {m.notes}
-                          </div>
-                        )}
-                        {m.recommendations && m.recommendations.trim() && (
-                          <div className="report-measure-row">
-                            <span className="report-measure-label">{t('m_recommendations', locale)}:</span> {m.recommendations}
-                          </div>
-                        )}
-                        {m.images.length > 0 && (
-                          <div className="report-measure-imgs">
-                            {m.images.map((img) => (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img key={img.id} src={`/api/measure-image/${img.id}`} alt="" loading="eager" decoding="sync" />
-                            ))}
-                          </div>
+          criteriaGroups.map((c, ci) => (
+            <div key={ci} className="report-floor">
+              <h2 className="report-floor-title">{c.name}</h2>
+              {c.floors.map((fl) => (
+                <div key={fl.floor} className="report-crit">
+                  <h3 className="report-crit-title">{floorLabel(fl.floor, locale)}</h3>
+                  {fl.measures.map((m) => (
+                    <div key={m.id} className="report-measure">
+                      <div className="report-measure-head">
+                        <span className="report-measure-name">{localName(m, locale)}</span>
+                        {m.status && (
+                          <span className="report-measure-status">
+                            <span className="report-measure-status-name">{localName(m.status, locale)}</span>
+                            <StarRating score={m.status.score} size={15} />
+                          </span>
                         )}
                       </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            );
-          })
+                      {m.notes && m.notes.trim() && (
+                        <div className="report-measure-row">
+                          <span className="report-measure-label">{t('m_notes', locale)}:</span> {m.notes}
+                        </div>
+                      )}
+                      {m.recommendations && m.recommendations.trim() && (
+                        <div className="report-measure-row">
+                          <span className="report-measure-label">{t('m_recommendations', locale)}:</span> {m.recommendations}
+                        </div>
+                      )}
+                      {m.images.length > 0 && (
+                        <div className="report-measure-imgs">
+                          {m.images.map((img) => (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img key={img.id} src={`/api/measure-image/${img.id}`} alt="" loading="eager" decoding="sync" />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))
         )}
       </section>
     </div>
