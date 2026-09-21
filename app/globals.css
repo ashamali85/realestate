@@ -453,9 +453,11 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .report-figure figcaption { background: #eef2f7; padding: 5px 12px; font-size: 0.8rem; font-weight: 700; color: #0f2a44; }
 .report-figure img { width: 100%; height: 210px; object-fit: contain; display: block; background: #f7f9fc; }
 .report-noimg { height: 210px; display: flex; align-items: center; justify-content: center; text-align: center; color: #94a3b8; font-size: 0.9rem; background: #f7f9fc; }
-.report-rating { text-align: center; padding: 18px; border: 2px solid #0f2a44; border-radius: 14px; background: #f7f9fc; }
-.report-rating-label { font-size: 1.05rem; font-weight: 800; color: #0f2a44; margin-bottom: 10px; }
-.report-rating-stars { display: flex; justify-content: center; }
+.report-rating { display: flex; align-items: center; gap: 18px; padding: 18px; border: 2px solid #0f2a44; border-radius: 14px; background: #f7f9fc; }
+.report-rating-stars { display: flex; justify-content: flex-start; order: 1; }
+.report-rating-head { order: 2; margin-inline-start: auto; text-align: start; }
+.report-rating-label { font-size: 1.05rem; font-weight: 800; color: #0f2a44; margin-bottom: 4px; }
+.report-rating-sublabel { font-size: 0.95rem; font-weight: 700; color: #1d9e75; }
 .rating-gauge { line-height: 0; }
 .rating-gauge-text { font-variant-numeric: tabular-nums; }
 .report-rating-none { color: #94a3b8; font-weight: 600; }
@@ -526,3 +528,8 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 /* Gauge on the navy criteria bar: make its % text and track readable on dark. */
 .report-floor-title .rating-gauge-text { fill: #ffffff !important; }
 .report-floor-title .rating-gauge svg circle:first-of-type { stroke: rgba(255,255,255,0.28); }
+
+/* Request-level notes block in the detailed report. */
+.report-notes { border: 1px solid #d7dee8; border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; background: #fbfcfe; }
+.report-notes-label { font-weight: 800; color: #0f2a44; font-size: 0.95rem; margin-bottom: 4px; }
+.report-notes-body { color: #33404f; font-size: 0.9rem; line-height: 1.7; white-space: pre-wrap; }

@@ -1,5 +1,6 @@
 import { localName, t, type Locale } from '@/lib/i18n';
 import { formatDate } from '@/lib/utils';
+import { scoreLabelKey } from '@/lib/scoring';
 import { StarRating } from '@/components/StarRating';
 
 type Row = [string, string, boolean];
@@ -150,7 +151,12 @@ export function ReportSummary({
         </div>
 
         <div className="report-rating">
-          <div className="report-rating-label">{t('report_overall_rating', locale)}</div>
+          <div className="report-rating-head">
+            <div className="report-rating-label">{t('report_overall_rating', locale)}</div>
+            {overall !== null && scoreLabelKey(overall) && (
+              <div className="report-rating-sublabel">{t(scoreLabelKey(overall)!, locale)}</div>
+            )}
+          </div>
           {overall === null ? (
             <div className="report-rating-none">{t('report_not_rated', locale)}</div>
           ) : (

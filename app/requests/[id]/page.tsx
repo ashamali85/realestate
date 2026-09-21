@@ -12,7 +12,7 @@ import { IconPencil } from '@/components/Icons';
 import { RequestEvaluation } from '@/components/RequestEvaluation';
 import { StarRating } from '@/components/StarRating';
 import { CollapsibleSection } from '@/components/CollapsibleSection';
-import { criteriaScore, overallScore } from '@/lib/scoring';
+import { criteriaScore, overallScore, scoreLabelKey } from '@/lib/scoring';
 import { floorsFor } from '@/lib/floors';
 
 export const dynamic = 'force-dynamic';
@@ -216,7 +216,14 @@ export default async function RequestDetailPage({
             <h2 style={{ color: 'var(--brand)' }}>{t('sec_criteria', locale)}</h2>
             {overall !== null && (
               <span className="overall-gauge" style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ color: 'var(--brand)', fontWeight: 800 }}>{t('sec_evaluation', locale)}</span>
+                <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                  <span style={{ color: 'var(--brand)', fontWeight: 800 }}>{t('sec_evaluation', locale)}</span>
+                  {scoreLabelKey(overall) && (
+                    <span style={{ color: '#1d9e75', fontWeight: 700, fontSize: '0.9rem' }}>
+                      {t(scoreLabelKey(overall)!, locale)}
+                    </span>
+                  )}
+                </span>
                 <StarRating score={overall} size={30} />
               </span>
             )}
