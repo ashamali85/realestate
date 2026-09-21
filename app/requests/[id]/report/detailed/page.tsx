@@ -138,10 +138,10 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
               <h2 className="report-floor-title report-head-score">
                 <span>{c.name}</span>
                 <span className="report-head-score-val">
-                  <StarRating score={c.score} size={15} />
                   {scoreLabelKey(c.score) && (
                     <span className="report-head-score-name">{t(scoreLabelKey(c.score)!, locale)}</span>
                   )}
+                  <StarRating score={c.score} size={15} />
                 </span>
               </h2>
               {c.floors.map((fl) => (
@@ -149,10 +149,10 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
                   <h3 className="report-crit-title report-head-score">
                     <span>{floorLabel(fl.floor, locale)}</span>
                     <span className="report-head-score-val">
-                      <StarRating score={fl.score} size={14} />
                       {scoreLabelKey(fl.score) && (
                         <span className="report-head-score-name">{t(scoreLabelKey(fl.score)!, locale)}</span>
                       )}
+                      <StarRating score={fl.score} size={14} />
                     </span>
                   </h3>
                   {fl.measures.map((m) => (
