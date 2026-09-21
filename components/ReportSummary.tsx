@@ -27,6 +27,7 @@ export type SummaryData = {
   exterior: { nameEn: string; nameAr: string };
   elevator: { nameEn: string; nameAr: string };
   ac: { nameEn: string; nameAr: string };
+  notes?: string | null;
 };
 
 /**
@@ -151,17 +152,25 @@ export function ReportSummary({
         </div>
 
         <div className="report-rating">
-          <div className="report-rating-head">
-            <div className="report-rating-label">{t('report_overall_rating', locale)}</div>
-            {overall !== null && scoreLabelKey(overall) && (
-              <div className="report-rating-sublabel">{t(scoreLabelKey(overall)!, locale)}</div>
+          <div className="report-rating-main">
+            {overall === null ? (
+              <div className="report-rating-none">{t('report_not_rated', locale)}</div>
+            ) : (
+              <div className="report-rating-stars">
+                <StarRating score={overall} size={34} showNumber />
+              </div>
             )}
+            <div className="report-rating-head">
+              <div className="report-rating-label">{t('report_overall_rating', locale)}</div>
+              {overall !== null && scoreLabelKey(overall) && (
+                <div className="report-rating-sublabel">{t(scoreLabelKey(overall)!, locale)}</div>
+              )}
+            </div>
           </div>
-          {overall === null ? (
-            <div className="report-rating-none">{t('report_not_rated', locale)}</div>
-          ) : (
-            <div className="report-rating-stars">
-              <StarRating score={overall} size={34} showNumber />
+          {r.notes && r.notes.trim() && (
+            <div className="report-rating-notes">
+              <div className="report-rating-notes-label">{t('sec_notes', locale)}</div>
+              <div className="report-rating-notes-body">{r.notes}</div>
             </div>
           )}
         </div>

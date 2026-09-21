@@ -130,13 +130,6 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
           <div className="report-head-title">{t('report_detailed', locale)}</div>
         </header>
 
-        {r.notes && r.notes.trim() && (
-          <div className="report-notes">
-            <div className="report-notes-label">{t('sec_notes', locale)}</div>
-            <div className="report-notes-body">{r.notes}</div>
-          </div>
-        )}
-
         {criteriaGroups.length === 0 ? (
           <p className="muted">{t('report_not_rated', locale)}</p>
         ) : (
