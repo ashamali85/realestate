@@ -47,6 +47,10 @@ const DICT: Dict = {
   col_governorate: { en: 'Governorate', ar: 'المحافظة' },
   col_created: { en: 'Created', ar: 'تاريخ الإنشاء' },
   col_rating: { en: 'Rating', ar: 'التقييم' },
+  rating_excellent: { en: 'Excellent', ar: 'ممتاز' },
+  rating_good: { en: 'Good', ar: 'جيد' },
+  rating_fair: { en: 'Fair', ar: 'مقبول' },
+  rating_poor: { en: 'Poor', ar: 'ضعيف' },
   col_actions: { en: 'Actions', ar: 'إجراءات' },
 
   form_new_title: { en: 'New inspection request', ar: 'طلب فحص جديد' },

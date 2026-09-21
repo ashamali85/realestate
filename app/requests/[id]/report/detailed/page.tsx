@@ -4,7 +4,7 @@ import { getLocale } from '@/lib/locale';
 import { prisma } from '@/lib/db';
 import { loadLabelOverrides } from '@/lib/label-overrides';
 import { t, localName } from '@/lib/i18n';
-import { criteriaScore, overallScore } from '@/lib/scoring';
+import { criteriaScore, overallScore, scoreLabelKey } from '@/lib/scoring';
 import { floorLabel } from '@/lib/floors';
 import { StarRating } from '@/components/StarRating';
 import { ReportPrintTrigger } from '@/components/ReportPrintTrigger';
@@ -90,12 +90,23 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
       const withData = a.measures.filter((m) => hasData(m));
       const floorKeys = orderFloors([...new Set(withData.map((m) => m.floor))]);
       const floors = floorKeys
-        .map((floor) => ({
-          floor,
-          measures: withData.filter((m) => m.floor === floor)
-        }))
+        .map((floor) => {
+          const floorMeasures = withData.filter((m) => m.floor === floor);
+          return {
+            floor,
+            measures: floorMeasures,
+            // Floor score = average of this floor's rated measures.
+            score: criteriaScore(floorMeasures.map((m) => ({ score: m.status ? m.status.score : null })))
+          };
+        })
         .filter((f) => f.measures.length > 0);
-      return { name: localName(a.criteria, locale), floors, count: withData.length };
+      return {
+        name: localName(a.criteria, locale),
+        floors,
+        count: withData.length,
+        // Criteria score = average of ALL its rated measures across every floor.
+        score: criteriaScore(withData.map((m) => ({ score: m.status ? m.status.score : null })))
+      };
     })
     .filter((c) => c.count > 0);
 
@@ -124,10 +135,26 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
         ) : (
           criteriaGroups.map((c, ci) => (
             <div key={ci} className="report-floor">
-              <h2 className="report-floor-title">{c.name}</h2>
+              <h2 className="report-floor-title report-head-score">
+                <span className="report-head-score-val">
+                  <StarRating score={c.score} size={15} />
+                  {scoreLabelKey(c.score) && (
+                    <span className="report-head-score-name">{t(scoreLabelKey(c.score)!, locale)}</span>
+                  )}
+                </span>
+                <span>{c.name}</span>
+              </h2>
               {c.floors.map((fl) => (
                 <div key={fl.floor} className="report-crit">
-                  <h3 className="report-crit-title">{floorLabel(fl.floor, locale)}</h3>
+                  <h3 className="report-crit-title report-head-score">
+                    <span className="report-head-score-val">
+                      <StarRating score={fl.score} size={14} />
+                      {scoreLabelKey(fl.score) && (
+                        <span className="report-head-score-name">{t(scoreLabelKey(fl.score)!, locale)}</span>
+                      )}
+                    </span>
+                    <span>{floorLabel(fl.floor, locale)}</span>
+                  </h3>
                   {fl.measures.map((m) => (
                     <div key={m.id} className="report-measure">
                       <div className="report-measure-head">

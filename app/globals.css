@@ -513,3 +513,15 @@ body.is-rtl .star-clip { left: auto; right: 0; }
   transform: scale(1.25);
   filter: drop-shadow(0 6px 14px rgba(15, 42, 68, 0.35));
 }
+
+/* Criteria/floor heading with an aggregate score (gauge + label on the far edge). */
+.report-head-score { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.report-head-score-val { display: flex; align-items: center; gap: 8px; }
+.report-head-score-name { font-size: 0.8rem; font-weight: 600; opacity: 0.9; }
+/* On the navy criteria bar the gauge track/text sit on dark — keep the label light. */
+.report-floor-title .report-head-score-name { color: rgba(255,255,255,0.9); }
+.report-crit-title .report-head-score-name { color: #5f6b78; }
+
+/* Gauge on the navy criteria bar: make its % text and track readable on dark. */
+.report-floor-title .rating-gauge-text { fill: #ffffff !important; }
+.report-floor-title .rating-gauge svg circle:first-of-type { stroke: rgba(255,255,255,0.28); }

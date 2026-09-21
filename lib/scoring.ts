@@ -33,3 +33,14 @@ export function formatScore(score: number | null): string | null {
   if (score === null) return null;
   return `${score.toFixed(2)} / 3`;
 }
+
+/** Maps an aggregate 0–3 score to the nearest rating label key (for i18n).
+ *  Mirrors the seeded status scale: Excellent(3) Good(2) Fair(1) Poor(0). */
+export function scoreLabelKey(score: number | null): string | null {
+  if (score === null) return null;
+  const rounded = Math.round(score);
+  if (rounded >= 3) return 'rating_excellent';
+  if (rounded === 2) return 'rating_good';
+  if (rounded === 1) return 'rating_fair';
+  return 'rating_poor';
+}
