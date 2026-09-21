@@ -130,8 +130,8 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
                           <span className="report-measure-name">{localName(m, locale)}</span>
                           {m.status && (
                             <span className="report-measure-status">
-                              <StarRating score={m.status.score} size={15} />
                               <span className="report-measure-status-name">{localName(m.status, locale)}</span>
+                              <StarRating score={m.status.score} size={15} />
                             </span>
                           )}
                         </div>
