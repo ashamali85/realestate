@@ -9,7 +9,7 @@
  */
 export function StarRating({
   score,
-  max = 3,
+  max = 100,
   size = 20,
   showNumber = true
 }: {

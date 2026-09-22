@@ -98,7 +98,7 @@ export function OptionListEditor({
             <div className="grid-3 mt-2">
               <div className="field" style={{ margin: 0 }}>
                 <label>{t('measure_score', locale)}</label>
-                <input name="score" type="number" min={0} max={3} defaultValue={0} required />
+                <input name="score" type="number" min={0} max={100} defaultValue={0} required />
               </div>
             </div>
           )}
@@ -202,7 +202,7 @@ function EditModal({
         {showScore && (
           <div className="field">
             <label>{t('measure_score', locale)}</label>
-            <input name="score" type="number" min={0} max={3} defaultValue={row.score ?? 0} required />
+            <input name="score" type="number" min={0} max={100} defaultValue={row.score ?? 0} required />
           </div>
         )}
         <label className="check" style={{ marginTop: 4 }}>

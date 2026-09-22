@@ -48,6 +48,7 @@ const DICT: Dict = {
   col_created: { en: 'Created', ar: 'تاريخ الإنشاء' },
   col_rating: { en: 'Rating', ar: 'التقييم' },
   rating_excellent: { en: 'Excellent', ar: 'ممتاز' },
+  rating_verygood: { en: 'Very good', ar: 'جيد جدا' },
   rating_good: { en: 'Good', ar: 'جيد' },
   rating_fair: { en: 'Fair', ar: 'مقبول' },
   rating_poor: { en: 'Poor', ar: 'ضعيف' },
@@ -149,7 +150,7 @@ const DICT: Dict = {
     ar: 'أعد ترتيب روابط القائمة العلوية وأعد تسميتها باللغتين. الوجهات تبقى ثابتة.'
   },
   nav_order: { en: 'Order', ar: 'الترتيب' },
-  measure_score: { en: 'Score (0–3)', ar: 'الدرجة (0–3)' },
+  measure_score: { en: 'Percentage (0–100)', ar: 'النسبة (0–100)' },
   lookup_edit_title: { en: 'Edit item', ar: 'تعديل العنصر' },
   geo_edit_gov: { en: 'Edit governorate', ar: 'تعديل المحافظة' },
   geo_edit_area: { en: 'Edit area', ar: 'تعديل المنطقة' },

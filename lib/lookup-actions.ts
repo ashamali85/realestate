@@ -56,10 +56,10 @@ const optionSchema = z.object({
   displayOrder: z.number().int().min(0).max(9999)
 });
 
-/** Constrain a measure-status score to the allowed 0–3 range. */
+/** Constrain a measure-status percentage to the allowed 0–100 range. */
 function clampScore(n: number): number {
   if (Number.isNaN(n)) return 0;
-  return Math.max(0, Math.min(3, Math.trunc(n)));
+  return Math.max(0, Math.min(100, Math.trunc(n)));
 }
 
 async function audit(actorUserId: string, action: string, entityType: string, entityId: string, entityName?: string) {

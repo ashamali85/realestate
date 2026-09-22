@@ -2,9 +2,9 @@
  * Evaluation scoring.
  *
  * Rules (per product decisions):
- *  - Each measure's score = the score of its selected status (0–3).
+ *  - Each measure's score = the percentage (0–100) of its selected status.
  *  - Measures with no status selected are EXCLUDED from averages.
- *  - A criteria's score = average of its scored measures.
+ *  - A criteria's score = average of its scored measures' percentages.
  *  - The request's overall score = average of criteria scores (each criteria
  *    weighted equally), considering only criteria that have at least one
  *    scored measure.
@@ -28,19 +28,19 @@ export function overallScore(criteriaScores: (number | null)[]): number | null {
   return sum / scored.length;
 }
 
-/** Format a 0–3 score for display, e.g. 2.33 → "2.33 / 3". */
+/** Format a percentage score for display, e.g. 83.5 → "84%". */
 export function formatScore(score: number | null): string | null {
   if (score === null) return null;
-  return `${score.toFixed(2)} / 3`;
+  return `${Math.round(score)}%`;
 }
 
-/** Maps an aggregate 0–3 score to the nearest rating label key (for i18n).
- *  Mirrors the seeded status scale: Excellent(3) Good(2) Fair(1) Poor(0). */
+/** Maps an aggregate percentage (0–100) to the nearest rating label key.
+ *  Thresholds align with the default status percentages (Excellent 95, Very
+ *  good 87, Good 72, Poor 50) using sensible midpoints. */
 export function scoreLabelKey(score: number | null): string | null {
   if (score === null) return null;
-  const rounded = Math.round(score);
-  if (rounded >= 3) return 'rating_excellent';
-  if (rounded === 2) return 'rating_good';
-  if (rounded === 1) return 'rating_fair';
+  if (score >= 91) return 'rating_excellent';
+  if (score >= 80) return 'rating_verygood';
+  if (score >= 61) return 'rating_good';
   return 'rating_poor';
 }
