@@ -80,29 +80,19 @@ export function ReportSummary({
     [t('construction_area', locale), dash(r.constructionArea), true]
   ];
 
-  const maxRows = Math.max(clientRows.length, propertyRows.length);
-  const pad = (arr: Row[]): Row[] => {
-    const out = arr.slice();
-    let i = 0;
-    while (out.length < maxRows) out.push([`__pad_${i++}`, '', false]);
-    return out;
-  };
   const renderTable = (rows: Row[], heading: string) => (
-    <div className="report-table-col">
+    <div className="report-info-block">
       <h2 className="report-section-title">{heading}</h2>
-      <table className="report-table">
-        <tbody>
-          {pad(rows).map(([label, value, isLtr]) => {
-            const isPad = label.startsWith('__pad_');
-            return (
-              <tr key={label}>
-                <th className={isPad ? 'report-pad' : undefined}>{isPad ? '\u00A0' : label}</th>
-                <td>{isPad ? '\u00A0' : isLtr ? <span dir="ltr" style={{ unicodeBidi: 'embed' }}>{value}</span> : value}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="report-info-grid">
+        {rows.map(([label, value, isLtr]) => (
+          <div className="report-info-pair" key={label}>
+            <span className="report-info-label">{label}</span>
+            <span className="report-info-value">
+              {isLtr ? <span dir="ltr" style={{ unicodeBidi: 'embed' }}>{value}</span> : value}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 

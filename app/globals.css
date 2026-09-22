@@ -436,18 +436,17 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .report-head { display: flex; align-items: center; justify-content: space-between; flex-direction: row-reverse; border-bottom: 3px solid #0f2a44; padding-bottom: 16px; margin-bottom: 22px; }
 .report-head-logo { height: 72px; width: auto; border-radius: 10px; }
 .report-head-title { font-size: 2rem; font-weight: 800; color: #0f2a44; }
-.report-section-title { font-size: 1.15rem; font-weight: 800; color: #0f2a44; margin: 0 0 12px; text-align: start; }
-.report-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 20px; }
-.report-table-col { break-inside: avoid; }
-.report-table { width: 100%; border-collapse: collapse; }
-.report-table th, .report-table td { border: 1px solid #d7dee8; padding: 8px 12px; font-size: 0.9rem; text-align: start; }
-.report-table th { background: #eef2f7; font-weight: 700; color: #0f2a44; width: 42%; }
-.report-table td { color: #10284f; }
-.report-table th.report-pad { background: transparent; font-weight: 400; }
+.report-section-title { font-size: 1.15rem; font-weight: 800; color: #0f2a44; margin: 0 0 12px; text-align: start; border-bottom: 2px solid #0f2a44; padding-bottom: 6px; }
+/* Client + property info now STACK full-width (landscape layout). */
+.report-tables { display: block; margin-bottom: 20px; }
+.report-info-block { break-inside: avoid; margin-bottom: 22px; }
+/* Each section spreads its fields across two "label — value" columns. */
+.report-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 32px; }
+.report-info-pair { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; border-bottom: 0.5px solid #e2e7ee; padding: 8px 2px; font-size: 0.9rem; break-inside: avoid; }
+.report-info-label { color: #5f6b78; font-weight: 600; }
+.report-info-value { color: #10284f; font-weight: 700; text-align: end; }
 /* Padding cells must still show full borders so the shorter table closes at the
    same bottom line as the taller one. */
-.report-table tr td, .report-table tr th { border: 1px solid #d7dee8 !important; }
-.report-table td:empty::after, .report-table th:empty::after { content: '\00A0'; }
 .report-images { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; break-inside: avoid; page-break-inside: avoid; }
 .report-figure { margin: 0; border: 1px solid #d7dee8; border-radius: 10px; overflow: hidden; break-inside: avoid; page-break-inside: avoid; }
 .report-figure figcaption { background: #eef2f7; padding: 5px 12px; font-size: 0.8rem; font-weight: 700; color: #0f2a44; }
