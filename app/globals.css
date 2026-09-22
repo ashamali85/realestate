@@ -536,3 +536,13 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 /* Requests list: rating gauge + label together in the التقييم column. */
 .rating-cell { display: inline-flex; align-items: center; gap: 8px; }
 .rating-cell-label { font-size: 0.85rem; font-weight: 700; color: var(--ink-soft); white-space: nowrap; }
+
+/* General report second page: notes + criteria percentage summary. */
+.report-notes-block { margin-bottom: 24px; break-inside: avoid; }
+.report-notes-text { color: #33404f; font-size: 0.95rem; line-height: 1.8; white-space: pre-wrap; margin: 0; }
+.report-crit-summary { break-inside: avoid; }
+.report-crit-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+.report-crit-summary-item { display: flex; align-items: center; gap: 12px; border: 1px solid #e2e7ee; border-radius: 10px; padding: 12px 14px; break-inside: avoid; }
+.report-crit-summary-text { display: flex; flex-direction: column; gap: 2px; }
+.report-crit-summary-name { font-weight: 800; color: #0f2a44; font-size: 0.98rem; }
+.report-crit-summary-rating { font-size: 0.82rem; font-weight: 700; color: #1d9e75; }
