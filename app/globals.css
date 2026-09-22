@@ -452,14 +452,14 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .report-figure figcaption { background: #eef2f7; padding: 5px 12px; font-size: 0.8rem; font-weight: 700; color: #0f2a44; }
 .report-figure img { width: 100%; height: 210px; object-fit: contain; display: block; background: #f7f9fc; }
 .report-noimg { height: 210px; display: flex; align-items: center; justify-content: center; text-align: center; color: #94a3b8; font-size: 0.9rem; background: #f7f9fc; }
-.report-rating { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 18px; border: 2px solid #0f2a44; border-radius: 14px; background: #f7f9fc; }
-.report-rating-main { display: flex; align-items: center; gap: 16px; order: 1; }
-.report-rating-stars { display: flex; justify-content: flex-start; }
-.report-rating-head { text-align: start; }
-.report-rating-label { font-size: 1.05rem; font-weight: 800; color: #0f2a44; margin-bottom: 4px; }
-.report-rating-sublabel { font-size: 0.95rem; font-weight: 700; color: #1d9e75; }
-.report-rating-notes { order: 2; text-align: start; max-width: 45%; }
-.report-rating-notes-label { font-size: 1.05rem; font-weight: 800; color: #0f2a44; margin-bottom: 4px; }
+.report-rating { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 22px; border: 2px solid #0f2a44; border-radius: 14px; background: #f7f9fc; }
+.report-rating-main { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.report-rating-stars { display: flex; justify-content: center; }
+.report-rating-head { text-align: center; }
+.report-rating-label { font-size: 1.1rem; font-weight: 800; color: #0f2a44; margin-bottom: 4px; }
+.report-rating-sublabel { font-size: 1rem; font-weight: 700; color: #1d9e75; }
+.report-rating-notes { text-align: center; max-width: 90%; border-top: 1px solid #d7dee8; padding-top: 12px; width: 100%; }
+.report-rating-notes-label { font-size: 1rem; font-weight: 800; color: #0f2a44; margin-bottom: 4px; }
 .report-rating-notes-body { font-size: 0.9rem; color: #33404f; line-height: 1.6; white-space: pre-wrap; }
 .rating-gauge { line-height: 0; }
 .rating-gauge-text { font-variant-numeric: tabular-nums; }
@@ -477,10 +477,10 @@ body.is-rtl .star-clip { left: auto; right: 0; }
   .report-summary-page .report-rating { margin-top: 20px; }
   /* Give pages a bottom margin for the page-number footer, and print "n / total"
      centered at the bottom of every page. The cover page suppresses it. */
-  @page { size: A4; margin: 0 0 12mm 0; }
+  @page { size: A4; margin: 8mm 0 12mm 0; }
   @page {
     @bottom-center {
-      content: counter(page) " / " counter(pages);
+      content: counter(page);
       font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
       font-size: 9pt;
       color: #5f6b78;
@@ -488,12 +488,13 @@ body.is-rtl .star-clip { left: auto; right: 0; }
   }
   @page :first { margin: 0; }
   @page :first { @bottom-center { content: ""; } }
-  body { background: #fff; }
+  body { background: #fff; min-height: 0; }
 }
 
 /* Detailed report breakdown */
 .report-page-break { page-break-before: always; break-before: page; }
-.report-floor { margin-bottom: 20px; break-inside: auto; }
+.report-floor { margin-bottom: 20px; margin-top: 16px; break-inside: auto; }
+.report-floor:first-child { margin-top: 0; }
 .report-floor-title { font-size: 1.25rem; font-weight: 800; color: #fff; background: #0f2a44; border: 1px solid #0f2a44; padding: 8px 12px; border-radius: 8px; margin: 0 0 12px; break-after: avoid; page-break-after: avoid; break-inside: avoid; }
 .report-crit { margin-bottom: 14px; break-inside: auto; }
 .report-crit-title { font-size: 1.05rem; font-weight: 800; color: #3a4654; background: #eef0f2; border: 1px solid #dde1e6; padding: 8px 12px; border-radius: 6px; margin: 0 0 10px; break-after: avoid; page-break-after: avoid; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
