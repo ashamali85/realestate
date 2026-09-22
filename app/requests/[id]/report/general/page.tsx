@@ -65,6 +65,7 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
         overall={overall}
         propertyImgId={propertyImg?.id ?? null}
         kuwaitImgId={kuwaitImg?.id ?? null}
+        showOverall={false}
       />
 
       {(r.notes?.trim() || criteriaSummary.length > 0) && (
@@ -98,6 +99,16 @@ export default async function GeneralReportPage({ params }: { params: Promise<{ 
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {overall !== null && (
+            <div className="report-overall-centered">
+              <div className="report-overall-centered-label">{t('report_overall_rating', locale)}</div>
+              <StarRating score={overall} size={40} showNumber />
+              {scoreLabelKey(overall) && (
+                <div className="report-overall-centered-rating">{t(scoreLabelKey(overall)!, locale)}</div>
+              )}
             </div>
           )}
         </section>

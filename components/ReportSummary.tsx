@@ -41,7 +41,8 @@ export function ReportSummary({
   title,
   overall,
   propertyImgId,
-  kuwaitImgId
+  kuwaitImgId,
+  showOverall = true
 }: {
   r: SummaryData;
   locale: Locale;
@@ -49,6 +50,9 @@ export function ReportSummary({
   overall: number | null;
   propertyImgId: string | null;
   kuwaitImgId: string | null;
+  /** Whether to show the overall-rating box on the cover. The general report
+   *  hides it here and shows it on its own second page instead. */
+  showOverall?: boolean;
 }) {
   const yn = (v: boolean) => (v ? t('yes', locale) : t('no', locale));
   const dash = (v: number | null, suffix = '') => (v != null ? `${v}${suffix}` : '—');
@@ -141,29 +145,31 @@ export function ReportSummary({
           </figure>
         </div>
 
-        <div className="report-rating">
-          <div className="report-rating-main">
-            {overall === null ? (
-              <div className="report-rating-none">{t('report_not_rated', locale)}</div>
-            ) : (
-              <div className="report-rating-stars">
-                <StarRating score={overall} size={34} showNumber />
+        {showOverall && (
+          <div className="report-rating">
+            <div className="report-rating-main">
+              {overall === null ? (
+                <div className="report-rating-none">{t('report_not_rated', locale)}</div>
+              ) : (
+                <div className="report-rating-stars">
+                  <StarRating score={overall} size={34} showNumber />
+                </div>
+              )}
+              <div className="report-rating-head">
+                <div className="report-rating-label">{t('report_overall_rating', locale)}</div>
+                {overall !== null && scoreLabelKey(overall) && (
+                  <div className="report-rating-sublabel">{t(scoreLabelKey(overall)!, locale)}</div>
+                )}
+              </div>
+            </div>
+            {r.notes && r.notes.trim() && (
+              <div className="report-rating-notes">
+                <div className="report-rating-notes-label">{t('sec_notes', locale)}</div>
+                <div className="report-rating-notes-body">{r.notes}</div>
               </div>
             )}
-            <div className="report-rating-head">
-              <div className="report-rating-label">{t('report_overall_rating', locale)}</div>
-              {overall !== null && scoreLabelKey(overall) && (
-                <div className="report-rating-sublabel">{t(scoreLabelKey(overall)!, locale)}</div>
-              )}
-            </div>
           </div>
-          {r.notes && r.notes.trim() && (
-            <div className="report-rating-notes">
-              <div className="report-rating-notes-label">{t('sec_notes', locale)}</div>
-              <div className="report-rating-notes-body">{r.notes}</div>
-            </div>
-          )}
-        </div>
+        )}
       </section>
     </>
   );
