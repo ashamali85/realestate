@@ -472,8 +472,20 @@ body.is-rtl .star-clip { left: auto; right: 0; }
   .report-cover { page-break-after: always; break-after: page; }
   .report-page { page-break-before: avoid; }
   /* The summary page fills exactly one printed page and never spills over. */
-  .report-summary-page { height: 100vh; min-height: 0; overflow: hidden; page-break-after: always; break-after: page; }
-  @page { size: A4; margin: 0; }
+  .report-summary-page { height: calc(100vh - 12mm); min-height: 0; overflow: hidden; page-break-after: always; break-after: page; }
+  /* Give pages a bottom margin for the page-number footer, and print "n / total"
+     centered at the bottom of every page. The cover page suppresses it. */
+  @page { size: A4; margin: 0 0 12mm 0; }
+  @page {
+    @bottom-center {
+      content: counter(page) " / " counter(pages);
+      font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+      font-size: 9pt;
+      color: #5f6b78;
+    }
+  }
+  @page :first { margin: 0; }
+  @page :first { @bottom-center { content: ""; } }
   body { background: #fff; }
 }
 

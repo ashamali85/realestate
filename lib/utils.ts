@@ -33,10 +33,20 @@ export function getDate(form: FormData, key: string): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-export function formatDate(d: Date, _locale?: string): string {
-  // Dates are always shown in English, even in the Arabic view, per requirement.
-  // Day-Month-Year order (e.g. "8 August 2026"). Pinned to Kuwait time (GMT+3)
-  // so it's correct regardless of server timezone (Vercel runs in UTC).
+export function formatDate(d: Date, locale?: string): string {
+  // Day-Month-Year, pinned to Kuwait time (GMT+3) so it's correct regardless of
+  // server timezone (Vercel runs in UTC). In Arabic view: weekday + Arabic month
+  // name with Western digits (e.g. "الأحد، 20 سبتمبر 2026"). In English view:
+  // "Sunday, 20 August 2026" style without weekday to stay compact.
+  if (locale === 'ar') {
+    return new Intl.DateTimeFormat('ar-KW-u-nu-latn', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'Asia/Kuwait'
+    }).format(d);
+  }
   return new Intl.DateTimeFormat('en-GB', {
     year: 'numeric',
     month: 'long',

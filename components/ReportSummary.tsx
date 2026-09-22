@@ -67,7 +67,7 @@ export function ReportSummary({
     [t('f_block', locale), r.block, true],
     [t('f_street', locale), r.street, true],
     [t('f_house', locale), r.houseNumber, true],
-    [t('inspection_date', locale), formatDate(r.inspectionDate, locale), true]
+    [t('inspection_date', locale), formatDate(r.inspectionDate, locale), locale !== 'ar']
   ];
   const propertyRows: Row[] = [
     [t('f_purpose', locale), localName(r.purpose, locale), false],
@@ -107,8 +107,7 @@ export function ReportSummary({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-transparent.png" alt={t('app_name', locale)} className="report-cover-logo" />
         <div className="report-cover-title">{title}</div>
-        <div className="report-cover-ref" dir="ltr">{r.reference}</div>
-        <div className="report-cover-date" dir="ltr">{formatDate(r.inspectionDate, locale)}</div>
+        <div className="report-cover-date">{formatDate(r.inspectionDate, locale)}</div>
       </section>
 
       {/* Summary page */}
