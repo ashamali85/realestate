@@ -471,8 +471,10 @@ body.is-rtl .star-clip { left: auto; right: 0; }
   .topbar, .loading-overlay { display: none !important; }
   .report-cover { page-break-after: always; break-after: page; }
   .report-page { page-break-before: avoid; }
-  /* The summary page fills exactly one printed page and never spills over. */
-  .report-summary-page { height: calc(100vh - 12mm); min-height: 0; overflow: hidden; page-break-after: always; break-after: page; }
+  /* Summary page ends with a page break; height flows naturally so the print
+     paginator counts real pages correctly (override the on-screen 100vh). */
+  .report-summary-page { min-height: 0; page-break-after: always; break-after: page; }
+  .report-summary-page .report-rating { margin-top: 20px; }
   /* Give pages a bottom margin for the page-number footer, and print "n / total"
      centered at the bottom of every page. The cover page suppresses it. */
   @page { size: A4; margin: 0 0 12mm 0; }
@@ -492,9 +494,9 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 /* Detailed report breakdown */
 .report-page-break { page-break-before: always; break-before: page; }
 .report-floor { margin-bottom: 20px; break-inside: auto; }
-.report-floor-title { font-size: 1.25rem; font-weight: 800; color: #fff; background: #0f2a44; border: 1px solid #0f2a44; padding: 8px 12px; border-radius: 8px; margin: 0 0 12px; }
-.report-crit { margin-bottom: 14px; break-inside: avoid; }
-.report-crit-title { font-size: 1.05rem; font-weight: 800; color: #3a4654; background: #eef0f2; border: 1px solid #dde1e6; padding: 8px 12px; border-radius: 6px; margin: 0 0 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.report-floor-title { font-size: 1.25rem; font-weight: 800; color: #fff; background: #0f2a44; border: 1px solid #0f2a44; padding: 8px 12px; border-radius: 8px; margin: 0 0 12px; break-after: avoid; page-break-after: avoid; break-inside: avoid; }
+.report-crit { margin-bottom: 14px; break-inside: auto; }
+.report-crit-title { font-size: 1.05rem; font-weight: 800; color: #3a4654; background: #eef0f2; border: 1px solid #dde1e6; padding: 8px 12px; border-radius: 6px; margin: 0 0 10px; break-after: avoid; page-break-after: avoid; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .report-measure { border: 1px solid #d7dee8; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; break-inside: avoid; page-break-inside: avoid; }
 .report-measure-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
 .report-measure-name { font-weight: 700; color: #10284f; font-size: 0.95rem; }
