@@ -10,6 +10,7 @@ import { IconEye, IconPencil, IconTrash } from './Icons';
 import { ReportButton } from './ReportButton';
 import { StarRating } from './StarRating';
 import { t, type Locale } from '@/lib/i18n';
+import { scoreLabelKey } from '@/lib/scoring';
 
 export type RequestRow = {
   id: string;
@@ -157,7 +158,12 @@ export function RequestsTable({
                     {r.created}
                   </td>
                   <td>
-                    <StarRating score={r.score} size={17} />
+                    <span className="rating-cell">
+                      <StarRating score={r.score} size={17} />
+                      {r.score !== null && scoreLabelKey(r.score) && (
+                        <span className="rating-cell-label">{t(scoreLabelKey(r.score)!, locale)}</span>
+                      )}
+                    </span>
                   </td>
                   <td>
                     <div className="row" style={{ gap: 6 }}>
