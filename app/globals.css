@@ -436,7 +436,7 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .report-head { display: flex; align-items: center; justify-content: space-between; flex-direction: row-reverse; border-bottom: 3px solid #0f2a44; padding-bottom: 16px; margin-bottom: 22px; }
 .report-head-logo { height: 72px; width: auto; border-radius: 10px; }
 .report-head-title { font-size: 2rem; font-weight: 800; color: #0f2a44; }
-.report-section-title { font-size: 1.15rem; font-weight: 800; color: #0f2a44; margin: 0 0 12px; text-align: start; border-bottom: 2px solid #0f2a44; padding-bottom: 6px; }
+.report-section-title { font-size: 1.15rem; font-weight: 800; color: #0f2a44; margin: 0 0 12px; text-align: start; }
 /* Client + property info now STACK full-width (landscape layout). */
 .report-tables { display: block; margin-bottom: 20px; }
 .report-info-block { break-inside: avoid; margin-bottom: 22px; }
