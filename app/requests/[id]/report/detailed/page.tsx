@@ -120,6 +120,7 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
         overall={overall}
         propertyImgId={propertyImg?.id ?? null}
         kuwaitImgId={kuwaitImg?.id ?? null}
+        showOverall={false}
       />
 
       {/* Detailed breakdown: criteria -> floor -> measures */}
@@ -190,6 +191,22 @@ export default async function DetailedReportPage({ params }: { params: Promise<{
               ))}
             </div>
           ))
+        )}
+
+        {overall !== null && (
+          <div className="report-overall-centered">
+            <StarRating score={overall} size={40} showNumber />
+            <div className="report-overall-centered-label">{t('report_overall_rating', locale)}</div>
+            {scoreLabelKey(overall) && (
+              <div className="report-overall-centered-rating">{t(scoreLabelKey(overall)!, locale)}</div>
+            )}
+            {r.notes && r.notes.trim() && (
+              <div className="report-overall-centered-notes">
+                <div className="report-overall-centered-notes-label">{t('sec_notes', locale)}</div>
+                <div className="report-overall-centered-notes-body">{r.notes}</div>
+              </div>
+            )}
+          </div>
         )}
       </section>
     </div>

@@ -566,3 +566,8 @@ body.is-rtl .star-clip { left: auto; right: 0; }
 .report-overall-centered { margin-top: 26px; padding: 22px; border: 2px solid #0f2a44; border-radius: 14px; background: #f7f9fc; display: flex; flex-direction: column; align-items: center; gap: 10px; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .report-overall-centered-label { font-size: 1.1rem; font-weight: 800; color: #0f2a44; }
 .report-overall-centered-rating { font-size: 1rem; font-weight: 700; color: #1d9e75; }
+
+/* Notes shown inside the end-of-report overall box (detailed report). */
+.report-overall-centered-notes { border-top: 1px solid #d7dee8; padding-top: 14px; margin-top: 6px; width: 100%; max-width: 90%; text-align: center; }
+.report-overall-centered-notes-label { font-size: 1rem; font-weight: 800; color: #0f2a44; margin-bottom: 4px; }
+.report-overall-centered-notes-body { font-size: 0.9rem; color: #33404f; line-height: 1.6; white-space: pre-wrap; }
